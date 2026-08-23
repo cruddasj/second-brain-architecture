@@ -1,4 +1,4 @@
-# Second brain
+ # Second brain
 
 A Git-backed, Markdown-first system for keeping durable knowledge in a portable three-layer architecture.
 
@@ -6,6 +6,31 @@ This work builds on and extends [Andrej Karpathy's LLM Wiki](https://gist.github
 
 > [!IMPORTANT]
 > **Keep every copy of your second brain private.** A second brain can accumulate personal, financial, professional and other sensitive records over time. If you use GitHub for storage, create a **private repository** and restrict access to yourself and only the tools or integrations you explicitly authorise. A public repository makes its committed contents visible to others and is not appropriate for storing private durable memory. The same principle applies when cloning or copying the repository: every local clone, backup, synchronised folder or other copy contains the same potentially sensitive records, so store it only on accounts, devices and locations that only you can access. Review repository access and connected integrations regularly, and never commit passwords, API keys or other credentials even to a private repository.
+
+## Contents
+
+- [Why portable memory matters](#why-portable-memory-matters)
+- [Architecture](#architecture)
+- [Practical setup](#practical-setup)
+  - [Replace the repository placeholder first](#replace-the-repository-placeholder-first)
+  - [1. Choose storage and an AI provider](#1-choose-storage-and-an-ai-provider)
+  - [2. Connect the main integration types](#2-connect-the-main-integration-types)
+  - [3. Create projects](#3-create-projects)
+  - [4. Feed knowledge and sources into Core](#4-feed-knowledge-and-sources-into-core)
+- [Repository layout](#repository-layout)
+- [Start here](#start-here)
+- [Get value quickly with AI](#get-value-quickly-with-ai)
+  - [1. Ask AI to help complete the repository setup](#1-ask-ai-to-help-complete-the-repository-setup)
+  - [2. Install the bundled Second Brain skill](#2-install-the-bundled-second-brain-skill)
+  - [3. Ask your AI tool to create its Plugin](#3-ask-your-ai-tool-to-create-its-plugin)
+  - [4. Configure recurring maintenance](#4-configure-recurring-maintenance)
+  - [5. Start with one useful topic](#5-start-with-one-useful-topic)
+  - [6. Use an AI interview to populate your first topic](#6-use-an-ai-interview-to-populate-your-first-topic)
+  - [7. Use material you already have](#7-use-material-you-already-have)
+  - [8. Explore what your second brain has created](#8-explore-what-your-second-brain-has-created)
+  - [Keep growing it incrementally](#keep-growing-it-incrementally)
+- [Local checks](#local-checks)
+- [Licence](#licence)
 
 ## Why portable memory matters
 
