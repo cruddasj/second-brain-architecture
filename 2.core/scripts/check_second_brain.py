@@ -15,8 +15,10 @@ CORE = ROOT / "2.core"
 PLUGINS = ROOT / "1.plugins"
 ADDONS = ROOT / "3.add-ons"
 INDEX = CORE / "index.md"
+REPOSITORY_CONFIG = CORE / "system/repository-config.json"
+RAW_SOURCES = CORE / "sources/raw"
 
-REQUIRED_FILES = (
+ARCHITECTURE_REQUIRED_FILES = (
     ROOT / "README.md",
     ROOT / "AGENTS.md",
     ROOT / "LICENSE.md",
@@ -34,12 +36,13 @@ REQUIRED_FILES = (
     CORE / "system/theme-and-decision-policy.md",
     CORE / "system/activity-log.md",
     CORE / "system/source-register.md",
+    REPOSITORY_CONFIG,
     CORE / "themes/index.md",
-    CORE / "themes/finances.md",
     CORE / "templates/decision-record.md",
     CORE / "scripts/check_second_brain.py",
     CORE / "scripts/audit_freshness.py",
     CORE / "scripts/test_audit_freshness.py",
+    CORE / "scripts/test_check_second_brain.py",
     PLUGINS / "README.md",
     PLUGINS / "AGENTS.md",
     PLUGINS / "CONTRACT.md",
@@ -48,16 +51,10 @@ REQUIRED_FILES = (
     ADDONS / "AGENTS.md",
     ADDONS / "CONTRACT.md",
 )
-REQUIRED_DIRS = (
+ARCHITECTURE_REQUIRED_DIRS = (
     "assets/images",
     "2.core/memory",
-    "2.core/knowledge/about-me",
-    "2.core/knowledge/work",
-    "2.core/knowledge/projects",
-    "2.core/knowledge/life-admin",
-    "2.core/knowledge/interests-and-learning",
-    "2.core/knowledge/health-and-wellbeing",
-    "2.core/knowledge/people-and-relationships",
+    "2.core/knowledge",
     "2.core/sources/raw",
     "2.core/sources/notes",
     "2.core/themes",
@@ -92,9 +89,12 @@ EXCLUDED_PARTS = {
     "node_modules",
     "outputs",
 }
+ALLOWED_RAW_SOURCE_SUFFIXES = {".txt", ".rtf", ".md"}
 LINK_PATTERN = re.compile(r"(?<!!)\[[^]]+\]\(([^)]+)\)")
 ENTRY_PATTERN = re.compile(r"^- \[(state|event):([a-z0-9][a-z0-9-]*)\](.*)$")
 DATE_PATTERN = re.compile(r"\b\d{4}-\d{2}-\d{2}\b")
+CATEGORY_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]*$")
+THEME_PAGE_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]*\.md$")
 SECRET_PATTERNS = (
     re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
     re.compile(r"\bgh[pousr]_[A-Za-z0-9]{30,}\b"),
@@ -121,6 +121,14 @@ PORTABILITY_SCAN_EXCLUSIONS = {
 def has_frontmatter(path: Path) -> bool:
     lines = path.read_text(encoding="utf-8").splitlines()
     return len(lines) >= 3 and lines[0].strip() == "---" and "---" in lines[1:]
+
+
+def is_raw_source(path: Path) -> bool:
+    try:
+        path.resolve().relative_to(RAW_SOURCES.resolve())
+    except ValueError:
+        return False
+    return True
 
 
 def local_links(path: Path) -> list[str]:
@@ -202,7 +210,83 @@ def tracked_markdown() -> list[Path]:
         path
         for path in ROOT.rglob("*.md")
         if not EXCLUDED_PARTS.intersection(path.relative_to(ROOT).parts)
+        and not is_raw_source(path)
     )
+
+
+def parse_repository_config(
+    data: object, errors: list[str]
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    if not isinstance(data, dict):
+        errors.append("Repository config must be a JSON object")
+        return (), ()
+
+    categories = data.get("knowledge_categories")
+    themes = data.get("required_theme_pages")
+
+    if not isinstance(categories, list) or any(
+        not isinstance(value, str) or not CATEGORY_PATTERN.fullmatch(value)
+        for value in categories
+    ):
+        errors.append(
+            "Repository config field 'knowledge_categories' must be an array of kebab-case names"
+        )
+        parsed_categories: tuple[str, ...] = ()
+    else:
+        parsed_categories = tuple(categories)
+        if len(set(parsed_categories)) != len(parsed_categories):
+            errors.append("Repository config field 'knowledge_categories' has duplicates")
+
+    if not isinstance(themes, list) or any(
+        not isinstance(value, str) or not THEME_PAGE_PATTERN.fullmatch(value)
+        for value in themes
+    ):
+        errors.append(
+            "Repository config field 'required_theme_pages' must be an array of kebab-case Markdown filenames"
+        )
+        parsed_themes: tuple[str, ...] = ()
+    else:
+        parsed_themes = tuple(themes)
+        if len(set(parsed_themes)) != len(parsed_themes):
+            errors.append("Repository config field 'required_theme_pages' has duplicates")
+
+    return parsed_categories, parsed_themes
+
+
+def load_repository_config(errors: list[str]) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    if not REPOSITORY_CONFIG.is_file():
+        return (), ()
+    try:
+        data = json.loads(REPOSITORY_CONFIG.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as error:
+        errors.append(f"Invalid repository config: {error}")
+        return (), ()
+    return parse_repository_config(data, errors)
+
+
+def configured_requirements(
+    knowledge_categories: tuple[str, ...], required_theme_pages: tuple[str, ...]
+) -> tuple[tuple[Path, ...], tuple[Path, ...]]:
+    files = tuple(CORE / "themes" / name for name in required_theme_pages)
+    dirs = tuple(CORE / "knowledge" / name for name in knowledge_categories)
+    return files, dirs
+
+
+def check_raw_source_formats(errors: list[str], raw_root: Path = RAW_SOURCES) -> None:
+    if not raw_root.is_dir():
+        return
+    for path in sorted(raw_root.rglob("*")):
+        if not path.is_file() or path.name == ".gitkeep":
+            continue
+        if path.suffix.lower() not in ALLOWED_RAW_SOURCE_SUFFIXES:
+            try:
+                relative = path.relative_to(ROOT)
+            except ValueError:
+                relative = path
+            allowed = ", ".join(sorted(ALLOWED_RAW_SOURCE_SUFFIXES))
+            errors.append(
+                f"Unsupported raw source format: {relative} (allowed: {allowed})"
+            )
 
 
 def check_contract_entry_points(errors: list[str]) -> None:
@@ -268,6 +352,7 @@ def check_portable_layers(
             relative = path.relative_to(ROOT)
             if (
                 path in PORTABILITY_SCAN_EXCLUSIONS
+                or is_raw_source(path)
                 or EXCLUDED_PARTS.intersection(relative.parts)
             ):
                 continue
@@ -373,18 +458,27 @@ def main() -> int:
     state_locations: dict[str, list[Path]] = {}
     event_locations: dict[str, list[Path]] = {}
 
-    for path in REQUIRED_FILES:
+    knowledge_categories, required_theme_pages = load_repository_config(errors)
+    configured_files, configured_dirs = configured_requirements(
+        knowledge_categories, required_theme_pages
+    )
+
+    for path in (*ARCHITECTURE_REQUIRED_FILES, *configured_files):
         if not path.is_file():
             errors.append(f"Missing required file: {path.relative_to(ROOT)}")
 
-    for relative in REQUIRED_DIRS:
+    for relative in ARCHITECTURE_REQUIRED_DIRS:
         if not (ROOT / relative).is_dir():
             errors.append(f"Missing required directory: {relative}")
+    for path in configured_dirs:
+        if not path.is_dir():
+            errors.append(f"Missing configured knowledge directory: {path.relative_to(ROOT)}")
 
     for path in ROOT.iterdir():
         if path.name not in ALLOWED_TOP_LEVEL and path.name not in IGNORED_TOP_LEVEL:
             errors.append(f"Unexpected top-level path outside the three-layer architecture: {path.name}")
 
+    check_raw_source_formats(errors)
     check_contract_entry_points(errors)
     ai_provider_markers, add_on_platform_markers = load_portability_markers(errors)
     check_portable_layers(errors, ai_provider_markers, add_on_platform_markers)
