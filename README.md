@@ -1,4 +1,4 @@
- # Second brain
+# Second brain
 
 A Git-backed, Markdown-first system for keeping durable knowledge in a portable three-layer architecture.
 
@@ -9,28 +9,30 @@ This work builds on and extends [Andrej Karpathy's LLM Wiki](https://gist.github
 
 ## Contents
 
-- [Why portable memory matters](#why-portable-memory-matters)
-- [Architecture](#architecture)
-- [Practical setup](#practical-setup)
-  - [Replace the repository placeholder first](#replace-the-repository-placeholder-first)
-  - [1. Choose storage and an AI provider](#1-choose-storage-and-an-ai-provider)
-  - [2. Connect the main integration types](#2-connect-the-main-integration-types)
-  - [3. Create projects](#3-create-projects)
-  - [4. Feed knowledge and sources into Core](#4-feed-knowledge-and-sources-into-core)
-- [Repository layout](#repository-layout)
-- [Start here](#start-here)
-- [Get value quickly with AI](#get-value-quickly-with-ai)
-  - [1. Ask AI to help complete the repository setup](#1-ask-ai-to-help-complete-the-repository-setup)
-  - [2. Install the bundled Second Brain skill](#2-install-the-bundled-second-brain-skill)
-  - [3. Ask your AI tool to create its Plugin](#3-ask-your-ai-tool-to-create-its-plugin)
-  - [4. Configure recurring maintenance](#4-configure-recurring-maintenance)
-  - [5. Start with one useful topic](#5-start-with-one-useful-topic)
-  - [6. Use an AI interview to populate your first topic](#6-use-an-ai-interview-to-populate-your-first-topic)
-  - [7. Use material you already have](#7-use-material-you-already-have)
-  - [8. Explore what your second brain has created](#8-explore-what-your-second-brain-has-created)
-  - [Keep growing it incrementally](#keep-growing-it-incrementally)
-- [Local checks](#local-checks)
-- [Licence](#licence)
+* [Why portable memory matters](#why-portable-memory-matters)
+* [Architecture](#architecture)
+* [Practical setup](#practical-setup)
+
+  * [1. Replace the repository placeholders](#1-replace-the-repository-placeholders)
+  * [2. Choose storage and an AI provider](#2-choose-storage-and-an-ai-provider)
+  * [3. Configure the provider Plugin](#3-configure-the-provider-plugin)
+  * [4. Understand where projects and knowledge belong](#4-understand-where-projects-and-knowledge-belong)
+  * [5. Understand source handling](#5-understand-source-handling)
+* [Repository layout](#repository-layout)
+* [Get value quickly with AI](#get-value-quickly-with-ai)
+
+  * [1. Ask AI to complete the setup](#1-ask-ai-to-complete-the-setup)
+  * [2. Install the bundled Second Brain skill](#2-install-the-bundled-second-brain-skill)
+  * [3. Ask your AI tool to create its Plugin](#3-ask-your-ai-tool-to-create-its-plugin)
+  * [4. Define explicit save phrases](#4-define-explicit-save-phrases)
+  * [5. Configure recurring maintenance](#5-configure-recurring-maintenance)
+  * [6. Start with one useful topic](#6-start-with-one-useful-topic)
+  * [7. Use an AI interview](#7-use-an-ai-interview)
+  * [8. Use material you already have](#8-use-material-you-already-have)
+  * [9. Explore your second brain](#9-explore-your-second-brain)
+  * [10. Keep growing it incrementally](#10-keep-growing-it-incrementally)
+* [Local checks](#local-checks)
+* [Licence](#licence)
 
 ## Why portable memory matters
 
@@ -48,25 +50,27 @@ Using GitHub also gives the knowledge base the normal benefits of source control
 
 The architecture separates portable knowledge from the integrations and products that use it:
 
-1. **Plugins integrate external systems.** Optional adapters and instructions connect providers, platforms and other systems to Core. They can support scheduled synchronisation, AI provider integration instructions or ad hoc actions. Each plugin translates external actions into operations governed by the Core contract and cannot redefine how the second brain works. The repository includes [GitHub and OpenAI plugins](1.plugins/README.md), and more can be built as needed.
-2. **Core is the portable second brain.** Core is included in this repository and remains AI-provider agnostic. It uses text files to hold policies, repeatable processes and durable records, with links that form a navigable knowledge graph. Its current canonical copy is stored in GitHub, but its text-only design keeps it readable, versioned and portable.
-3. **Add-ons extend Core.** Optional AI-provider-agnostic products build on Core without becoming part of it. The repository includes a [personal website](3.add-ons/browser-explorer/README.md), and a [skill catalogue](3.add-ons/skills/README.md) template. You can add skills that work with Core or build them from its content, and create further extensions as needed. Removing an add-on does not invalidate Core.
+1. **Plugins integrate external systems.** Optional adapters and instructions connect providers, platforms and other systems to Core. They can support scheduled synchronisation, AI provider integration instructions or ad hoc actions. Each Plugin translates external actions into operations governed by the Core contract and cannot redefine how the second brain works.
+2. **Core is the portable second brain.** Core remains AI-provider agnostic. It uses text files to hold policies, repeatable processes and durable records, with links that form a navigable knowledge graph. Its current canonical copy is stored in GitHub, but its text-only design keeps it readable, versioned and portable.
+3. **Add-ons extend Core.** Optional AI-provider-agnostic products build on Core without becoming part of it. The repository includes a [Browser explorer](3.add-ons/browser-explorer/README.md) and a [skill catalogue](3.add-ons/skills/README.md). Removing an Add-on does not invalidate Core.
 
-| Layer | Purpose | Portability rule |
-| --- | --- | --- |
-| [`1.plugins/`](1.plugins/README.md) | Provider or platform-specific integrations and instructions | May be provider-specific but cannot redefine Core |
-| [`2.core/`](2.core/README.md) | Policies, processes, records, memory, sources, templates and governance | Strictly AI-provider agnostic and independently usable |
-| [`3.add-ons/`](3.add-ons/README.md) | Skills, the personal website and other optional extensions | Strictly AI-provider agnostic, independently usable, and removable |
+| Layer                               | Purpose                                                                 | Portability rule                                                  |
+| ----------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| [`1.plugins/`](1.plugins/README.md) | Provider or platform-specific integrations and instructions             | May be provider-specific but cannot redefine Core                 |
+| [`2.core/`](2.core/README.md)       | Policies, processes, records, memory, sources, templates and governance | Strictly AI-provider agnostic and independently usable            |
+| [`3.add-ons/`](3.add-ons/README.md) | Skills, interfaces and other optional extensions                        | Strictly AI-provider agnostic, independently usable and removable |
 
-Plugins provide controlled ways to update Core. Add-ons consume or extend Core. GitHub is the current storage provider, with its hosting-specific configuration isolated in the GitHub plugin.
+Plugins provide controlled ways to update Core. Add-ons consume or extend Core. GitHub is the current storage provider, with its hosting-specific configuration isolated in the GitHub Plugin.
 
 ## Practical setup
 
-### Replace the repository placeholder first
+### 1. Replace the repository placeholders
 
 The public release deliberately uses `https://github.com/OWNER/REPOSITORY` and `OWNER/REPOSITORY` as placeholders wherever an integration needs to identify the canonical GitHub repository.
 
-Before storing personal knowledge or connecting an AI provider, create your own **private** GitHub repository and replace those placeholders with its real URL and repository name. At minimum, review [`1.plugins/github/repository.md`](1.plugins/github/repository.md) and any provider adapter you intend to use, such as [`1.plugins/openai/project-instructions.md`](1.plugins/openai/project-instructions.md).
+Before storing personal knowledge or connecting an AI provider, create your own **private** GitHub repository and replace those placeholders with its real URL and repository name.
+
+At minimum, review [`1.plugins/github/repository.md`](1.plugins/github/repository.md) and any provider adapter you intend to use.
 
 For example, replace:
 
@@ -75,20 +79,30 @@ https://github.com/OWNER/REPOSITORY
 OWNER/REPOSITORY
 ```
 
-with the URL and `owner/repository` identifier for your own private second-brain repository. Do not replace the placeholders with a public repository that will later contain personal records.
+with the URL and `owner/repository` identifier for your own private second-brain repository.
 
-### 1. Choose storage and an AI provider
+Do not replace the placeholders with a public repository that will later contain personal records.
 
-1. Create or use a **private repository** under your control. If using GitHub, confirm its visibility is set to private before adding personal or sensitive knowledge, and grant access only to yourself and integrations you explicitly trust.
-2. Replace every `https://github.com/OWNER/REPOSITORY` or `OWNER/REPOSITORY` placeholder used by the GitHub and AI-provider plugins with your private repository details.
-3. Protect every clone and copy of the repository. A local clone contains the same records as the private remote repository, so keep it on a device and user account that only you can access. Apply the same rule to backups, synchronised folders and copies created by development or AI tools.
-4. Put the repository under version control and identify the remote default branch that will hold canonical knowledge.
-5. Give the chosen AI provider only the repository access it needs to read the repository and to propose or commit authorised changes.
-6. Create a self-contained adapter under `1.plugins/<provider>/`. Keep tool names, authentication, repository connection steps and scheduler configuration inside that plugin.
-7. Make the adapter direct agents to the root [`AGENTS.md`](AGENTS.md) and [Core contract](2.core/CONTRACT.md). It must translate provider actions into the shared Core workflows rather than restating or weakening them.
-8. Keep credentials in the provider's secret store or connection settings. Never commit them, even when the repository is private.
+### 2. Choose storage and an AI provider
 
-A minimal provider plugin can contain:
+1. Create or use a **private repository** under your control.
+2. Confirm its visibility is private before adding personal or sensitive knowledge.
+3. Protect local clones, backups and synchronised copies as carefully as the remote repository.
+4. Identify the default branch that will hold canonical knowledge.
+5. Give your chosen AI provider only the repository access it needs to read and perform authorised writes.
+6. Keep credentials in the provider's secret store or connection settings. Never commit them, even when the repository is private.
+
+The architecture does not depend on a particular AI provider. Different providers can work with the same durable Core through separate Plugins.
+
+### 3. Configure the provider Plugin
+
+Provider-specific instructions, repository operations, authentication guidance and scheduler configuration belong under:
+
+```text
+1.plugins/<provider>/
+```
+
+A minimal provider Plugin might contain:
 
 ```text
 1.plugins/<provider>/
@@ -98,59 +112,54 @@ A minimal provider plugin can contain:
 └── scheduled-jobs/           # provider-specific job configuration
 ```
 
-The files inside this example may use the selected provider's real tool names. Core and Add-ons must not.
+The Plugin should direct agents to the root [`AGENTS.md`](AGENTS.md), the [Plugin contract](1.plugins/CONTRACT.md) and the [Core contract](2.core/CONTRACT.md).
 
-### 2. Connect the main integration types
+It should translate provider capabilities into shared Core workflows rather than copying or weakening Core rules.
 
-| Integration | Practical example | Where its configuration belongs |
-| --- | --- | --- |
-| Ad-hoc action | A user asks an agent to read `AGENTS.md`, then record a confirmed fact or update a project. The adapter opens the repository, applies the Core save workflow, validates the change and persists it using the configured write route. | `1.plugins/<provider>/` |
-| Scheduled task | A recurring job opens the latest canonical branch and follows [the knowledge compaction task](2.core/system/knowledge-compaction-task.md). A separate job may run the [report-only freshness audit](2.core/system/freshness-audit-task.md). | Scheduler details under `1.plugins/<provider>/scheduled-jobs/`; neutral task definitions remain in Core |
-| AI provider integration | Provider project instructions point to `AGENTS.md`, map repository read and write operations to the provider's tools, and explain how the provider reports commits, proposals and failures. | `1.plugins/<provider>/project-instructions.md` |
+Typical integration types include:
 
-Example ad-hoc instruction:
+| Integration             | Purpose                                                                 |
+| ----------------------- | ----------------------------------------------------------------------- |
+| Ad-hoc action           | Read or update the second brain in response to an explicit user request |
+| Scheduled task          | Invoke provider-neutral task definitions from `2.core/system/`          |
+| AI provider integration | Map repository reads, writes and reporting to the provider's tools      |
 
-```text
-Use my canonical second-brain repository. Read AGENTS.md and the linked Core rules.
-Record the following confirmed information in the correct authoritative page, update
-related indexes and theme links where required, validate the repository and report
-the resulting transaction and canonical commit.
-```
+Provider-specific scheduling details belong in the Plugin. The neutral task definitions themselves remain in Core.
 
-Example scheduled compaction instruction:
+### 4. Understand where projects and knowledge belong
 
-```text
-Open the latest canonical default branch and follow
-2.core/system/knowledge-compaction-task.md exactly. Make only the changes that task
-authorises. If nothing qualifies, make no repository change and return its no-op report.
-```
+Durable knowledge belongs under `2.core/knowledge/`.
 
-Configure that instruction as a recurring job using the selected provider's scheduler. Weekly is the intended cadence for the supplied compaction task. The provider plugin should record how the job is created, connected to the repository, updated, paused and removed without putting provider-specific fields into Core.
-
-### 3. Create projects
-
-Start a continuing project by copying [the project-page template](2.core/templates/project-page.md) to `2.core/knowledge/projects/<project-name>.md`. Record its current status, purpose, confirmed constraints, dated events, sources and unresolved questions. Add it to the [Core index](2.core/index.md) and create reciprocal links to any clearly applicable existing themes.
-
-An agent can do this from a request such as:
+For a continuing project, use the [project-page template](2.core/templates/project-page.md) and create the project under:
 
 ```text
-Create a project called <name> in my second brain. Use the project template, record
-<confirmed purpose and constraints>, link the source material I provide, update
-navigation and themes where clear, validate the repository and persist the change.
+2.core/knowledge/projects/<project-name>.md
 ```
 
-Projects are authoritative knowledge pages, not containers for every supporting document. Keep source evidence in the Sources area and link to it.
+Record current state, confirmed constraints, dated events, sources and unresolved questions. Add new authoritative pages to the [Core index](2.core/index.md) and create reciprocal links to applicable themes where the relationship is clear.
 
-### 4. Feed knowledge and sources into Core
+Confirmed facts and project updates should be written to the correct authoritative record rather than duplicated across multiple pages.
 
-There are two common routes:
+Projects are knowledge pages, not containers for every supporting document.
 
-- **Confirmed knowledge:** explicitly ask the agent to save or update a fact. It writes the current value or dated event to the relevant authoritative page under `2.core/knowledge/`.
-- **Documents and other evidence:** use a provider or external-system plugin to sync original material into `2.core/sources/raw/<source-or-collection>/`. Keep raw evidence unchanged where practical. Put summaries, comparisons and extracted notes under `2.core/sources/notes/`, then link supported claims from the relevant knowledge or project page.
+### 5. Understand source handling
 
-A source-sync integration should only copy evidence into the agreed Sources path. Synchronisation does not itself approve a source or authorise changes to curated knowledge. Source status and permitted scope remain governed by the [Source register](2.core/system/source-register.md), and ingestion follows the [Core operating rules](2.core/system/operating-rules.md).
+Original source material can be made available in either of two ways:
 
-After any authorised change, run:
+* locally under `2.core/sources/raw/<source-or-collection>/`; or
+* through an authorised external-system Plugin connected to another document store.
+
+Raw personal source documents should **not be committed to Git**. If you use `2.core/sources/raw/` locally, make sure your Git configuration excludes the raw material before placing personal documents there.
+
+Derived summaries, comparisons and notes intended to form part of the portable second brain belong under:
+
+```text
+2.core/sources/notes/
+```
+
+Source access does not itself approve a source or authorise changes to curated knowledge. Source status and permitted scope remain governed by the [Source register](2.core/system/source-register.md), and ingestion follows the [Core operating rules](2.core/system/operating-rules.md).
+
+After an authorised repository change, run:
 
 ```bash
 python 2.core/scripts/check_second_brain.py
@@ -160,26 +169,27 @@ A save is complete only when its focused commit is reachable from the configured
 
 ## Repository layout
 
-The root contains this entry point, the standard AI-agent discovery pointer (`AGENTS.md`), the three architecture layers and platform-required files. The `.github/` directory is an activation shim explained by the [`1.plugins/github/`](1.plugins/github/README.md) plugin, not a fourth architecture layer.
+The root contains this entry point, the standard AI-agent discovery pointer (`AGENTS.md`), the three architecture layers and platform-required files.
 
-Named AI-provider instructions, formats, research and compatibility material belong only inside the matching plugin. They must never be required by Core or copied into an add-on.
+The `.github/` directory is an activation shim explained by the [`1.plugins/github/`](1.plugins/github/README.md) Plugin, not a fourth architecture layer.
 
-## Start here
+Named AI-provider instructions, formats and implementation details belong only inside the matching Plugin. They must never be required by Core or copied into an Add-on.
 
-- Browse saved knowledge through the [`2.core/index.md`](2.core/index.md) index.
-- Learn what Core contains in the [`2.core/README.md`](2.core/README.md) overview.
-- Review the shared rules in the [`2.core/CONTRACT.md`](2.core/CONTRACT.md) operating contract.
-- For AI agentic use, start with [`AGENTS.md`](AGENTS.md).
+For further orientation:
+
+* learn what Core contains in the [`2.core/README.md`](2.core/README.md) overview;
+* review the shared rules in the [`2.core/CONTRACT.md`](2.core/CONTRACT.md) operating contract; and
+* for AI agentic use, start with [`AGENTS.md`](AGENTS.md).
 
 ## Get value quickly with AI
 
-You do not need to complete every setup step manually. An AI coding agent or other AI tool with access to your private repository can help prepare the repository, configure an integration and populate the first useful records.
+You do not need to complete every setup step manually. An AI coding agent or other AI tool with access to your private repository can help configure the repository and get the first useful knowledge into it.
 
-The aim is to start with a small amount of useful knowledge, prove the approach works for you, and then let the second brain grow as part of your normal work.
+The aim is to start small, get useful results quickly and let the second brain grow as part of normal work.
 
-### 1. Ask AI to help complete the repository setup
+### 1. Ask AI to complete the setup
 
-After creating your private copy of the repository, give your preferred AI tool access to it and ask it to help complete the setup described in this README.
+After creating your private copy of the repository, give your preferred AI tool access to it and ask it to complete the [Practical setup](#practical-setup) steps.
 
 For example:
 
@@ -189,15 +199,17 @@ Help me configure this repository as my private second brain.
 Read README.md and AGENTS.md first and follow the repository's contracts and
 instructions.
 
-Complete the setup tasks that can be safely automated, including replacing the
-OWNER/REPOSITORY placeholders with this repository's details.
+Complete the practical setup tasks that can be safely automated, including
+replacing the OWNER/REPOSITORY placeholders with this repository's details.
 
 Show me anything that requires a decision or credentials rather than inventing
-values. Keep credentials outside the repository and run the repository validation
-when you have finished.
+values.
+
+Keep credentials outside the repository and run the repository validation when
+you have finished.
 ```
 
-Review the proposed changes before accepting them. Keep credentials in the relevant provider or platform secret store rather than adding them to the repository.
+Review proposed changes before accepting them.
 
 ### 2. Install the bundled Second Brain skill
 
@@ -210,7 +222,7 @@ It teaches an AI agent how to work with the architecture, including:
 * how durable knowledge should be saved and linked;
 * how Plugins and Add-ons should interact with Core;
 * privacy and source-handling rules; and
-* which validation steps should be performed before changes are persisted.
+* which checks should be performed before changes are persisted.
 
 Install this skill into your preferred AI agent or tool using that product's normal skill installation mechanism.
 
@@ -218,7 +230,7 @@ The skill complements the repository's `AGENTS.md` files and contracts. It does 
 
 ### 3. Ask your AI tool to create its Plugin
 
-Once the skill is available, ask your preferred AI provider or tool to create the Plugin it needs to work with your second brain.
+Once the skill is available, ask your AI tool to create the provider-specific Plugin described in [Practical setup](#practical-setup).
 
 For example:
 
@@ -228,14 +240,10 @@ Create a Plugin that allows you to work with this second-brain repository.
 Use the installed work-with-second-brain-architecture skill. Read AGENTS.md,
 1.plugins/CONTRACT.md and 2.core/CONTRACT.md before making changes.
 
-Put all provider-specific instructions, tool names, connection details and
-configuration under 1.plugins/<provider>/.
+Create the provider-specific integration under 1.plugins/<provider>/.
 
-The Plugin should explain how you read from and write to the canonical repository
-while following the shared Core workflows.
-
-It should also identify the recurring task definitions supplied by Core and
-document how this provider can schedule them.
+Map this provider's repository read and write capabilities to the shared Core
+workflows, and document any provider-specific scheduling configuration.
 
 Do not copy provider-specific behaviour into Core or Add-ons.
 
@@ -244,11 +252,55 @@ Validate the repository when you have finished.
 
 The exact Plugin will vary between AI providers and tools. That is intentional. Plugins are the replaceable integration layer, while the knowledge and operating rules in Core remain portable.
 
-### 4. Configure recurring maintenance
+### 4. Define explicit save phrases
 
-Once your AI integration can work with the second brain, ask it to review the recurring task definitions supplied by the architecture and configure appropriate scheduled jobs using your chosen AI provider, agent platform or local scheduler.
+It can be useful to configure your AI provider or agent with a small set of phrases that have an explicit meaning when working with your second brain.
 
-Core defines **what** each maintenance task should do. The Plugin or external scheduling system defines **how and when** it runs.
+For example:
+
+```text
+Remember <information>
+```
+
+could mean:
+
+> Treat the information that follows as an explicit request to save it to my canonical second-brain repository using the normal Core save workflow.
+
+This creates a simple distinction between discussing something with an AI system and deliberately asking it to become durable knowledge.
+
+You could add an instruction such as:
+
+```text
+When I use "Remember" as an instruction, treat it as explicit authorisation to
+save the information that follows to my canonical second-brain repository.
+
+Read and follow the repository's AGENTS.md and Core rules before writing.
+
+Determine the correct authoritative record, preserve source and date information
+where appropriate, update related links and indexes only when required, validate
+the repository, persist the focused change to the canonical default branch and
+report what was saved.
+
+Do not treat ordinary discussion, speculation, uploaded material or statements
+that do not use this instruction as permission to save them.
+```
+
+You can define other phrases to match how you work. For example:
+
+* `Remember ...` could explicitly save confirmed information.
+* `Update my project ...` could authorise an update to an existing project.
+* `Record this decision ...` could save a confirmed decision using the appropriate workflow.
+* `Save this source note ...` could authorise creation of a derived source note.
+
+Treat these as **explicit save phrases**, not general keywords. A word such as `remember` appearing incidentally in normal conversation should not cause a repository write.
+
+The phrase is only a user-facing shortcut. The resulting write must still follow the Core rules for routing, state versus events, source handling, validation and canonical persistence.
+
+### 5. Configure recurring maintenance
+
+Once the AI integration can work with your second brain, ask it to review the recurring task definitions supplied by Core and configure appropriate scheduled jobs using your chosen AI provider, agent platform or local scheduler.
+
+Core defines **what** each maintenance task should do. The Plugin or external scheduler defines **how and when** it runs.
 
 For example:
 
@@ -273,21 +325,21 @@ is read-only or has authority to make repository changes.
 The supplied tasks currently include:
 
 * [`knowledge-compaction-task.md`](2.core/system/knowledge-compaction-task.md), which periodically consolidates repetitive descriptions of settled historical knowledge while preserving meaning, evidence and transaction lineage; and
-* [`freshness-audit-task.md`](2.core/system/freshness-audit-task.md), which periodically reviews current knowledge for potentially stale, contradictory or unsupported claims and reports findings without changing the repository.
+* [`freshness-audit-task.md`](2.core/system/freshness-audit-task.md), which reviews current knowledge for potentially stale, contradictory or unsupported claims and reports findings without changing the repository.
 
-Follow the cadence and authority described by each task. In particular, do not turn a report-only audit into an automatic correction process simply because the scheduler is capable of making changes.
+Follow the authority defined by each task. In particular, do not turn a report-only audit into an automatic correction process simply because the scheduler can make changes.
 
 As the architecture develops, additional recurring tasks may be added under `2.core/system/`. You can periodically ask your AI integration to review the repository for new or changed task definitions and propose corresponding scheduler changes.
 
-Depending on your tools, scheduled tasks could run:
+Scheduled tasks could run:
 
 * through scheduling features provided by your AI provider or agent platform;
 * against a local clone using an operating-system or automation scheduler; or
 * through another automation service connected by a Plugin.
 
-The scheduler is replaceable. The task definition in Core remains the authoritative description of the maintenance operation.
+The scheduler is replaceable. The Core task definition remains the authoritative description of the maintenance operation.
 
-### 5. Start with one useful topic
+### 6. Start with one useful topic
 
 Do not try to populate your entire second brain at once.
 
@@ -296,9 +348,9 @@ Pick one subject where having durable, connected knowledge would already be usef
 * a project you are currently working on;
 * a subject you are researching or learning about;
 * a hobby or area of long-term interest; or
-* a decision that involves information you expect to revisit.
+* a decision involving information you expect to revisit.
 
-Ask your AI tool to create the appropriate project or knowledge records and then add information gradually as you work with the subject.
+Ask your AI tool to create the appropriate project or knowledge records and add information gradually as you work with the subject.
 
 For example:
 
@@ -306,6 +358,7 @@ For example:
 Create a project called <name> in my second brain.
 
 Use the appropriate Core template and record the confirmed information I provide.
+
 Link it to existing themes and records where the relationship is clear, update
 navigation where required, validate the repository and persist the authorised
 changes.
@@ -313,9 +366,9 @@ changes.
 
 The aim is to establish a small set of useful, trustworthy records first. Links, themes and related records can then emerge as the second brain grows.
 
-### 6. Use an AI interview to populate your first topic
+### 7. Use an AI interview
 
-If your chosen LLM has a voice mode, a useful way to get started is to ask it to interview you about the topic rather than trying to document everything yourself.
+If your chosen LLM has a voice mode, a useful way to populate the first topic is to ask it to interview you rather than trying to document everything yourself.
 
 For example:
 
@@ -339,11 +392,11 @@ records, add links where the relationship is clear, update navigation as
 required, validate the repository and persist the changes.
 ```
 
-Voice mode can make this particularly effective because the initial capture becomes a conversation rather than a documentation exercise.
+Voice mode can make the initial capture feel more like a conversation than a documentation exercise.
 
 The resulting knowledge remains ordinary Markdown in your repository and is not tied to the AI provider used for the interview.
 
-### 7. Use material you already have
+### 8. Use material you already have
 
 Your second brain can also build on information you have already accumulated.
 
@@ -367,9 +420,11 @@ For a local workflow, raw documents can be made available under:
 
 Raw personal source documents should remain local and **must not be committed to GitHub**.
 
-These files may contain substantially more personal or sensitive information than the durable knowledge you choose to retain in your second brain. Keep the local copy, device and any backups appropriately protected.
+Before placing personal documents there, make sure your Git configuration excludes the raw source path so the files cannot be accidentally staged or committed.
 
-Derived notes intended to become part of the portable second brain can be stored separately under:
+These files may contain substantially more personal or sensitive information than the durable knowledge you choose to retain in your second brain. Keep the local copy, device and backups appropriately protected.
+
+Derived notes intended to become part of the portable second brain can be stored under:
 
 ```text
 2.core/sources/notes/
@@ -385,10 +440,10 @@ In this model:
 
 * the external document store remains the source of the original material;
 * the Plugin provides controlled access to it;
-* the AI system can analyse selected documents; and
+* the AI system analyses selected documents; and
 * only explicitly authorised notes and durable knowledge are written to the second brain.
 
-This can be useful for document libraries that are already maintained elsewhere or that should not be stored in Git.
+This can be useful for document libraries already maintained elsewhere or material that should not be stored in Git.
 
 #### Ask AI to synthesise useful knowledge
 
@@ -418,27 +473,23 @@ source documents to Git.
 Follow the Second Brain contracts and validate any repository changes.
 ```
 
-This could be a one-off activity, for example when first setting up your second brain or when importing a collection of old journals.
+This can be a one-off activity, for example when first setting up the second brain or when processing a collection of old journals.
 
-It could also become a recurring workflow.
-
-For example, a scheduled task could periodically:
+It can also become a recurring workflow. A scheduled task could periodically:
 
 1. read new or changed documents from a local `2.core/sources/raw/` folder or an authorised remote document store;
 2. identify material that has not previously been processed;
 3. create or update derived source notes;
 4. identify potentially useful additions or changes to durable knowledge;
 5. apply only changes for which the task has explicit authority;
-6. maintain links or provenance back to the original source without copying the raw document into Git; and
+6. maintain provenance back to the original source without copying the raw document into Git; and
 7. validate and persist any authorised second-brain changes.
 
-A local scheduled task can operate on a private local clone where the raw documents are available without uploading those documents to GitHub.
+A local scheduled task can operate on a private local clone where raw documents are available without uploading them to GitHub.
 
 A remote workflow can instead use a Plugin to read from an authorised document store while writing only permitted derived records back to the second-brain repository.
 
-This allows the second brain to learn incrementally from material you are already creating while keeping original documents separate from the portable, curated knowledge stored in Git.
-
-### 8. Explore what your second brain has created
+### 9. Explore your second brain
 
 Once you have populated your first topic, use the [`Browser explorer`](3.add-ons/browser-explorer/README.md) Add-on to explore it visually.
 
@@ -456,17 +507,17 @@ npm run brain:check
 npm run dev
 ```
 
-The knowledge graph shows the explicit relationships between records, allowing you to see how projects, themes and other concepts have become connected.
+The knowledge graph shows explicit relationships between records, allowing you to see how projects, themes and other concepts are connected.
 
 The accompanying Markdown reader lets you browse the underlying records directly.
 
-This is particularly useful after adding the first few projects, source notes and knowledge records because it makes the architecture visible. You can see where links have formed, inspect related records and identify areas where useful knowledge is starting to accumulate.
+You can also browse saved knowledge through the [`2.core/index.md`](2.core/index.md) Core index.
 
-As you add more information, the graph can help surface connections across subjects while the Markdown files remain the canonical source of truth.
+This becomes more useful as projects, source notes and knowledge records accumulate. The graph can surface connections across subjects while the Markdown files remain the canonical source of truth.
 
-### Keep growing it incrementally
+### 10. Keep growing it incrementally
 
-From here, use the second brain as part of normal work rather than treating population as a separate migration project.
+Use the second brain as part of normal work rather than treating population as a separate migration project.
 
 Ask your AI tools to:
 
@@ -474,23 +525,25 @@ Ask your AI tools to:
 * keep project state current;
 * preserve important events and decisions;
 * turn useful source material into concise notes;
-* connect records when a relationship is clear;
+* connect records when relationships are clear;
 * run the supplied maintenance tasks;
 * identify stale or contradictory knowledge; and
-* help you retrieve and combine what you have already learned.
+* help retrieve and combine what you have already learned.
 
 The value of the second brain comes from useful knowledge accumulating over time while remaining in a portable format that you control.
 
 ## Local checks
 
-The full local check set uses both the Core Python validator and the browser-explorer Node.js toolchain. Install these prerequisites first:
+The full local check set uses both the Core Python validator and the Browser explorer Node.js toolchain.
 
-- **Python 3** to run `2.core/scripts/check_second_brain.py`.
-- **Node.js 22.13.0 or later** for the browser explorer.
-- **npm**, normally installed with Node.js, to install dependencies and run the browser checks.
-- **Git** because the browser data builder reads the set of committed Markdown files from the repository.
+Install these prerequisites first:
 
-You can confirm the main tools are available with:
+* **Python 3** to run `2.core/scripts/check_second_brain.py`.
+* **Node.js 22.13.0 or later** for the Browser explorer.
+* **npm**, normally installed with Node.js.
+* **Git**, because the Browser explorer data builder reads committed Markdown files from the repository.
+
+Confirm the main tools are available with:
 
 ```bash
 python --version
