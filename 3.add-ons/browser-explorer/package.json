@@ -1,0 +1,39 @@
+{
+  "name": "second-brain-explorer",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "predev": "node scripts/build-brain-data.mjs",
+    "dev": "next dev",
+    "demo": "node scripts/demo.mjs",
+    "demo:build": "node scripts/build-demo-data.mjs",
+    "prebuild": "node scripts/build-brain-data.mjs",
+    "build": "next build",
+    "brain:build": "node scripts/build-brain-data.mjs",
+    "brain:check": "node scripts/build-brain-data.mjs && python ../../2.core/scripts/check_second_brain.py",
+    "start": "next start",
+    "test": "npm run build && node --test tests/*.test.mjs",
+    "lint": "eslint . --ignore-pattern .next"
+  },
+  "dependencies": {
+    "cytoscape": "^3.34.1",
+    "next": "16.3.1",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/node": "26.2.0",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
+    "eslint": "10.8.1",
+    "eslint-config-next": "16.3.1",
+    "tailwindcss": "4.3.3",
+    "typescript": "7.0.2"
+  },
+  "type": "module",
+  "displayName": "Second Brain Explorer"
+}

@@ -1,0 +1,22 @@
+version: 2
+
+updates:
+  # Keep GitHub Actions used by workflows up to date.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+
+  # Keep JavaScript dependencies for the browser explorer up to date.
+  - package-ecosystem: "npm"
+    directory: "/3.add-ons/browser-explorer"
+    schedule:
+      interval: "weekly"
+    groups:
+      javascript:
+        patterns:
+          - "*"

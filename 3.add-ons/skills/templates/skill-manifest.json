@@ -1,0 +1,8 @@
+{
+  "name": "skill-name",
+  "description": "Use when a clear trigger applies; describe the result produced.",
+  "status": "Experimental",
+  "installed_on": "YYYY-MM-DD",
+  "adopted_on": null,
+  "uses": []
+}

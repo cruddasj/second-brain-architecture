@@ -1,0 +1,33 @@
+# GitHub activation shim. Architecture authority: 1.plugins/github/README.md
+name: Second-brain check
+
+on:
+  pull_request:
+  push:
+    branches: [main, public-release]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22"
+      - name: Validate knowledge base
+        run: python 2.core/scripts/check_second_brain.py
+      - name: Test deterministic freshness scanner
+        run: python -m unittest discover -s 2.core/scripts -p 'test_*.py'
+      - name: Validate browser data generation
+        run: |
+          node 3.add-ons/browser-explorer/scripts/build-brain-data.mjs
+          node --test 3.add-ons/browser-explorer/tests/brain-data.test.mjs

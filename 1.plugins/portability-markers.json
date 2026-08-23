@@ -1,0 +1,24 @@
+{
+  "ai_provider_markers": [
+    "openai",
+    "chatgpt",
+    "codex",
+    "anthropic",
+    "claude",
+    "google gemini",
+    "gemini api",
+    "microsoft copilot",
+    "copilot studio",
+    "mistral ai",
+    "meta llama",
+    "perplexity ai",
+    "xai",
+    "grok",
+    ".openai/",
+    ".claude/"
+  ],
+  "add_on_platform_markers": [
+    "cloudflare",
+    "vercel"
+  ]
+}

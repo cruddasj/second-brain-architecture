@@ -1,0 +1,37 @@
+# Dependencies and package managers
+node_modules/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Build and test output
+coverage/
+.next/
+out/
+dist/
+outputs/
+.cache/
+3.add-ons/browser-explorer/public/brain-data.json
+3.add-ons/browser-explorer/public/demo-brain-data.json
+
+# Local environments and secrets
+.env*
+.venv/
+secrets/
+credentials*.json
+*.pem
+*.key
+
+# Language and tool noise
+next-env.d.ts
+__pycache__/
+*.pyc
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.DS_Store
