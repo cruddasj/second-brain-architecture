@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "knowledge_categories": [
+    "about-me",
+    "work",
+    "projects",
+    "life-admin",
+    "interests-and-learning",
+    "health-and-wellbeing",
+    "people-and-relationships"
+  ],
+  "required_theme_pages": [
+    "finances.md"
+  ]
+}
