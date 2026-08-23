@@ -36,8 +36,8 @@ yarn-error.log*
 .pnpm-debug.log*
 .DS_Store
 
-2.core/sources/raw*
-!2.core/sources/raw/**/
-!2.core/sources/raw/*.txt
-!2.core/sources/raw/*.rtf
-!2.core/sources/raw/*.md
+2.core/*
+!2.core/**/
+!2.core/**/*.rtf
+!2.core/**/*.md
+!2.core/**/*.txt
