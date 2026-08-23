@@ -37,15 +37,15 @@ The data builder writes schema version 5 of `public/brain-data.json`. Its `graph
 
 The web browser add-on allows you to visualise the contents of your second brain using a knowledge graph, powered by Cytoscape.js.
 
-![Knowledge graph unfiltered](../../assets/knowledge-graph.png)
+![Knowledge graph unfiltered](../../assets/images/knowledge-graph.png)
 
 Using the application, you can filter the graph using specific collections of interest, or apply universal searches for matching topics.
 
-![Knowledge graph filtered](../../assets/knowledge-graph-collection-filtered.png)
+![Knowledge graph filtered](../../assets/images/knowledge-graph-collection-filtered.png)
 
 You can also explore the contents of the second brain using a Markdown file viewer, optimised for the structure of records held in the second brain.
 
-![Markdown reader](../../assets/markdown-reader.png)
+![Markdown reader](../../assets/images/markdown-reader.png)
 
 ## Demo mode
 
