@@ -37,6 +37,7 @@ yarn-error.log*
 .DS_Store
 
 2.core/sources/raw*
+!2.core/sources/raw/**/
 !2.core/sources/raw/*.txt
 !2.core/sources/raw/*.rtf
 !2.core/sources/raw/*.md
