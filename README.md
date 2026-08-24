@@ -1,6 +1,6 @@
-# Second brain
+# Second brain architecture
 
-A reference architecture and working scaffold for a portable, AI-assisted second brain, using Git and Markdown as the durable system of record.
+A reference architecture and working scaffold for creating a portable, AI-assisted second brain, using Git and Markdown as the durable system of record.
 
 It is designed to let knowledge accumulate over time without making that knowledge dependent on a particular AI provider, model, application or storage host.
 
@@ -8,7 +8,7 @@ This work builds on [Andrej Karpathy's LLM Wiki](https://gist.github.com/karpath
 
 ## What this is
 
-Second Brain is an **architecture for creating and maintaining your own private knowledge base**.
+This architecture provides a framework for creating and maintaining your own private second brain.
 
 The public repository provides:
 
@@ -19,16 +19,18 @@ The public repository provides:
 * templates and processes for projects, sources and other durable records; and
 * validation and maintenance tools.
 
-To use it as your own second brain, create a private repository based on this architecture and add your knowledge there.
+To use the architecture, create a private repository based on it and add your own knowledge there.
+
+The public repository contains the architecture and scaffold. Your private repository becomes your second brain.
 
 ## What this is not
 
-* **It is not an AI product or model.** AI systems are replaceable interfaces to the knowledge.
+* **It is not an AI product or model.** AI systems are replaceable interfaces to a second brain built using this architecture.
 * **It is not a hosted memory service.** The durable system of record is the files you control.
 * **It is not tied to one AI provider.** Provider-specific integrations are implementations of the Plugin architecture.
-* **It is not permanently tied to GitHub.** GitHub is the current storage integration, while Core remains ordinary text, making it portable to other storage providers.
+* **It is not permanently tied to GitHub.** GitHub is the current storage integration, while Core remains ordinary text in Git.
 * **It is not an application required to access your knowledge.** Core remains readable and usable as Markdown without Plugins or Add-ons.
-* **This public repository is not itself a personal second brain.** It is the architecture and scaffold from which a private one can be created.
+* **This public repository is not itself a personal second brain.** It provides the architecture from which one can be created.
 
 > [!IMPORTANT]
 > **Keep every copy of your personal second brain private.**
@@ -46,7 +48,7 @@ To use it as your own second brain, create a private repository based on this ar
   * [1. Create your private repository](#1-create-your-private-repository)
   * [2. Configure storage](#2-configure-storage)
   * [3. Connect an AI provider or external system](#3-connect-an-ai-provider-or-external-system)
-  * [4. Install the Second Brain skill](#4-install-the-second-brain-skill)
+  * [4. Install the second-brain skill](#4-install-the-second-brain-skill)
   * [5. Add your first useful knowledge](#5-add-your-first-useful-knowledge)
   * [6. Define explicit save phrases](#6-define-explicit-save-phrases)
 * [Working with knowledge](#working-with-knowledge)
@@ -61,11 +63,11 @@ To use it as your own second brain, create a private repository based on this ar
 
 Durable memory becomes more valuable as it grows. Keeping it inside a particular AI service risks making accumulated knowledge dependent on that provider's products, formats, retention model and continued availability.
 
-Second Brain instead treats durable knowledge as **user-controlled data**.
+This architecture therefore treats durable knowledge as **user-controlled data**.
 
 Core stores that knowledge in ordinary text and Markdown. AI providers, agents and applications interact with it through replaceable integrations rather than becoming the system of record.
 
-Moving to another model, provider or external system should therefore require a new integration, not a new knowledge base.
+Moving to another model, provider or external system should require a new integration, not a new knowledge base.
 
 Git provides version history, attribution, comparison, rollback and a clear canonical state. GitHub is the storage host used by the supplied implementation, but hosting-specific behaviour is isolated behind the Plugin boundary so that the storage provider can also be replaced.
 
@@ -73,7 +75,7 @@ Git provides version history, attribution, comparison, rollback and a clear cano
 
 ![Diagram showing Plugins updating a repository-provided, text-only Core and Add-ons extending it](assets/images/second-brain-architecture.jpg)
 
-The architecture has three layers:
+This architecture for a second brain has three layers:
 
 | Layer                               | Purpose                                                                           | Rule                                                  |
 | ----------------------------------- | --------------------------------------------------------------------------------- | ----------------------------------------------------- |
@@ -101,7 +103,7 @@ A Plugin may be provider-specific. Core must not be.
 
 ### Core
 
-Core is the portable second brain.
+Core is the portable second brain created using this architecture.
 
 It contains the canonical durable knowledge together with the policies, processes, templates and governance needed to maintain it. Links between Markdown records create a navigable knowledge graph.
 
@@ -140,6 +142,8 @@ At minimum, review:
 * [`1.plugins/github/repository.md`](1.plugins/github/repository.md); and
 * any provider Plugin you intend to use.
 
+Your private repository becomes the canonical home of the second brain you create using this architecture.
+
 ### 2. Configure storage
 
 Choose the default branch that will hold canonical knowledge and confirm that the repository is private.
@@ -148,7 +152,7 @@ Give integrations only the access they require. Keep credentials in the provider
 
 The supplied implementation uses GitHub, but Core itself is not GitHub-specific.
 
-GitHub-specific behaviour belongs in the GitHub Plugin and can be replaced by another storage integration without changing the Core architecture.
+GitHub-specific behaviour belongs in the GitHub Plugin and can be replaced by another storage integration without changing Core.
 
 ### 3. Connect an AI provider or external system
 
@@ -172,7 +176,7 @@ A minimal Plugin might contain:
 
 The exact structure can vary according to the capabilities of the system being integrated.
 
-Plugins should map those capabilities onto the shared Core workflows rather than copying or redefining Core rules.
+Plugins should map those capabilities onto shared Core workflows rather than copying or redefining Core rules.
 
 Useful starting points are:
 
@@ -199,7 +203,7 @@ The exact implementation will differ between providers and systems. That is inte
 
 The Plugin architecture defines the boundary and contract. Individual Plugins implement it.
 
-### 4. Install the Second Brain skill
+### 4. Install the second-brain skill
 
 The repository includes the provider-neutral [`work-with-second-brain-architecture`](3.add-ons/skills/catalogue/work-with-second-brain-architecture/) skill.
 
@@ -218,7 +222,7 @@ The skill complements the repository's `AGENTS.md` files and contracts. It does 
 
 ### 5. Add your first useful knowledge
 
-Do not try to populate everything at once.
+Do not try to populate an entire second brain at once.
 
 Start with a subject where durable knowledge would already be useful, such as:
 
@@ -308,7 +312,7 @@ Detailed operating rules are defined by the [Core contract](2.core/CONTRACT.md) 
 
 ## Using source material
 
-A second brain can build on material you already have, including journals, notes, project documents, research, meeting records and exports from other knowledge systems.
+A second brain built using this architecture can draw on material you already have, including journals, notes, project documents, research, meeting records and exports from other knowledge systems.
 
 Original material can be made available in two ways.
 
@@ -366,7 +370,7 @@ into durable knowledge, and validate authorised repository changes.
 
 ## Recurring maintenance
 
-Core includes provider-neutral task definitions for maintaining the second brain over time.
+Core includes provider-neutral task definitions for maintaining a second brain over time.
 
 The supplied tasks currently include:
 
@@ -431,7 +435,7 @@ The `.github/` directory is an activation shim belonging to the GitHub integrati
 For further detail:
 
 * [`1.plugins/README.md`](1.plugins/README.md) explains the Plugin architecture and integration layer;
-* [`2.core/README.md`](2.core/README.md) explains the portable second brain;
+* [`2.core/README.md`](2.core/README.md) explains the portable Core used by a second brain built from this architecture;
 * [`3.add-ons/README.md`](3.add-ons/README.md) explains optional extensions;
 * [`2.core/CONTRACT.md`](2.core/CONTRACT.md) defines Core's operating contract; and
 * [`AGENTS.md`](AGENTS.md) is the entry point for AI agents.
