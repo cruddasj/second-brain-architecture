@@ -149,7 +149,7 @@ Original source material can be made available in either of two ways:
 * locally under `2.core/sources/raw/<source-or-collection>/`; or
 * through an authorised external-system Plugin connected to another document store.
 
-Raw personal source documents should **not be committed to Git**. If you use `2.core/sources/raw/` locally, make sure your Git configuration excludes the raw material before placing personal documents there.
+Raw personal source documents other than .txt, .md, or .rtf files should **not be committed to Git**. This avoids large binary objects being placed into source control unnecessarily. The architecture's .gitignore file is already configured to prevent this. Think of the raw folder as a staging area that agents can work on locally, whilst synthesising summaries and notes from document content.
 
 Derived summaries, comparisons and notes intended to form part of the portable second brain belong under:
 
