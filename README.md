@@ -28,7 +28,7 @@ The public repository contains the architecture and scaffold. Your private repos
 * **It is not an AI product or model.** AI systems are replaceable interfaces to a second brain built using this architecture.
 * **It is not a hosted memory service.** The durable system of record is the files you control.
 * **It is not tied to one AI provider.** Provider-specific integrations are implementations of the Plugin architecture.
-* **It is not permanently tied to GitHub.** GitHub is the current storage integration, while Core remains ordinary text.
+* **It is not permanently tied to GitHub.** GitHub is the current storage integration, while Core remains ordinary text, meaning you can switch git out for another source control provider, or document store.
 * **It is not an application required to access your knowledge.** Core remains readable and usable as Markdown without Plugins or Add-ons.
 * **This public repository is not itself a personal second brain.** It provides the architecture from which one can be created.
 
