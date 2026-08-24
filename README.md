@@ -26,7 +26,7 @@ To use it as your own second brain, create a private repository based on this ar
 * **It is not an AI product or model.** AI systems are replaceable interfaces to the knowledge.
 * **It is not a hosted memory service.** The durable system of record is the files you control.
 * **It is not tied to one AI provider.** Provider-specific integrations are implementations of the Plugin architecture.
-* **It is not permanently tied to GitHub.** GitHub is the current storage integration, while Core remains ordinary text in Git.
+* **It is not permanently tied to GitHub.** GitHub is the current storage integration, while Core remains ordinary text, making it portable to other storage providers.
 * **It is not an application required to access your knowledge.** Core remains readable and usable as Markdown without Plugins or Add-ons.
 * **This public repository is not itself a personal second brain.** It is the architecture and scaffold from which a private one can be created.
 
