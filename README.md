@@ -67,7 +67,7 @@ This architecture therefore treats durable knowledge as **user-controlled data**
 
 Core stores that knowledge in ordinary text and Markdown. AI providers, agents and applications interact with it through replaceable integrations rather than becoming the system of record.
 
-Moving to another model, provider or external system should require a new integration, not a new knowledge base.
+Moving to another model, provider or external system should therefore require a new integration, not a new knowledge base.
 
 Git provides version history, attribution, comparison, rollback and a clear canonical state. GitHub is the storage host used by the supplied implementation, but hosting-specific behaviour is isolated behind the Plugin boundary so that the storage provider can also be replaced.
 
@@ -423,6 +423,7 @@ The graph visualises explicit links between records while the Markdown files rem
 ├── 1.plugins/
 ├── 2.core/
 ├── 3.add-ons/
+├── assets/
 ├── .github/
 ├── AGENTS.md
 └── README.md
@@ -430,7 +431,9 @@ The graph visualises explicit links between records while the Markdown files rem
 
 The three numbered directories are the architecture layers.
 
-The `.github/` directory is an activation shim belonging to the GitHub integration, not a fourth layer.
+The `assets/` directory contains shared repository assets such as architecture diagrams and images.
+
+The `.github/` directory is an activation shim belonging to the GitHub integration, not a fourth architecture layer.
 
 For further detail:
 
