@@ -6,7 +6,9 @@ For AI agentic use, start with [`1.plugins/AGENTS.md`](AGENTS.md), then follow t
 
 ## Creating or changing a plugin
 
-Use [PLUGIN_TEMPLATE.md](PLUGIN_TEMPLATE.md) as the authoring guide for new integrations.
+Every plugin must contain a `README.md` created from [PLUGIN_TEMPLATE.md](PLUGIN_TEMPLATE.md).
+
+The plugin README must preserve the template's H1/H2 structure and section order exactly. Do not add, remove, rename or reorder template sections. Put extra provider-specific detail inside the existing sections or in linked supporting files under the same plugin directory.
 
 Before adding provider instructions:
 
@@ -15,7 +17,7 @@ Before adding provider instructions:
 3. keep only provider-specific configuration, identifiers, scope, tool mappings and provider-owned state in the Plugin; and
 4. confirm that removing the Plugin would leave Core meaningful and usable.
 
-Existing plugins do not need to use identical files or headings. The template defines responsibilities, not a mandatory file schema.
+Supporting files may use structures suited to their purpose, but the plugin's `README.md` must always use `PLUGIN_TEMPLATE.md`.
 
 ## Available plugins
 
