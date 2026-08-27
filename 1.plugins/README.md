@@ -19,9 +19,31 @@ Before adding provider instructions:
 
 Supporting files may use structures suited to their purpose, but the plugin's `README.md` must always use `PLUGIN_TEMPLATE.md`.
 
+A platform-required root compatibility file must remain a thin activation shim, contain no independent operating rules and be explained by the Plugin that requires it.
+
+## Minimum AI integration capabilities
+
+An AI product is a viable read-write Plugin candidate when it can, within an explicitly authorised scope:
+
+- read repository text at a specified ref or otherwise establish the repository state Core requires;
+- make a repository change or produce a reviewable proposed change through some supported mechanism; and
+- follow instructions across multiple linked repository files rather than relying on one copied prompt.
+
+A product that can read the repository and follow the linked instructions but cannot make or propose changes can still use a **read-only Plugin**. Lack of write capability should narrow the Plugin's scope rather than force provider-specific write semantics into Core.
+
+## Portability coverage
+
+The bundled AI Plugins deliberately exercise materially different integration shapes:
+
+- [OpenAI](openai/README.md) represents a connected-repository environment; and
+- [Claude](claude/README.md) represents a local-checkout coding-agent environment with direct file, shell and Git access.
+
+This is architecture-level coverage of the Plugin/Core boundary, not a claim that every product, feature or version has been field-tested.
+
 ## Available plugins
 
 - [OpenAI](openai/README.md): optional OpenAI connection adapter and provider-specific metadata.
+- [Claude](claude/README.md): optional Claude Code local-checkout adapter and compatibility shim.
 - [GitHub](github/README.md): optional GitHub hosting adapter and explanation of the required root activation shim.
 
 [portability-markers.json](portability-markers.json) is validation data used to detect named-provider leakage in Core and Add-ons. It contains no operating instructions.

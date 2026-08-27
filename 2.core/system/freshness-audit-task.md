@@ -1,7 +1,7 @@
 ---
 title: Recurring freshness audit task
 type: system
-updated: 2026-08-23
+updated: 2026-08-27
 ---
 
 # Recurring freshness audit task
@@ -43,9 +43,10 @@ This task is separate from [weekly knowledge compaction](knowledge-compaction-ta
    - **Contradicted:** newer or stronger evidence disagrees; or
    - **Unsupported:** no saved evidence supports it.
 7. Inspect scanner candidates and a practical sample of detailed pages for lifecycle conflicts, copied mutable state and facts that were recorded as events but never promoted to current state.
-8. Report the most damaging contradiction first, followed by other contradictions, unsupported claims, stale-confirmation candidates and coverage limits.
-9. Propose at most one focused correction location for each distinct issue. Do not edit it during the audit.
-10. If no issue is found, report the scope checked and the scanner's coverage warnings. Never describe an empty scan as proof that the repository is fresh.
+8. Flag `1.plugins/portability-markers.json` for human review when the active AI-product or coding-agent landscape appears to have changed materially since the register was last reviewed. Report only; do not edit the marker file during this audit.
+9. Report the most damaging contradiction first, followed by other contradictions, unsupported claims, stale-confirmation candidates and coverage limits.
+10. Propose at most one focused correction location for each distinct issue. Do not edit it during the audit.
+11. If no issue is found, report the scope checked and the scanner's coverage warnings. Never describe an empty scan as proof that the repository is fresh.
 
 ## Scanner interpretation
 

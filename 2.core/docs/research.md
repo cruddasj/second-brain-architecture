@@ -1,7 +1,7 @@
 ---
 title: Design research
 type: research
-updated: 2026-08-23
+updated: 2026-08-27
 ---
 
 # Design research
@@ -39,7 +39,7 @@ The portable findings used here are:
 - current **state** has one authoritative value and is replaced when it changes;
 - an **event** is dated and appended;
 - the small surface loaded most often needs regular freshness review;
-- contradicted and unsupported claims should be identified separately; and
+- contradicted and unsupported claims should be identified separately;
 - deterministic checks may locate repeatable candidates, but semantic judgement remains necessary; and
 - a person should approve corrective writes.
 
@@ -68,6 +68,17 @@ Sources:
 
 - [Git revert documentation](https://git-scm.com/docs/git-revert.html).
 - Hosting-platform research and status decisions are recorded separately in the relevant plugin and Source register.
+
+## Portability validation
+
+Portability should be evaluated against materially different integration shapes, not only against the absence of provider names in Core.
+
+The public scaffold now contains concrete adapter designs for:
+
+- a connected-repository AI environment; and
+- a local-checkout coding-agent environment with direct file, shell and Git access.
+
+This is architecture-level validation of the Plugin/Core boundary, not a claim that every product, feature or version has been field-tested. Named implementation evidence and compatibility details belong in Plugins rather than Core.
 
 ## Three-layer result
 

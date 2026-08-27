@@ -47,6 +47,7 @@ ARCHITECTURE_REQUIRED_FILES = (
     PLUGINS / "AGENTS.md",
     PLUGINS / "CONTRACT.md",
     PLUGINS / "portability-markers.json",
+    PLUGINS / "root-shims.json",
     ADDONS / "README.md",
     ADDONS / "AGENTS.md",
     ADDONS / "CONTRACT.md",
@@ -101,6 +102,7 @@ SECRET_PATTERNS = (
     re.compile(r"\bsk-[A-Za-z0-9_-]{20,}\b"),
 )
 PORTABILITY_MARKER_REGISTER = PLUGINS / "portability-markers.json"
+ROOT_SHIM_REGISTER = PLUGINS / "root-shims.json"
 PORTABILITY_SCAN_SUFFIXES = {
     ".md",
     ".json",
@@ -272,6 +274,80 @@ def configured_requirements(
     return files, dirs
 
 
+def parse_root_shims(
+    data: object, errors: list[str]
+) -> dict[str, tuple[str, str]]:
+    if not isinstance(data, dict):
+        errors.append("Root-shim register must be a JSON object")
+        return {}
+
+    entries = data.get("root_shims")
+    if not isinstance(entries, list):
+        errors.append("Root-shim register field 'root_shims' must be an array")
+        return {}
+
+    parsed: dict[str, tuple[str, str]] = {}
+    for entry in entries:
+        if not isinstance(entry, dict):
+            errors.append("Each root-shim entry must be a JSON object")
+            continue
+
+        path = entry.get("path")
+        plugin = entry.get("plugin")
+        exact_content = entry.get("exact_content")
+        if not all(isinstance(value, str) and value for value in (path, plugin, exact_content)):
+            errors.append(
+                "Each root-shim entry requires non-empty path, plugin and exact_content strings"
+            )
+            continue
+        if "/" in path or "\\" in path or not path.lower().endswith(".md"):
+            errors.append(f"Root shim must be a root-level Markdown file: {path!r}")
+            continue
+        if "/" in plugin or "\\" in plugin or plugin in {".", ".."}:
+            errors.append(f"Root-shim plugin must be one plugin directory name: {plugin!r}")
+            continue
+        if path in parsed:
+            errors.append(f"Duplicate root-shim path: {path}")
+            continue
+        parsed[path] = (plugin, exact_content)
+
+    return parsed
+
+
+def load_root_shims(errors: list[str]) -> dict[str, tuple[str, str]]:
+    if not ROOT_SHIM_REGISTER.is_file():
+        return {}
+    try:
+        data = json.loads(ROOT_SHIM_REGISTER.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as error:
+        errors.append(f"Invalid root-shim register: {error}")
+        return {}
+    return parse_root_shims(data, errors)
+
+
+def check_root_shims(
+    errors: list[str], root_shims: dict[str, tuple[str, str]]
+) -> None:
+    for filename, (plugin, exact_content) in root_shims.items():
+        plugin_dir = PLUGINS / plugin
+        if not plugin_dir.is_dir():
+            errors.append(f"Root shim {filename} references missing Plugin directory: {plugin}")
+
+        path = ROOT / filename
+        if not path.is_file():
+            errors.append(f"Missing registered root shim: {filename}")
+            continue
+        try:
+            actual = path.read_text(encoding="utf-8")
+        except OSError as error:
+            errors.append(f"Cannot read registered root shim {filename}: {error}")
+            continue
+        if actual != exact_content:
+            errors.append(
+                f"Root shim {filename} must contain only its registered compatibility pointer"
+            )
+
+
 def check_raw_source_formats(errors: list[str], raw_root: Path = RAW_SOURCES) -> None:
     if not raw_root.is_dir():
         return
@@ -335,6 +411,17 @@ def load_portability_markers(errors: list[str]) -> tuple[tuple[str, ...], tuple[
     return marker_groups[0], marker_groups[1]
 
 
+def text_has_portability_marker(text: str, marker: str) -> bool:
+    marker = marker.strip().lower()
+    if not marker:
+        return False
+    if re.fullmatch(r"[a-z0-9]+(?:[ -][a-z0-9]+)*", marker):
+        return re.search(
+            rf"(?<![a-z0-9]){re.escape(marker)}(?![a-z0-9])", text
+        ) is not None
+    return marker in text
+
+
 def check_portable_layers(
     errors: list[str],
     ai_provider_markers: tuple[str, ...],
@@ -375,7 +462,7 @@ def check_portable_layers(
                 continue
             text = path.read_text(encoding="utf-8", errors="ignore").lower()
             for marker in markers:
-                if marker in text:
+                if text_has_portability_marker(text, marker):
                     errors.append(
                         f"Provider-specific marker '{marker}' in {label} file: {relative}"
                     )
@@ -397,7 +484,8 @@ def check_skill_catalogue(errors: list[str]) -> None:
             errors.append(f"Skill missing SKILL.md: {folder.relative_to(ROOT)}")
         if (folder / "agents").exists():
             errors.append(
-                f"Provider metadata must be moved from add-on catalogue to plugins: {(folder / 'agents').relative_to(ROOT)}"
+                "Provider metadata must be moved from add-on catalogue to plugins: "
+                f"{(folder / 'agents').relative_to(ROOT)}"
             )
         try:
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -462,6 +550,7 @@ def main() -> int:
     configured_files, configured_dirs = configured_requirements(
         knowledge_categories, required_theme_pages
     )
+    root_shims = load_root_shims(errors)
 
     for path in (*ARCHITECTURE_REQUIRED_FILES, *configured_files):
         if not path.is_file():
@@ -475,9 +564,14 @@ def main() -> int:
             errors.append(f"Missing configured knowledge directory: {path.relative_to(ROOT)}")
 
     for path in ROOT.iterdir():
-        if path.name not in ALLOWED_TOP_LEVEL and path.name not in IGNORED_TOP_LEVEL:
+        if (
+            path.name not in ALLOWED_TOP_LEVEL
+            and path.name not in IGNORED_TOP_LEVEL
+            and path.name not in root_shims
+        ):
             errors.append(f"Unexpected top-level path outside the three-layer architecture: {path.name}")
 
+    check_root_shims(errors, root_shims)
     check_raw_source_formats(errors)
     check_contract_entry_points(errors)
     ai_provider_markers, add_on_platform_markers = load_portability_markers(errors)

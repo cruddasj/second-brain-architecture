@@ -25,6 +25,7 @@ secrets/
 credentials*.json
 *.pem
 *.key
+CLAUDE.local.md
 
 # Language and tool noise
 next-env.d.ts

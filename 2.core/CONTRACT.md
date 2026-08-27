@@ -20,7 +20,7 @@ Before writing, also read [operating-rules.md](system/operating-rules.md), [fres
 - **Text-only Core:** Core knowledge, instructions and processes are plain text and remain usable without a named AI provider, product, model, API, SDK or managed memory service.
 - **One authoritative home:** keep each changing value in one place and link to it elsewhere.
 - **State and events:** replace a changing current state; append a dated event.
-- **User confirmation:** ask when the destination, state-versus-event classification, theme association, safety or requested operation is materially unclear.
+- **User confirmation:** ask when the destination, state-versus-event classification, theme association, safety or requested operation is materially unclear; use the [unattended ambiguity fallback](system/operating-rules.md#unattended-ambiguity) when no user is present.
 - **Minimum useful content:** retain only what is needed for later retrieval, including source, date and transaction lineage.
 - **Safety:** never store secrets or authentication material, and minimise sensitive or third-party personal information.
 

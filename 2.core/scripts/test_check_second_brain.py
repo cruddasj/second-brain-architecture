@@ -38,6 +38,55 @@ class RepositoryConfigTests(unittest.TestCase):
         self.assertTrue(dirs[0].as_posix().endswith("2.core/knowledge/custom-area"))
 
 
+class RootShimTests(unittest.TestCase):
+    def test_valid_root_shim_register_is_parsed(self):
+        errors = []
+        shims = check.parse_root_shims(
+            {
+                "root_shims": [
+                    {
+                        "path": "TOOL.md",
+                        "plugin": "vendor",
+                        "exact_content": "@AGENTS.md\n",
+                    }
+                ]
+            },
+            errors,
+        )
+        self.assertEqual(errors, [])
+        self.assertEqual(shims, {"TOOL.md": ("vendor", "@AGENTS.md\n")})
+
+    def test_nested_root_shim_path_is_rejected(self):
+        errors = []
+        shims = check.parse_root_shims(
+            {
+                "root_shims": [
+                    {
+                        "path": "nested/TOOL.md",
+                        "plugin": "vendor",
+                        "exact_content": "@AGENTS.md\n",
+                    }
+                ]
+            },
+            errors,
+        )
+        self.assertEqual(shims, {})
+        self.assertEqual(len(errors), 1)
+
+
+class PortabilityMarkerTests(unittest.TestCase):
+    def test_simple_marker_uses_token_boundaries(self):
+        self.assertTrue(check.text_has_portability_marker("use x3 for this", "x3"))
+        self.assertFalse(
+            check.text_has_portability_marker("prefixx3suffix", "x3")
+        )
+
+    def test_path_style_marker_uses_literal_matching(self):
+        self.assertTrue(
+            check.text_has_portability_marker("load .vendor/rules", ".vendor/")
+        )
+
+
 class RawSourceFormatTests(unittest.TestCase):
     def test_allowed_raw_source_formats_are_accepted_case_insensitively(self):
         with tempfile.TemporaryDirectory() as temp_dir:

@@ -1,7 +1,7 @@
 ---
 title: Operating rules
 type: system
-updated: 2026-08-22
+updated: 2026-08-27
 ---
 
 # Operating rules
@@ -35,6 +35,14 @@ Proceed with a write only when all of these are clear:
 7. the requested operation is not being inferred from a discussion, answer or upload.
 
 Ask one focused question when a missing answer would materially change the result.
+
+## Unattended ambiguity
+
+If the Save gate would require a focused question but the invocation is scheduled or otherwise non-interactive and no user is available, do not write.
+
+Return a clearly labelled pending decision in the invocation report. Include the unresolved question and, when known, the proposed destination or operation. Do not create or update repository content merely to record that pending decision.
+
+If the invoking system retains reports, it may surface the pending decision for the next interactive review. Provider-specific retention, notification and follow-up behaviour belongs outside Core.
 
 ## Authorised save workflow
 
