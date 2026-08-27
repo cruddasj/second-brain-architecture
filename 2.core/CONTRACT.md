@@ -38,8 +38,50 @@ Each rule should have one detailed home:
 | Themes and saved decisions | [Theme and decision policy](system/theme-and-decision-policy.md) |
 | Scheduled freshness review | [Freshness audit task](system/freshness-audit-task.md) |
 | Scheduled historical consolidation | [Knowledge compaction task](system/knowledge-compaction-task.md) |
+| Source and evidence destinations | [Directory and routing](system/directory.md) |
+| Source-inbox task orchestration | [Operating rules](system/operating-rules.md) |
+| Integration adapter scope and provider configuration | Relevant file under `1.plugins/<provider-or-system>/` |
+| Provider-specific scheduling and invocation | Relevant provider Plugin |
 
 Summaries in other files must link to these authorities rather than restating their full rules.
+
+## Behaviour ownership and integration design
+
+Before adding a new task, Plugin, Add-on or integration workflow, identify the authoritative owner of every behaviour the change requires.
+
+Use this sequence:
+
+1. List the behaviours the new feature needs.
+2. Map each behaviour to an existing Core policy or contract where one already owns it.
+3. Link to that authority instead of restating its detailed rules.
+4. Put only genuinely new provider-neutral behaviour in Core.
+5. Put provider-specific configuration, identifiers, scopes and tool mappings in the relevant Plugin.
+6. Put scheduling, invocation phrases and provider-specific execution details in the relevant provider Plugin.
+7. Do not create a second definition of routing, state-versus-event handling, themes, safety, write authority, source control or persistence behaviour.
+
+A task definition is primarily an orchestration layer. It may define:
+
+- the sequence in which existing rules are applied;
+- task-specific eligibility;
+- task-specific standing authority;
+- task-specific inputs and outputs; and
+- task-specific failure or completion conditions.
+
+A task should not copy the detailed semantics of policies it invokes.
+
+A Plugin is primarily an adapter and configuration layer. It may define:
+
+- external-system identifiers and locations;
+- approved integration scope;
+- provider timestamps and identifiers;
+- tool mappings;
+- provider-specific eligibility settings;
+- provider-owned processed-item or synchronisation state; and
+- provider-specific restrictions.
+
+A Plugin must link back to the relevant Core task or policy rather than reproducing its behaviour.
+
+All task and Plugin instructions inherit the Core contract and its safety rules unless the user's explicit current instruction authorises a narrower exception. A lower-level task or Plugin instruction must not accidentally weaken or contradict a higher-level Core rule.
 
 ## Authorised write outcome
 
