@@ -30,8 +30,11 @@ Root `.github/` content is an activation shim required by GitHub, not a fourth a
 1. Read the repository `README.md` for orientation.
 2. Read `2.core/CONTRACT.md` before changing Core knowledge or governance.
 3. Read the relevant layer `CONTRACT.md` before changing Plugins or Add-ons.
-4. Read the relevant policy before changing behaviour rather than copying policy text into another file.
-5. Retrieve only the context needed for the task.
+4. Identify every behaviour the requested change needs.
+5. Map each behaviour to its existing authoritative policy before writing new instructions.
+6. Read those authoritative policies and link to them rather than copying their detailed rules.
+7. Add new behavioural rules only when no existing authority already owns them.
+8. Retrieve only the context needed for the task.
 
 ## Working with saved knowledge
 
@@ -65,6 +68,35 @@ Use Add-ons for optional provider-neutral tools and reusable skills that depend 
 
 Do not make Add-ons an authority for saved personal knowledge or Core operating rules.
 
+## Integration design preflight
+
+Before designing or changing an integration, make a short ownership map.
+
+For each required behaviour, record:
+
+| Behaviour | Authoritative owner | New rule needed? |
+| --- | --- | --- |
+| Folder or record routing | `2.core/system/directory.md` | Usually no |
+| Current state and events | `2.core/system/freshness-policy.md` | Usually no |
+| Themes | `2.core/system/theme-and-decision-policy.md` | Usually no |
+| Repository writes and commits | `2.core/system/source-control-policy.md` | Usually no |
+| General save workflow | `2.core/system/operating-rules.md` | Usually no |
+| External folder, IDs, timestamps or scope | Relevant Plugin | Yes, if integration-specific |
+| Scheduling or invocation phrases | Relevant provider Plugin | Yes, if provider-specific |
+| New task sequencing | Core task definition | Only when genuinely new |
+
+Do not start by writing a complete standalone workflow. Start by composing existing authorities.
+
+A task should normally contain only:
+
+1. eligibility;
+2. ordered task-specific steps;
+3. task-specific standing authority;
+4. outputs and audit requirements; and
+5. failure or retry behaviour.
+
+Everything else should be inherited through links to existing policies.
+
 ## Privacy and public-release checks
 
 Assume a working Second Brain may contain sensitive personal information.
@@ -87,7 +119,7 @@ Prefer a fresh Git history for a genuinely public distribution when the source r
 3. Inspect the current files before editing.
 4. Make the smallest coherent change that fulfils the request.
 5. Update related indexes, references, generated artefacts or validation rules when required.
-6. Check for broken links, duplicated state, provider leakage and accidental personal data exposure.
+6. Check for broken links, duplicated state, duplicated behavioural policy, conflicting instructions, provider leakage and accidental personal data exposure.
 7. Run the repository validation relevant to the changed layer.
 8. Commit using the repository's source-control policy or an explicit user override.
 9. Report what changed and any remaining limitation clearly.
@@ -110,3 +142,7 @@ For the browser explorer, regenerate or test its data only as required by its ow
 - Do not place provider-specific behaviour in Core or Add-ons.
 - Do not treat generated views, caches or browser data as canonical knowledge.
 - Do not publish a branch containing current-tree redactions while claiming its inherited Git history is free of the removed information.
+- Do not duplicate behavioural policy for convenience. Link to its authoritative owner.
+- Do not make a task definition self-contained by copying routing, theme, freshness, safety or source-control rules.
+- Do not make a Plugin self-contained by copying Core semantics.
+- When a lower-level task appears to conflict with Core, Core remains authoritative unless the user's explicit current instruction clearly overrides it.
