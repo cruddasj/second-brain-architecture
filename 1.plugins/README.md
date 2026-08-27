@@ -19,9 +19,44 @@ Before adding provider instructions:
 
 Supporting files may use structures suited to their purpose, but the plugin's `README.md` must always use `PLUGIN_TEMPLATE.md`.
 
+### Provider-specific root files
+
+The public architecture keeps the repository root provider-neutral. Installing or configuring a Plugin must not automatically add a provider-specific file at repository root.
+
+If a provider requires a root compatibility file, treat it as an explicit portability exception. Before creating it:
+
+1. tell the user the exact filename and provider;
+2. explain why the provider needs it and what it will contain;
+3. state clearly that accepting it will add AI-provider-specific content to the root of their private Second Brain repository; and
+4. obtain explicit user acceptance for that root-level exception.
+
+Only after that acceptance may the setup create the file. It must remain a thin activation shim with no independent operating rules, be explained by the Plugin that requires it, and be registered in [root-shims.json](root-shims.json) so validation can keep it constrained.
+
+If the user declines, leave the root unchanged and use an alternative invocation path where the provider supports one.
+
+## Minimum AI integration capabilities
+
+An AI product is a viable read-write Plugin candidate when it can, within an explicitly authorised scope:
+
+- read repository text at a specified ref or otherwise establish the repository state Core requires;
+- make a repository change or produce a reviewable proposed change through some supported mechanism; and
+- follow instructions across multiple linked repository files rather than relying on one copied prompt.
+
+A product that can read the repository and follow the linked instructions but cannot make or propose changes can still use a **read-only Plugin**. Lack of write capability should narrow the Plugin's scope rather than force provider-specific write semantics into Core.
+
+## Portability coverage
+
+The bundled AI Plugins deliberately exercise materially different integration shapes:
+
+- [OpenAI](openai/README.md) represents a connected-repository environment; and
+- [Claude](claude/README.md) represents a local-checkout coding-agent environment with direct file, shell and Git access.
+
+This is architecture-level coverage of the Plugin/Core boundary, not a claim that every product, feature or version has been field-tested.
+
 ## Available plugins
 
 - [OpenAI](openai/README.md): optional OpenAI connection adapter and provider-specific metadata.
+- [Claude](claude/README.md): optional Claude Code local-checkout adapter, with opt-in compatibility guidance for private repositories.
 - [GitHub](github/README.md): optional GitHub hosting adapter and explanation of the required root activation shim.
 
 [portability-markers.json](portability-markers.json) is validation data used to detect named-provider leakage in Core and Add-ons. It contains no operating instructions.
