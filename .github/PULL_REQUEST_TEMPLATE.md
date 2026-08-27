@@ -31,6 +31,16 @@ Confirm that the destination and state-or-event classification were unambiguous.
 
 For a forget operation, state whether this is archive, logical forgetting from current retrieval, revert-assisted logical forgetting, or separately authorised history rewriting. A deletion or revert does not erase ordinary Git history.
 
+## Behaviour ownership
+
+For a new or changed task, Plugin, Add-on or integration, list the main behaviours introduced or affected.
+
+| Behaviour | Authoritative file | New or inherited |
+| --- | --- | --- |
+| | | |
+
+Confirm that inherited behaviour is linked rather than copied.
+
 ## Checks
 
 - [ ] Save intent, exact content and destination were clear.
@@ -38,6 +48,11 @@ For a forget operation, state whether this is archive, logical forgetting from c
 - [ ] State replaces one globally unique current key, or the event is timestamped and appended.
 - [ ] No silent Inbox fallback or unapproved folder creation occurred.
 - [ ] Existing knowledge was updated instead of duplicated where possible.
+- [ ] Every new behavioural rule has one identified authoritative owner.
+- [ ] Existing Core policy was linked to rather than restated where possible.
+- [ ] Task definitions contain orchestration and task-specific behaviour rather than copies of routing, freshness, theme, safety or source-control policy.
+- [ ] Plugin files contain provider-specific configuration and adaptation rather than copies of Core semantics.
+- [ ] Lower-level task or Plugin instructions do not weaken or contradict the Core contract.
 - [ ] `2.core/index.md` and `2.core/system/activity-log.md` were updated where required.
 - [ ] A revert-assisted forget preserves the original Activity Log entry and appends a new one.
 - [ ] Source, skill and plugin statuses follow their explicit approval rules.
