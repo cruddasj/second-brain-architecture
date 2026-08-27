@@ -19,7 +19,20 @@ Before adding provider instructions:
 
 Supporting files may use structures suited to their purpose, but the plugin's `README.md` must always use `PLUGIN_TEMPLATE.md`.
 
-A platform-required root compatibility file must remain a thin activation shim, contain no independent operating rules and be explained by the Plugin that requires it.
+### Provider-specific root files
+
+The public architecture keeps the repository root provider-neutral. Installing or configuring a Plugin must not automatically add a provider-specific file at repository root.
+
+If a provider requires a root compatibility file, treat it as an explicit portability exception. Before creating it:
+
+1. tell the user the exact filename and provider;
+2. explain why the provider needs it and what it will contain;
+3. state clearly that accepting it will add AI-provider-specific content to the root of their private Second Brain repository; and
+4. obtain explicit user acceptance for that root-level exception.
+
+Only after that acceptance may the setup create the file. It must remain a thin activation shim with no independent operating rules, be explained by the Plugin that requires it, and be registered in [root-shims.json](root-shims.json) so validation can keep it constrained.
+
+If the user declines, leave the root unchanged and use an alternative invocation path where the provider supports one.
 
 ## Minimum AI integration capabilities
 
@@ -43,7 +56,7 @@ This is architecture-level coverage of the Plugin/Core boundary, not a claim tha
 ## Available plugins
 
 - [OpenAI](openai/README.md): optional OpenAI connection adapter and provider-specific metadata.
-- [Claude](claude/README.md): optional Claude Code local-checkout adapter and compatibility shim.
+- [Claude](claude/README.md): optional Claude Code local-checkout adapter, with opt-in compatibility guidance for private repositories.
 - [GitHub](github/README.md): optional GitHub hosting adapter and explanation of the required root activation shim.
 
 [portability-markers.json](portability-markers.json) is validation data used to detect named-provider leakage in Core and Add-ons. It contains no operating instructions.
