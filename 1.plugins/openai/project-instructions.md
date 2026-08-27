@@ -2,7 +2,7 @@
 
 This file is the AI-agent adapter for an OpenAI connection. For general orientation, use [README.md](README.md).
 
-Before use, replace `OWNER/REPOSITORY` with the private repository that holds the user's Second Brain.
+Before use, replace `OWNER/REPOSITORY` with the repository selected to hold the Second Brain.
 
 Use the connected repository `OWNER/REPOSITORY` on its configured default branch.
 
