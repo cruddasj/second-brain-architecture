@@ -13,16 +13,17 @@ Every plugin must:
 - remain optional and self-contained;
 - point to the Core contract;
 - leave Core usable when removed;
-- keep provider-specific material under `1.plugins/<provider-or-system>/`, except for a documented platform-required root shim; and
+- keep provider-specific material under `1.plugins/<provider-or-system>/`, except for a documented platform-required root shim;
+- contain a `README.md` created from [PLUGIN_TEMPLATE.md](PLUGIN_TEMPLATE.md), preserving its H1/H2 structure and section order exactly; and
 - contain no secrets, credentials or live tokens.
 
 A plugin cannot redefine routing, record formats, write authority, source controls, safety or persistence semantics. Documentation and dedicated agent entry points link to this contract instead of copying it.
 
 ## Authoring pattern
 
-Use [PLUGIN_TEMPLATE.md](PLUGIN_TEMPLATE.md) as the default design guide when creating or substantially changing a Plugin.
+[PLUGIN_TEMPLATE.md](PLUGIN_TEMPLATE.md) is the mandatory structure for every plugin `README.md`.
 
-The template describes responsibilities rather than requiring identical files or headings.
+When creating or substantially changing a Plugin, copy the template to `1.plugins/<provider-or-system>/README.md`, replace its instructional text with provider-specific content, and keep all template sections in the same order. Do not add, remove, rename or reorder the template sections. Put extra detail inside an existing section or in a linked supporting file.
 
 Before adding a Plugin rule:
 
