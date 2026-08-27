@@ -1,9 +1,3 @@
 {
-  "root_shims": [
-    {
-      "path": "CLAUDE.md",
-      "plugin": "claude",
-      "exact_content": "@AGENTS.md\n"
-    }
-  ]
+  "root_shims": []
 }
