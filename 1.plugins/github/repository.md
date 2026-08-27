@@ -8,7 +8,7 @@ updated: 2026-08-27
 
 Use this file for GitHub-specific repository configuration. For AI agentic use, read it after the [GitHub Plugin README](README.md), [Plugin contract](../CONTRACT.md) and [Core contract](../../2.core/CONTRACT.md).
 
-Before use, replace `OWNER/REPOSITORY` with the user's private GitHub repository.
+Before use, replace `OWNER/REPOSITORY` with the repository selected to hold the Second Brain.
 
 ## Repository configuration
 
