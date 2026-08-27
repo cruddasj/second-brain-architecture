@@ -1,3 +1,5 @@
+<!-- Required plugin README structure. For every plugin, copy this file to `1.plugins/<provider-or-system>/README.md`, replace the instructional text with plugin-specific content, and preserve the H1/H2 structure and section order exactly. Do not add, remove, rename or reorder template sections in a plugin README. Put extra detail inside the existing sections or in linked supporting files. -->
+
 # Plugin name
 
 ## Purpose
