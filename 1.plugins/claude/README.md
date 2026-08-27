@@ -30,7 +30,16 @@ The Plugin applies only to that configured environment. Local filesystem access 
 
 Claude Code currently reads project-level `CLAUDE.md` instructions rather than automatically loading `AGENTS.md`. Anthropic's current documentation recommends a `CLAUDE.md` file that imports `AGENTS.md`; native `AGENTS.md` support remains tracked upstream in [`anthropics/claude-code#6235`](https://github.com/anthropics/claude-code/issues/6235).
 
-The repository therefore includes a root `CLAUDE.md` compatibility shim containing only `@AGENTS.md`. It imports the existing provider-neutral agent entry point and contains no independent operating rules. If native `AGENTS.md` discovery makes the shim unnecessary, it can be removed with this Plugin without changing Core.
+The public architecture deliberately does **not** include a root `CLAUDE.md` file. Adding one is an optional private-repository setup choice because it introduces Claude-specific content at repository root.
+
+If a user wants Claude Code to load the existing provider-neutral `AGENTS.md` entry point automatically, follow [SETUP.md](SETUP.md). Before creating the root file, explicitly tell the user that:
+
+- `CLAUDE.md` will be added at repository root;
+- the file is specific to Claude Code;
+- its only proposed content is `@AGENTS.md`; and
+- accepting it is a deliberate exception to keeping the private repository root provider-neutral.
+
+Create and register that shim only after the user explicitly accepts those points. If the user declines, leave the root unchanged and direct Claude Code to read `AGENTS.md` explicitly when needed.
 
 Reference: [Claude Code project memory documentation](https://code.claude.com/docs/en/memory).
 
@@ -56,13 +65,15 @@ Do not store secrets, credentials or live tokens in this Plugin.
 - Use configured MCP tools when separately authorised and when they do not bypass Core's write-authority rules.
 - Use the provider-specific change mechanism selected by Core when it is configured and authorised.
 - Provide Claude-specific invocation, permission and compatibility guidance when needed.
+- After explicit user acceptance, create the documented root compatibility shim in a private Second Brain and register it for validation.
 
 These capabilities do not create independent write authority.
 
 ## Prohibited actions
 
 - Redefine Core routing, persistence, validation, safety, write authority or completion semantics.
-- Treat the local working tree, `CLAUDE.md`, Claude-managed memory or conversation state as canonical Second Brain state.
+- Create or register a root `CLAUDE.md` file without the user's explicit acceptance of the provider-specific root exception.
+- Treat the local working tree, any accepted `CLAUDE.md` shim, Claude-managed memory or conversation state as canonical Second Brain state.
 - Assume an unfetched or divergent local checkout is the current canonical repository state.
 - Access or modify files, repositories or external resources outside the configured scope merely because local or shell access is available.
 - Store secrets, credentials or live tokens in repository files.
@@ -71,9 +82,9 @@ These capabilities do not create independent write authority.
 
 Local checkout state, current branches, uncommitted edits and Claude Code session or memory data remain outside Core's canonical knowledge model.
 
-The committed root `CLAUDE.md` is only the compatibility shim described above. User-level or local Claude configuration remains outside the repository unless a provider-specific setting is deliberately approved for sharing.
+The public architecture contains no committed Claude root shim. In a private Second Brain where the user explicitly accepts one, `CLAUDE.md` must remain only the compatibility pointer documented in [SETUP.md](SETUP.md) and must be registered in `1.plugins/root-shims.json`.
 
-This Plugin requires no processed-item or synchronisation register by default.
+User-level or local Claude configuration remains outside the repository unless a provider-specific setting is deliberately approved for sharing. This Plugin requires no processed-item or synchronisation register by default.
 
 ## Failure behaviour
 
@@ -85,6 +96,8 @@ General repository validation, persistence, safety, routing and write behaviour 
 
 ## Removal
 
-Removing this Plugin disables the Claude Code adapter and removes the root `CLAUDE.md` compatibility shim and any Claude-specific configuration committed under this Plugin.
+Removing this Plugin disables the Claude Code adapter and removes Claude-specific configuration committed under this Plugin.
+
+If a private Second Brain previously opted in to the root `CLAUDE.md` shim, its removal is a separate root-level change and should be handled under the repository's normal change authority rather than assumed automatically.
 
 Core, Add-ons and saved knowledge must remain valid and meaningful without this Plugin.
