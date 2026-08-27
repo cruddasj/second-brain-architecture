@@ -13,9 +13,11 @@ Every plugin must:
 - remain optional and self-contained;
 - point to the Core contract;
 - leave Core usable when removed;
-- keep provider-specific material under `1.plugins/<provider-or-system>/`, except for a documented platform-required root shim;
+- keep provider-specific material under `1.plugins/<provider-or-system>/`, except for a documented platform-required root shim that the user has explicitly accepted as a provider-specific root-level exception;
 - contain a `README.md` created from [PLUGIN_TEMPLATE.md](PLUGIN_TEMPLATE.md), preserving its H1/H2 structure and section order exactly; and
 - contain no secrets, credentials or live tokens.
+
+A Plugin or setup process must never create a provider-specific root file merely because the provider supports or recommends one. Before creating such a file, disclose its exact filename, provider, purpose and proposed contents; state clearly that it adds provider-specific content to the root of the user's private Second Brain repository; and obtain explicit user acceptance. After acceptance, keep the file as a thin activation shim with no independent operating rules and register it in [root-shims.json](root-shims.json). If the user declines, leave the repository root unchanged.
 
 A plugin cannot redefine routing, record formats, write authority, source controls, safety or persistence semantics. Documentation and dedicated agent entry points link to this contract instead of copying it.
 
