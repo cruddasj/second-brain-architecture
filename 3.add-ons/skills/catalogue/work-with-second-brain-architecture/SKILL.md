@@ -24,7 +24,7 @@ Treat the repository as three layers:
 2. `2.core/` contains the portable memory model, canonical knowledge, governance, templates and maintenance processes.
 3. `3.add-ons/` contains optional provider-neutral skills, interfaces and tooling built on top of Core.
 
-Platform-required root files are activation shims, not a fourth architecture layer. Keep provider-specific root shims thin, explicitly authorised and registered as required by `1.plugins/CONTRACT.md`. Root `.github/` content is the bundled GitHub example.
+Platform-required root files are activation shims, not a fourth architecture layer. Keep provider-specific root shims thin, explicitly authorised and registered as required by `1.plugins/CONTRACT.md`. The bundled repository-hosting example is identified portably as Plugin ID `befe7498-69c4-4f09-913d-9b36830a9882`; resolve that ID through `1.plugins/plugin-registry.json` and the selected Plugin's documentation rather than naming its provider or root activation paths in Add-on workflow guidance.
 
 ## Before making changes
 
@@ -70,7 +70,7 @@ Follow `2.core/system/source-reference-policy.md` whenever Core records source m
 
 Use Core for the portable memory architecture, canonical knowledge records, maintenance rules, templates and provider-neutral operating guidance.
 
-Keep Core architecture, governance, templates and operating behaviour independent of named providers. Saved knowledge may name a provider, product or external system when it is itself the subject of the knowledge; provider-specific setup, tool mappings, integration configuration, resource resolution and instruction-file conventions still belong in Plugins.
+Keep Core architecture, governance, templates and operating behaviour independent of named providers. Saved knowledge may name a provider, product or external system when it is itself the subject of the knowledge; provider-specific setup, tool mappings, integration configuration, resource resolution, discovery and installation conventions still belong in Plugins. Architecture-owned cross-provider packaging conventions are different: shared filenames such as `AGENTS.md`, `SKILL.md` and generic manifests may remain portable when their governing contract defines provider-neutral semantics.
 
 ### Plugins
 
@@ -86,7 +86,7 @@ Do not assume every Plugin can read files, use a shell, modify source control or
 
 Use Add-ons for optional provider-neutral tools and reusable skills that depend on the architecture without being required for its basic operation.
 
-Do not make Add-ons an authority for saved personal knowledge or Core operating rules. Keep Add-on definitions, manifests, examples, tests and documentation free of provider-specific execution assumptions. Follow `3.add-ons/skills/CONTRACT.md` for skill authoring and lifecycle behaviour.
+Do not make Add-ons an authority for saved personal knowledge or Core operating rules. Keep Add-on workflow content, examples, tests and documentation free of provider-specific execution assumptions. Shared cross-provider packaging conventions are allowed only when `3.add-ons/CONTRACT.md` or a subordinate Add-on contract defines them. Provider-specific discovery and installation packaging belongs in Plugins. Follow `3.add-ons/skills/CONTRACT.md` for skill authoring and lifecycle behaviour.
 
 ## Integration design preflight
 
@@ -106,6 +106,8 @@ For each required behaviour, record:
 | External folder, IDs, timestamps, scope or capability mapping | Relevant Plugin | Yes, if integration-specific |
 | Scheduling or invocation phrases | Relevant provider Plugin | Yes, if provider-specific |
 | Provider-specific root activation shim | Relevant Plugin and `1.plugins/root-shims.json` | Only after explicit acceptance |
+| Cross-provider Add-on packaging conventions | `3.add-ons/CONTRACT.md` and relevant subordinate contract | Usually no |
+| Provider-specific skill discovery or installation packaging | Relevant Plugin under `1.plugins/<plugin>/skills/<name>/` | Yes, if integration-specific |
 | Skill lifecycle and reusable-skill authoring | `3.add-ons/skills/CONTRACT.md` | Usually no |
 | New task sequencing | Core task definition | Only when genuinely new |
 
@@ -115,7 +117,7 @@ A task should normally contain only:
 
 1. eligibility;
 2. ordered task-specific steps;
-3. task-specific standing authority;
+3. task-specific limits for separately granted standing authority;
 4. outputs and audit requirements; and
 5. failure or retry behaviour.
 
@@ -179,7 +181,8 @@ For the browser explorer, regenerate or test its data only as required by its ow
 - Do not treat a branch, pull request, conversation or local checkout as remembered canonical state.
 - Do not rewrite historical events merely because current state changes.
 - Do not duplicate mutable facts for convenience.
-- Do not place provider-specific operating behaviour or integration configuration in Core or Add-ons.
+- Do not place provider-specific operating behaviour, discovery metadata, installation packaging or integration configuration in Core or Add-ons.
+- Do not treat architecture-owned cross-provider packaging conventions as provider-specific merely because multiple external tools recognise the same filename; judge the convention by who owns its semantics and whether its contents remain provider-neutral.
 - Do not reject legitimate saved knowledge merely because it mentions a provider or product as its subject.
 - Do not treat generated views, caches or browser data as canonical knowledge.
 - Do not publish a branch containing current-tree redactions while claiming its inherited Git history is free of the removed information.

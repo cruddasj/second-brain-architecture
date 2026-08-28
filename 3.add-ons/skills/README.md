@@ -1,6 +1,6 @@
 # Skill workspace
 
-This provider-neutral add-on stores reusable workflow definitions and their lifecycle records.
+This provider-neutral Add-on stores reusable workflow definitions and their lifecycle records.
 
 - [`drafts/`](drafts/): explicitly saved skill drafts that are not installed.
 - [`catalogue/`](catalogue/): complete generic source copies and manifests for installed or adopted skills.
@@ -8,4 +8,6 @@ This provider-neutral add-on stores reusable workflow definitions and their life
 - [`register.md`](register.md): current generic skill lifecycle.
 - [`CONTRACT.md`](CONTRACT.md): authoring, installation and composition rules.
 
-Provider-specific discovery metadata belongs under `1.plugins/`, not inside catalogue definitions. The browser explorer may create a local draft or prepare an explicit save request, but it cannot install or adopt a skill.
+`SKILL.md` and `manifest.json` are architecture-owned cross-provider package conventions for the generic catalogue source. Provider-specific discovery and installation packaging belongs under `1.plugins/<plugin>/skills/<name>/`, not inside catalogue definitions.
+
+The browser explorer may create a local draft or prepare an explicit save request, but it cannot install or adopt a skill.
