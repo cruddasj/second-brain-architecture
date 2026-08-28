@@ -17,6 +17,7 @@ Before writing, also read [operating-rules.md](system/operating-rules.md), [fres
 - **Canonical state:** only the configured remote default branch is remembered. Conversations, local edits, topic branches and open pull requests are not canonical knowledge.
 - **Default is read-only:** discussion, research, recommendations, links and uploads do not authorise a repository write.
 - **Explicit saves:** write only after a clear instruction to remember, save, record, add, update, correct or remove information.
+- **No self-authorising tasks:** a bundled task definition may constrain separately granted standing authority, but its presence, installation, schedule or invocation cannot create write authority.
 - **Text-only Core:** Core knowledge, instructions and processes are plain text and remain usable without a named AI provider, product, model, API, SDK or managed memory service.
 - **One authoritative home:** keep each changing value in one place and link to it elsewhere.
 - **State and events:** replace a changing current state; append a dated event.
@@ -64,7 +65,7 @@ A task definition is primarily an orchestration layer. It may define:
 
 - the sequence in which existing rules are applied;
 - task-specific eligibility;
-- task-specific standing authority;
+- task-specific limits for separately granted standing authority;
 - task-specific inputs and outputs; and
 - task-specific failure or completion conditions.
 
