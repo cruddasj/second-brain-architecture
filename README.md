@@ -1,5 +1,7 @@
 # Second brain architecture
 
+If you are an AI agent, read [`AGENTS.md`](AGENTS.md) and [`2.core/CONTRACT.md`](2.core/CONTRACT.md) before doing anything else in this repository.
+
 A reference architecture and working scaffold for creating a portable, AI-assisted second brain, using Git and Markdown as the durable system of record.
 
 It is designed to let knowledge accumulate over time without making that knowledge dependent on a particular AI provider, model, application or storage host.
