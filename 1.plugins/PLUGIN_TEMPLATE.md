@@ -2,6 +2,8 @@
 
 # Plugin name
 
+- Plugin ID: `<lowercase UUIDv4 registered in ../plugin-registry.json>`
+
 ## Purpose
 
 Describe the external provider, platform or system this Plugin adapts.
@@ -31,8 +33,6 @@ Include where relevant:
 ## Provider configuration
 
 Record only provider-specific configuration needed by the integration.
-
-- Plugin ID: `<lowercase UUIDv4 registered in ../plugin-registry.json>`
 
 Examples:
 
