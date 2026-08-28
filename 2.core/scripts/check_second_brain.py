@@ -127,6 +127,14 @@ PORTABILITY_SCAN_SUFFIXES = {
 PORTABILITY_SCAN_EXCLUSIONS = {
     CORE / "system/activity-log.md",
 }
+CORE_PORTABILITY_SCAN_ROOTS = (
+    CORE / "README.md",
+    CORE / "AGENTS.md",
+    CORE / "CONTRACT.md",
+    CORE / "system",
+    CORE / "templates",
+    CORE / "docs",
+)
 
 
 def has_frontmatter(path: Path) -> bool:
@@ -543,6 +551,15 @@ def text_has_portability_marker(text: str, marker: str) -> bool:
     return marker in text
 
 
+def is_portability_scanned_path(path: Path, layer: Path) -> bool:
+    if layer != CORE:
+        return True
+    return any(
+        path == scan_root or path.is_relative_to(scan_root)
+        for scan_root in CORE_PORTABILITY_SCAN_ROOTS
+    )
+
+
 def check_portable_layers(
     errors: list[str],
     ai_provider_markers: tuple[str, ...],
@@ -559,7 +576,8 @@ def check_portable_layers(
         for path in layer.rglob("*"):
             relative = path.relative_to(ROOT)
             if (
-                path in PORTABILITY_SCAN_EXCLUSIONS
+                not is_portability_scanned_path(path, layer)
+                or path in PORTABILITY_SCAN_EXCLUSIONS
                 or is_raw_source(path)
                 or EXCLUDED_PARTS.intersection(relative.parts)
             ):

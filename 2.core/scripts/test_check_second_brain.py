@@ -176,6 +176,25 @@ class PortabilityMarkerTests(unittest.TestCase):
             check.text_has_portability_marker("load .vendor/rules", ".vendor/")
         )
 
+    def test_core_governance_paths_are_scanned(self):
+        self.assertTrue(
+            check.is_portability_scanned_path(
+                check.CORE / "system/operating-rules.md", check.CORE
+            )
+        )
+
+    def test_saved_knowledge_paths_are_not_scanned(self):
+        for relative in (
+            "knowledge/projects/example.md",
+            "memory/core.md",
+            "sources/notes/example.md",
+            "themes/example.md",
+        ):
+            with self.subTest(relative=relative):
+                self.assertFalse(
+                    check.is_portability_scanned_path(check.CORE / relative, check.CORE)
+                )
+
 
 class RawSourceFormatTests(unittest.TestCase):
     def test_allowed_raw_source_formats_are_accepted_case_insensitively(self):

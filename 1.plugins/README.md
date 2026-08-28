@@ -57,7 +57,8 @@ A product that can read the repository and follow the linked instructions but ca
 The bundled AI Plugins deliberately exercise materially different integration shapes:
 
 - [OpenAI](openai/README.md) represents a connected-repository environment; and
-- [Claude](claude/README.md) represents a local-checkout coding-agent environment with direct file, shell and Git access.
+- [Claude](claude/README.md) represents a local-checkout coding-agent environment with direct file, shell and Git access; and
+- [Manual chat](manual-chat/README.md) represents a conversation-only environment where a person copies the required files and applies reviewed changes.
 
 This is architecture-level coverage of the Plugin/Core boundary, not a claim that every product, feature or version has been field-tested.
 
@@ -65,6 +66,7 @@ This is architecture-level coverage of the Plugin/Core boundary, not a claim tha
 
 - [OpenAI](openai/README.md): optional OpenAI connection adapter and provider-specific metadata.
 - [Claude](claude/README.md): optional Claude Code local-checkout adapter, with opt-in compatibility guidance for private repositories.
+- [Manual chat](manual-chat/README.md): universal copy-and-paste adapter requiring no connector, file or shell access.
 - [GitHub](github/README.md): optional GitHub hosting adapter and explanation of the required root activation shim.
 
 [portability-markers.json](portability-markers.json) is validation data used to detect named-provider leakage in Core and Add-ons. It contains no operating instructions.

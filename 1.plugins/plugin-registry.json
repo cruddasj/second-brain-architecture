@@ -9,6 +9,10 @@
       "path": "github"
     },
     {
+      "id": "0aeb11e2-53c7-4766-b3d9-8d60e482c8cc",
+      "path": "manual-chat"
+    },
+    {
       "id": "9450ddf6-2dfe-4e3a-880d-283435da5204",
       "path": "openai"
     }
