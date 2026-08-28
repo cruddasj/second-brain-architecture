@@ -28,6 +28,8 @@ No provider configuration is required.
 
 At the start of a task, the person supplies `AGENTS.md`, `2.core/CONTRACT.md`, the relevant layer contract and the files needed for the requested operation. If the task may produce a change, they also supply the relevant Core policies and current destination files.
 
+This Plugin must not identify a Plugin-backed source under the [source reference policy](../../2.core/system/source-reference-policy.md). Pasted text has no stable provider resource that this Plugin can resolve later, so it cannot supply a valid `Plugin provider resource ID`. Record relayed source material as a `direct` source only when it has a durable locator or citation that identifies it independently of this Plugin; otherwise do not create a source reference. Never invent an identifier from a conversation turn, message or pasted filename.
+
 Do not paste secrets, credentials, live tokens or unrelated private knowledge into the conversation.
 
 ## Tool mapping

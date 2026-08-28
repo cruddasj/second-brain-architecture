@@ -75,8 +75,9 @@ Portability should be evaluated against materially different integration shapes,
 
 The public scaffold now contains concrete adapter designs for:
 
-- a connected-repository AI environment; and
-- a local-checkout coding-agent environment with direct file, shell and Git access.
+- a connected-repository AI environment;
+- a local-checkout coding-agent environment with direct file, shell and Git access; and
+- a conversation-only environment where a person relays context and applies reviewed changes.
 
 This is architecture-level validation of the Plugin/Core boundary, not a claim that every product, feature or version has been field-tested. Named implementation evidence and compatibility details belong in Plugins rather than Core.
 
