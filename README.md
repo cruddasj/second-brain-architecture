@@ -1,12 +1,12 @@
 # Second brain architecture
 
-If you are an AI agent, read [`AGENTS.md`](AGENTS.md) and [`2.core/CONTRACT.md`](2.core/CONTRACT.md) before doing anything else in this repository.
-
 A reference architecture and working scaffold for creating a portable, AI-assisted second brain, using Git and Markdown as the durable system of record.
 
 It is designed to let knowledge accumulate over time without making that knowledge dependent on a particular AI provider, model, application or storage host.
 
 This work builds on [Andrej Karpathy's LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f), extending the idea of an LLM-maintained Markdown knowledge base into a portable architecture with explicit integration boundaries, governance, source handling and maintenance processes.
+
+If you are an AI agent, read [`AGENTS.md`](AGENTS.md) and [`2.core/CONTRACT.md`](2.core/CONTRACT.md) before doing anything else.
 
 ## What this is
 
