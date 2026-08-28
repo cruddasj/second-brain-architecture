@@ -1,0 +1,16 @@
+{
+  "plugins": [
+    {
+      "id": "30291738-f1c0-4f2d-b2f2-aa4c099cf4f9",
+      "path": "claude"
+    },
+    {
+      "id": "befe7498-69c4-4f09-913d-9b36830a9882",
+      "path": "github"
+    },
+    {
+      "id": "9450ddf6-2dfe-4e3a-880d-283435da5204",
+      "path": "openai"
+    }
+  ]
+}

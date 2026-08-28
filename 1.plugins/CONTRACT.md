@@ -15,6 +15,8 @@ Every plugin must:
 - leave Core usable when removed;
 - keep provider-specific material under `1.plugins/<provider-or-system>/`, except for a documented platform-required root shim that the user has explicitly accepted as a provider-specific root-level exception;
 - contain a `README.md` created from [PLUGIN_TEMPLATE.md](PLUGIN_TEMPLATE.md), preserving its H1/H2 structure and section order exactly; and
+- have one immutable lowercase UUIDv4 entry in
+  [plugin-registry.json](plugin-registry.json); and
 - contain no secrets, credentials or live tokens.
 
 A Plugin or setup process must never create a provider-specific root file merely because the provider supports or recommends one. Before creating such a file, disclose its exact filename, provider, purpose and proposed contents; state clearly that it adds provider-specific content to the root of the user's private Second Brain repository; and obtain explicit user acceptance. After acceptance, keep the file as a thin activation shim with no independent operating rules and register it in [root-shims.json](root-shims.json). If the user declines, leave the repository root unchanged.
@@ -35,6 +37,27 @@ Before adding a Plugin rule:
 4. create new Core behaviour separately when the required provider-neutral behaviour has no authoritative home.
 
 A Plugin may describe what a provider supports or how a Core operation maps to that provider. It must not restate the detailed semantics of the Core operation.
+
+## Source reference resolution
+
+Core's
+[source reference policy](../2.core/system/source-reference-policy.md) stores
+only a Plugin UUID and an opaque provider resource identifier for
+Plugin-backed sources.
+
+The Plugin identified by that UUID owns:
+
+- the provider name and provider-specific resource label;
+- the mapping from the Core resource identifier to the provider's lookup
+  field or API input;
+- any provider URL construction or retrieval steps; and
+- provider-specific access, scope and failure details.
+
+A Plugin ID identifies the adapter contract, not an installation, account or
+credential. Do not derive it from provider names or user data, change it when
+configuration changes, or reuse it for another Plugin. Installation-specific
+and user-specific values remain in the relevant private Plugin configuration
+when required.
 
 For example:
 

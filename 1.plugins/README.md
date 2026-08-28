@@ -19,6 +19,14 @@ Before adding provider instructions:
 
 Supporting files may use structures suited to their purpose, but the plugin's `README.md` must always use `PLUGIN_TEMPLATE.md`.
 
+Every Plugin also has one immutable UUIDv4 in
+[plugin-registry.json](plugin-registry.json). Core uses that opaque ID when a
+source depends on a Plugin. The selected Plugin owns the provider name, native
+resource field, URL construction and retrieval mapping, while Core stores only
+the neutral `Plugin ID` and `Plugin provider resource ID` fields defined by
+the
+[source reference policy](../2.core/system/source-reference-policy.md).
+
 ### Provider-specific root files
 
 The public architecture keeps the repository root provider-neutral. Installing or configuring a Plugin must not automatically add a provider-specific file at repository root.
@@ -60,5 +68,9 @@ This is architecture-level coverage of the Plugin/Core boundary, not a claim tha
 - [GitHub](github/README.md): optional GitHub hosting adapter and explanation of the required root activation shim.
 
 [portability-markers.json](portability-markers.json) is validation data used to detect named-provider leakage in Core and Add-ons. It contains no operating instructions.
+
+[plugin-registry.json](plugin-registry.json) maps stable opaque Plugin IDs to
+their adapter directories. It contains no account identifiers, credentials or
+personal configuration.
 
 Provider-specific content stays inside its Plugin. Portable findings belong in [Core design research](../2.core/docs/research.md).

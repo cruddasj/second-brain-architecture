@@ -18,4 +18,9 @@ For AI agentic use, read [AGENTS.md](AGENTS.md), then the shared [operating cont
 | `system/` | Governance, validation and activity history |
 | `docs/` | Design rationale and research |
 
-Core remains independent of any named AI provider. Provider-specific setup and compatibility material belongs under [Plugins](../1.plugins/README.md), while optional products and tools belong under [Add-ons](../3.add-ons/README.md).
+Core remains independent of any named AI provider. Plugin-backed sources use
+the opaque references defined by the
+[source reference policy](system/source-reference-policy.md). Provider-specific
+setup, resource labels and resolution details belong under
+[Plugins](../1.plugins/README.md), while optional products and tools belong
+under [Add-ons](../3.add-ons/README.md).

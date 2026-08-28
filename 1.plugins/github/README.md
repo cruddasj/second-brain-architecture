@@ -24,9 +24,16 @@ Before use, configure the repository selected to hold the Second Brain in [repos
 
 [repository.md](repository.md) is the authoritative GitHub-specific configuration file for the repository location, default branch and supported GitHub mechanisms.
 
+- Plugin ID: `befe7498-69c4-4f09-913d-9b36830a9882`
+
 The repository-root `.github/` directory contains platform-required activation files such as workflows and pull-request templates. Those files may activate GitHub behaviour but must not define Core semantics.
 
 Do not store secrets, credentials or live tokens in this Plugin.
+
+If this Plugin supplies repository content as source material, it maps
+`Plugin provider resource ID` to the stable repository resource identifier
+used by its authorised lookup. Core must not receive GitHub-specific field
+labels, API URLs or account details.
 
 ## Tool mapping
 

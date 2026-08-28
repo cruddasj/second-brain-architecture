@@ -74,6 +74,96 @@ class RootShimTests(unittest.TestCase):
         self.assertEqual(len(errors), 1)
 
 
+class PluginRegistryTests(unittest.TestCase):
+    def test_valid_registry_is_parsed(self):
+        errors = []
+        registry = check.parse_plugin_registry(
+            {
+                "plugins": [
+                    {
+                        "id": "550e8400-e29b-41d4-a716-446655440000",
+                        "path": "vendor",
+                    }
+                ]
+            },
+            errors,
+        )
+        self.assertEqual(errors, [])
+        self.assertEqual(
+            registry,
+            {"550e8400-e29b-41d4-a716-446655440000": "vendor"},
+        )
+
+    def test_non_v4_or_duplicate_registry_entries_are_rejected(self):
+        errors = []
+        registry = check.parse_plugin_registry(
+            {
+                "plugins": [
+                    {
+                        "id": "550e8400-e29b-11d4-a716-446655440000",
+                        "path": "vendor",
+                    },
+                    {
+                        "id": "9f7c2e13-8b65-4d2a-a6f1-6cbe7e649b77",
+                        "path": "vendor",
+                    },
+                    {
+                        "id": "6fa459ea-ee8a-4ca4-894e-db77e160355e",
+                        "path": "vendor",
+                    },
+                ]
+            },
+            errors,
+        )
+        self.assertEqual(
+            registry,
+            {"9f7c2e13-8b65-4d2a-a6f1-6cbe7e649b77": "vendor"},
+        )
+        self.assertEqual(len(errors), 2)
+
+
+class SourceReferenceTests(unittest.TestCase):
+    PLUGIN_ID = "550e8400-e29b-41d4-a716-446655440000"
+
+    def check_note(self, body):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            source_root = Path(temp_dir)
+            (source_root / "note.md").write_text(body, encoding="utf-8")
+            errors = []
+            check.check_source_note_references(
+                errors,
+                {self.PLUGIN_ID: "vendor"},
+                source_root,
+            )
+            return errors
+
+    def test_direct_source_requires_original_source(self):
+        self.assertEqual(
+            self.check_note("- Source kind: direct\n- Original source: https://example.test\n"),
+            [],
+        )
+        self.assertEqual(len(self.check_note("- Source kind: direct\n")), 1)
+
+    def test_plugin_source_uses_registered_opaque_reference(self):
+        self.assertEqual(
+            self.check_note(
+                f"- Source kind: plugin\n"
+                f"- Plugin ID: {self.PLUGIN_ID}\n"
+                "- Plugin provider resource ID: opaque-123\n"
+            ),
+            [],
+        )
+
+    def test_plugin_source_rejects_unknown_id_and_original_source(self):
+        errors = self.check_note(
+            "- Source kind: plugin\n"
+            "- Plugin ID: 6fa459ea-ee8a-4ca4-894e-db77e160355e\n"
+            "- Plugin provider resource ID: opaque-123\n"
+            "- Original source: https://provider.test/item/opaque-123\n"
+        )
+        self.assertEqual(len(errors), 2)
+
+
 class PortabilityMarkerTests(unittest.TestCase):
     def test_simple_marker_uses_token_boundaries(self):
         self.assertTrue(check.text_has_portability_marker("use x3 for this", "x3"))

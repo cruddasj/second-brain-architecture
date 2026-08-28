@@ -2,13 +2,21 @@
 
 ## Source record
 
-- Original source:
+- Source kind: direct | plugin
+- Original source: <!-- required for direct sources; otherwise omit -->
+- Plugin ID: <!-- required for Plugin-backed sources; lowercase UUIDv4; otherwise omit -->
+- Plugin provider resource ID: <!-- required for Plugin-backed sources; otherwise omit -->
 - Author or organisation:
 - Publication date:
 - Captured:
 - Source Register status:
 - Approved scope:
 - Evidence date or period:
+
+For a Plugin-backed source, resolve the Plugin ID through
+`1.plugins/plugin-registry.json`. Keep provider names, provider-specific
+field labels, resource URLs and resolution instructions out of Core. See the
+[source reference policy](../system/source-reference-policy.md).
 
 ## Summary
 

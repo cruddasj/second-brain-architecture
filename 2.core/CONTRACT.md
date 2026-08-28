@@ -35,6 +35,7 @@ Each rule should have one detailed home:
 | Current state, events and contradictions | [Freshness policy](system/freshness-policy.md) |
 | Commits, pull requests, corrections and forgetting | [Source-control policy](system/source-control-policy.md) |
 | Sources and their approved scope | [Source register](system/source-register.md) |
+| Provider-neutral source references | [Source reference policy](system/source-reference-policy.md) |
 | Themes and saved decisions | [Theme and decision policy](system/theme-and-decision-policy.md) |
 | Scheduled freshness review | [Freshness audit task](system/freshness-audit-task.md) |
 | Scheduled historical consolidation | [Knowledge compaction task](system/knowledge-compaction-task.md) |
@@ -78,6 +79,13 @@ A Plugin is primarily an adapter and configuration layer. It may define:
 - provider-specific eligibility settings;
 - provider-owned processed-item or synchronisation state; and
 - provider-specific restrictions.
+
+When Core records a source reached through a Plugin, it stores only the
+Plugin's registered UUID and the provider resource identifier under
+provider-neutral field names. Provider names, provider-specific labels,
+resource URLs and resolution rules stay in the Plugins layer. The
+[source reference policy](system/source-reference-policy.md) defines this
+boundary.
 
 A Plugin must link back to the relevant Core task or policy rather than reproducing its behaviour.
 

@@ -17,6 +17,8 @@ ADDONS = ROOT / "3.add-ons"
 INDEX = CORE / "index.md"
 REPOSITORY_CONFIG = CORE / "system/repository-config.json"
 RAW_SOURCES = CORE / "sources/raw"
+SOURCE_NOTES = CORE / "sources/notes"
+PLUGIN_REGISTRY = PLUGINS / "plugin-registry.json"
 
 ARCHITECTURE_REQUIRED_FILES = (
     ROOT / "README.md",
@@ -36,6 +38,7 @@ ARCHITECTURE_REQUIRED_FILES = (
     CORE / "system/theme-and-decision-policy.md",
     CORE / "system/activity-log.md",
     CORE / "system/source-register.md",
+    CORE / "system/source-reference-policy.md",
     REPOSITORY_CONFIG,
     CORE / "themes/index.md",
     CORE / "templates/decision-record.md",
@@ -46,6 +49,7 @@ ARCHITECTURE_REQUIRED_FILES = (
     PLUGINS / "README.md",
     PLUGINS / "AGENTS.md",
     PLUGINS / "CONTRACT.md",
+    PLUGINS / "plugin-registry.json",
     PLUGINS / "portability-markers.json",
     PLUGINS / "root-shims.json",
     ADDONS / "README.md",
@@ -96,6 +100,11 @@ ENTRY_PATTERN = re.compile(r"^- \[(state|event):([a-z0-9][a-z0-9-]*)\](.*)$")
 DATE_PATTERN = re.compile(r"\b\d{4}-\d{2}-\d{2}\b")
 CATEGORY_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 THEME_PAGE_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]*\.md$")
+PLUGIN_PATH_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]*$")
+UUID4_PATTERN = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+)
+SOURCE_FIELD_PATTERN = re.compile(r"^- ([A-Za-z][A-Za-z ]*):\s*(.*?)\s*$", re.MULTILINE)
 SECRET_PATTERNS = (
     re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
     re.compile(r"\bgh[pousr]_[A-Za-z0-9]{30,}\b"),
@@ -264,6 +273,118 @@ def load_repository_config(errors: list[str]) -> tuple[tuple[str, ...], tuple[st
         errors.append(f"Invalid repository config: {error}")
         return (), ()
     return parse_repository_config(data, errors)
+
+
+def parse_plugin_registry(data: object, errors: list[str]) -> dict[str, str]:
+    if not isinstance(data, dict):
+        errors.append("Plugin registry must be a JSON object")
+        return {}
+
+    entries = data.get("plugins")
+    if not isinstance(entries, list):
+        errors.append("Plugin registry field 'plugins' must be an array")
+        return {}
+
+    parsed: dict[str, str] = {}
+    paths: set[str] = set()
+    for entry in entries:
+        if not isinstance(entry, dict):
+            errors.append("Each Plugin registry entry must be a JSON object")
+            continue
+
+        plugin_id = entry.get("id")
+        path = entry.get("path")
+        if not isinstance(plugin_id, str) or not UUID4_PATTERN.fullmatch(plugin_id):
+            errors.append(f"Plugin registry ID must be a lowercase UUIDv4: {plugin_id!r}")
+            continue
+        if not isinstance(path, str) or not PLUGIN_PATH_PATTERN.fullmatch(path):
+            errors.append(f"Plugin registry path must be one Plugin directory name: {path!r}")
+            continue
+        if plugin_id in parsed:
+            errors.append(f"Duplicate Plugin registry ID: {plugin_id}")
+            continue
+        if path in paths:
+            errors.append(f"Duplicate Plugin registry path: {path}")
+            continue
+        parsed[plugin_id] = path
+        paths.add(path)
+
+    return parsed
+
+
+def load_plugin_registry(errors: list[str]) -> dict[str, str]:
+    if not PLUGIN_REGISTRY.is_file():
+        return {}
+    try:
+        data = json.loads(PLUGIN_REGISTRY.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as error:
+        errors.append(f"Invalid Plugin registry: {error}")
+        return {}
+    return parse_plugin_registry(data, errors)
+
+
+def check_plugin_registry(errors: list[str], registry: dict[str, str]) -> None:
+    registered_paths = set(registry.values())
+    plugin_paths = {
+        path.name
+        for path in PLUGINS.iterdir()
+        if path.is_dir() and (path / "README.md").is_file()
+    }
+
+    for path in sorted(registered_paths - plugin_paths):
+        errors.append(f"Plugin registry references missing Plugin directory: {path}")
+    for path in sorted(plugin_paths - registered_paths):
+        errors.append(f"Plugin directory is not registered: {path}")
+
+    for plugin_id, path in registry.items():
+        readme = PLUGINS / path / "README.md"
+        if readme.is_file() and plugin_id not in readme.read_text(encoding="utf-8"):
+            errors.append(f"Plugin README does not declare registered ID: {path}")
+
+
+def source_fields(text: str) -> dict[str, str]:
+    return {
+        key.strip().lower(): value.strip()
+        for key, value in SOURCE_FIELD_PATTERN.findall(text)
+    }
+
+
+def check_source_note_references(
+    errors: list[str],
+    registry: dict[str, str],
+    source_root: Path = SOURCE_NOTES,
+) -> None:
+    if not source_root.is_dir():
+        return
+
+    for path in sorted(source_root.rglob("*.md")):
+        fields = source_fields(path.read_text(encoding="utf-8"))
+        kind = fields.get("source kind", "").lower()
+        try:
+            relative = path.relative_to(ROOT)
+        except ValueError:
+            relative = path
+
+        if kind == "direct":
+            if not fields.get("original source"):
+                errors.append(f"Direct source note missing Original source: {relative}")
+            if fields.get("plugin id") or fields.get("plugin provider resource id"):
+                errors.append(f"Direct source note contains Plugin reference fields: {relative}")
+        elif kind == "plugin":
+            plugin_id = fields.get("plugin id", "")
+            resource_id = fields.get("plugin provider resource id", "")
+            if plugin_id not in registry:
+                errors.append(f"Plugin source note has unknown Plugin ID: {relative}")
+            if not resource_id:
+                errors.append(
+                    f"Plugin source note missing Plugin provider resource ID: {relative}"
+                )
+            if fields.get("original source"):
+                errors.append(
+                    f"Plugin source note must not contain Original source: {relative}"
+                )
+        else:
+            errors.append(f"Source note has invalid or missing Source kind: {relative}")
 
 
 def configured_requirements(
@@ -551,6 +672,7 @@ def main() -> int:
         knowledge_categories, required_theme_pages
     )
     root_shims = load_root_shims(errors)
+    plugin_registry = load_plugin_registry(errors)
 
     for path in (*ARCHITECTURE_REQUIRED_FILES, *configured_files):
         if not path.is_file():
@@ -572,7 +694,9 @@ def main() -> int:
             errors.append(f"Unexpected top-level path outside the three-layer architecture: {path.name}")
 
     check_root_shims(errors, root_shims)
+    check_plugin_registry(errors, plugin_registry)
     check_raw_source_formats(errors)
+    check_source_note_references(errors, plugin_registry)
     check_contract_entry_points(errors)
     ai_provider_markers, add_on_platform_markers = load_portability_markers(errors)
     check_portable_layers(errors, ai_provider_markers, add_on_platform_markers)

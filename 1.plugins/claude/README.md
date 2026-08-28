@@ -28,6 +28,8 @@ The Plugin applies only to that configured environment. Local filesystem access 
 
 [project-instructions.md](project-instructions.md) is the template adapter for the configured Claude Code environment.
 
+- Plugin ID: `30291738-f1c0-4f2d-b2f2-aa4c099cf4f9`
+
 Claude Code currently reads project-level `CLAUDE.md` instructions rather than automatically loading `AGENTS.md`. Anthropic's current documentation recommends a `CLAUDE.md` file that imports `AGENTS.md`; native `AGENTS.md` support remains tracked upstream in [`anthropics/claude-code#6235`](https://github.com/anthropics/claude-code/issues/6235).
 
 The public architecture deliberately does **not** include a root `CLAUDE.md` file. Adding one is an optional private-repository setup choice because it introduces Claude-specific content at repository root.
@@ -46,6 +48,11 @@ Reference: [Claude Code project memory documentation](https://code.claude.com/do
 Provider-specific MCP, permission or execution settings may be recorded in this Plugin when required. Provider-neutral reusable skills remain under `3.add-ons/skills/`.
 
 Do not store secrets, credentials or live tokens in this Plugin.
+
+If this Plugin supplies source material to Core, its local adapter must define
+how `Plugin provider resource ID` maps to the configured resource. Core must
+not receive provider field labels, resource paths that reveal provider
+configuration or account details.
 
 ## Tool mapping
 
