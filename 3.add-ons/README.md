@@ -2,13 +2,13 @@
 
 Add-ons are optional tools and products built above the Core contracts.
 
-Every add-on must remain strictly AI-provider agnostic in its code, instructions, formats, examples and documentation. Provider adapters and compatibility material belong only under `1.plugins/`.
+Their workflow behaviour and content remain provider-neutral. The architecture may still use shared cross-provider packaging conventions such as `AGENTS.md`, `SKILL.md` and generic manifests when those conventions are defined by the Add-on contracts. Provider-specific discovery, installation, activation and compatibility material belongs only under `1.plugins/`.
 
-Read [`CONTRACT.md`](CONTRACT.md) for the provider-neutral boundary. For AI agentic use, read [`AGENTS.md`](AGENTS.md).
+Read [`CONTRACT.md`](CONTRACT.md) for the portability and packaging boundary. For AI agentic use, read [`AGENTS.md`](AGENTS.md).
 
-Current add-ons:
+Current Add-ons:
 
 - [`browser-explorer/`](browser-explorer/README.md): read-only browser view and local skill-draft interface.
 - [`skills/`](skills/README.md): provider-neutral skill catalogue, lifecycle and authoring rules.
 
-Removing every add-on must leave Core usable and every plugin structurally valid.
+Removing every Add-on must leave Core usable and every Plugin structurally valid.

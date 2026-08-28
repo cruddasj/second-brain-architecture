@@ -38,6 +38,20 @@ Before adding a Plugin rule:
 
 A Plugin may describe what a provider supports or how a Core operation maps to that provider. It must not restate the detailed semantics of the Core operation.
 
+## Portable Plugin references
+
+Portable Core or Add-on content may identify a specific optional Plugin by its immutable UUID from [plugin-registry.json](plugin-registry.json) when a stable adapter reference is needed without importing the provider name or provider-specific path into the portable layer.
+
+Such a reference:
+
+- uses the Plugin UUID as the portable identity;
+- is resolved through the registry and the selected Plugin's own documentation;
+- does not expose provider-specific configuration, resource labels, discovery paths or installation details in the portable layer;
+- does not grant access, capabilities or write authority; and
+- does not make the referenced Plugin mandatory unless the portable contract independently requires a generic capability that any conforming Plugin may provide.
+
+Provider-specific discovery and installation packaging remains owned by the Plugin. For reusable skills, place that packaging under `1.plugins/<plugin>/skills/<name>/` and link back to the generic Add-on catalogue source rather than copying its workflow semantics.
+
 ## Source reference resolution
 
 Core's

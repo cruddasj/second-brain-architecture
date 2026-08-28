@@ -14,13 +14,25 @@ Creating or downloading a draft never implies installation. Successful use never
 
 ## Canonical source copy
 
-When a skill is generated or edited for the user, save its complete validated generic definition under `3.add-ons/skills/catalogue/<name>/` in the same authorised operation. Include `SKILL.md`, required references, scripts, assets and `manifest.json`. Preserve relative paths and keep the manifest name equal to the definition name.
+When a skill is generated or edited for the user, save its complete validated generic definition under `3.add-ons/skills/catalogue/<name>/` in the same authorised operation. Preserve relative paths and keep the manifest name equal to the definition name.
 
-Provider-specific manifests and discovery metadata are excluded from the generic source copy and belong under `1.plugins/<provider>/capabilities/<name>/`.
+The generic catalogue package uses architecture-owned cross-provider packaging:
+
+- `SKILL.md` contains the reusable workflow definition.
+- `manifest.json` contains the generic lifecycle and dependency metadata.
+- References, scripts and assets are included only when the generic workflow needs them.
+
+These filenames standardise the portable repository source copy. They do not mean that a skill is installed in, discoverable by or executable through any particular provider.
+
+Provider-specific manifests, discovery metadata, transformed installation layouts and provider-only instruction files are excluded from the generic source copy. They belong under `1.plugins/<plugin>/skills/<name>/` and should link back to the generic catalogue source rather than restating its workflow rules.
+
+When generic skill content needs to identify a specific optional Plugin, use its immutable UUID from `1.plugins/plugin-registry.json` rather than a provider name or provider-specific path. The Plugin owns resolution from that UUID to its provider-specific discovery and installation details.
 
 ## Authoring
 
 Capture the trigger, intended result, required inputs, ordered workflow, boundaries, approval points, examples, validation and any named dependencies. Keep the main definition concise; move detailed domain material to references, deterministic work to scripts and reusable output material to assets only when needed.
+
+Keep workflow semantics provider-neutral. Cross-provider packaging conventions defined by the Add-on contract are allowed; provider-specific discovery, installation, activation and execution assumptions are not.
 
 ## Composition
 

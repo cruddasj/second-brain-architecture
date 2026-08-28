@@ -29,6 +29,7 @@
   ],
   "add_on_platform_markers": [
     "cloudflare",
+    "github",
     "vercel"
   ]
 }
