@@ -1,5 +1,7 @@
 # Claude plugin
 
+- Plugin ID: `30291738-f1c0-4f2d-b2f2-aa4c099cf4f9`
+
 ## Purpose
 
 This Plugin adapts Core to Claude Code as a local-checkout coding-agent environment. Unlike a connected-repository adapter, Claude Code can work directly with files, shell commands and Git state in an authorised checkout.
@@ -28,7 +30,6 @@ The Plugin applies only to that configured environment. Local filesystem access 
 
 [project-instructions.md](project-instructions.md) is the template adapter for the configured Claude Code environment.
 
-- Plugin ID: `30291738-f1c0-4f2d-b2f2-aa4c099cf4f9`
 
 Claude Code currently reads project-level `CLAUDE.md` instructions rather than automatically loading `AGENTS.md`. Anthropic's current documentation recommends a `CLAUDE.md` file that imports `AGENTS.md`; native `AGENTS.md` support remains tracked upstream in [`anthropics/claude-code#6235`](https://github.com/anthropics/claude-code/issues/6235).
 

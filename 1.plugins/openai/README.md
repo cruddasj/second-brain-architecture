@@ -1,5 +1,7 @@
 # OpenAI plugin
 
+- Plugin ID: `9450ddf6-2dfe-4e3a-880d-283435da5204`
+
 ## Purpose
 
 This Plugin adapts Core to an OpenAI connection environment. It provides OpenAI-specific connection and invocation guidance and may hold provider-specific discovery metadata when an integration requires it.
@@ -24,7 +26,6 @@ Before use, configure [project-instructions.md](project-instructions.md) for the
 
 [project-instructions.md](project-instructions.md) is the template adapter for the configured OpenAI connection and repository placeholder.
 
-- Plugin ID: `9450ddf6-2dfe-4e3a-880d-283435da5204`
 
 Provider-specific discovery metadata may be added under this Plugin only when an integration actually requires it. Provider-neutral reusable skills remain under `3.add-ons/skills/`.
 
