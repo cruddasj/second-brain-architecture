@@ -36,6 +36,8 @@ Proceed with a write only when all of these are clear:
 
 Ask one focused question when a missing answer would materially change the result.
 
+A task definition cannot satisfy the Save gate by itself. A scheduled or unattended write requires either a current explicit instruction or standing authority that the user granted separately for that deployed second brain. Bundled public task files must not contain instance-specific grants of authority. Any standing grant remains bounded by the task's documented scope, but the task cannot create or widen that grant.
+
 ## Unattended ambiguity
 
 If the Save gate would require a focused question but the invocation is scheduled or otherwise non-interactive and no user is available, do not write.
@@ -107,6 +109,6 @@ Layer boundaries are defined once in the [Core contract](../CONTRACT.md).
 
 ## Maintenance and correction
 
-A review or audit is read-only unless a separate instruction authorises exact edits. Use the [recurring freshness audit task](freshness-audit-task.md) for scheduled review of current claims and the [weekly knowledge compaction task](knowledge-compaction-task.md) for narrow consolidation of settled history. A freshness run reports candidates and never corrects them. The weekly compaction task has only the narrow standing authority written in its own file.
+A review or audit is read-only unless a separate instruction authorises exact edits. Use the [recurring freshness audit task](freshness-audit-task.md) for scheduled review of current claims and the [weekly knowledge compaction task](knowledge-compaction-task.md) for narrow consolidation of settled history. A freshness run reports candidates and never corrects them. Compaction may write only when a current instruction or separately granted standing authority satisfies the Save gate; the task definition constrains the permitted compaction but does not grant authority itself.
 
 Correct current state forward. Archive, logical forgetting, revert-assisted forgetting and historical erasure follow the [source-control policy](source-control-policy.md). Never treat ordinary forgetting as authority to rewrite shared history.

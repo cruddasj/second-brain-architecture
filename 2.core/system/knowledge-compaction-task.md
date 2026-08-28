@@ -1,7 +1,7 @@
 ---
 title: Weekly knowledge compaction task
 type: system
-updated: 2026-08-23
+updated: 2026-08-28
 ---
 
 # Weekly knowledge compaction task
@@ -10,7 +10,14 @@ Use this task definition when running maintenance. It is not part of the normal 
 
 This provider-neutral task defines a recurring maintenance operation. A scheduler or agent may invoke it, but no provider, model, hosting service or tool is part of the definition.
 
-The user's instructions of 2026-08-20 and 2026-08-21 grant standing authority for a weekly run to make only the compaction changes permitted below and to perform the report-only theme review defined here. They do not grant authority for broader freshness corrections, new knowledge, theme creation, thematic link changes, inference, archiving, forgetting or history rewriting.
+## Authority and cadence
+
+- Run at a cadence selected outside Core. Scheduling configuration belongs in the relevant optional Plugin or external system.
+- This task definition grants no standing write authority.
+- A compaction write is permitted only when a current explicit instruction or standing authority granted separately by the user satisfies the [operating-rules Save gate](operating-rules.md#save-gate) and invokes this task.
+- A bundled public architecture must not contain instance-specific standing-authority grants. Such authority belongs to the deployed second brain, not this distributable task definition.
+- When write authority is absent, perform eligibility checking and the theme review as report-only work and make no repository change.
+- Authority to run compaction is limited to the `Required result` below. It does not authorise broader freshness corrections, new knowledge, theme creation, thematic link changes, inference, archiving, forgetting or history rewriting.
 
 ## Purpose
 
@@ -68,22 +75,22 @@ Every run must include a theme review, whether or not any record qualifies for c
 7. If the correct existing theme is unclear, ask the user which theme or themes should apply.
 8. If a distinct theme appears warranted, ask whether to create it and do not create it automatically.
 
-The theme review is report-only. The standing weekly authority does not permit creating or broadening themes or adding, moving or removing thematic links. Those changes require a separate explicit instruction and normal validation.
+The theme review is report-only. Authority to perform compaction does not permit creating or broadening themes or adding, moving or removing thematic links. Those changes require a separate explicit instruction and normal validation.
 
-## Transaction
+## Authorised transaction
 
-When a candidate is eligible:
+When a candidate is eligible and write authority has been confirmed:
 
-1. Assign a `sys-YYYYMMDD-knowledge-compaction` transaction ID, adding a suffix if needed.
-2. Apply the focused page edit and prepend the Activity Log entry.
+1. Assign the immutable UUIDv4 transaction ID required by the [source-control policy](source-control-policy.md).
+2. Apply the focused page edit and prepend the Activity Log entry using that same transaction UUID.
 3. Update the index only if the page's purpose or route changed.
 4. Run `python 2.core/scripts/check_second_brain.py` and inspect the complete diff.
 5. Confirm by semantic comparison that the diff loses no distinct fact, qualifier or lineage reference.
-6. Create one focused commit and make it reachable from the configured remote default branch.
-7. Report the transaction ID, canonical commit SHA, exact files changed and a short before-and-after summary.
+6. Persist the focused change using the write route defined by the source-control policy.
+7. Report the transaction UUID, proposal or canonical status, commit receipt, exact files changed and a short before-and-after summary.
 
-If validation, semantic comparison or canonical persistence fails, stop and report the failure without claiming completion.
+If validation, semantic comparison or required persistence fails, stop and report the failure without claiming completion.
 
 ## No-op report
 
-When nothing qualifies, report that no compaction was made and identify the main reason, such as no records old enough, no repetition, unresolved uncertainty or a state-versus-event concern. Always include the result of the theme review, even when it found no link gaps or emergent-theme proposals.
+When nothing qualifies, or when a candidate qualifies but write authority is absent, report that no compaction was made and identify the main reason. Always include the result of the theme review, even when it found no link gaps or emergent-theme proposals.

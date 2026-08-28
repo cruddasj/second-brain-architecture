@@ -1,7 +1,7 @@
 ---
 title: Freshness and contradiction policy
 type: system
-updated: 2026-08-23
+updated: 2026-08-28
 ---
 
 # Freshness and contradiction policy
@@ -80,5 +80,5 @@ Use current state for what is true now. Use events to explain how it changed. Do
 Do not auto-capture chats, daily summaries, integrations or external material. A scheduled audit may report findings, but it must not change curated knowledge unless the user's separate write instruction satisfies the normal save gate.
 
 - A general freshness audit remains report-only and never auto-corrects.
-- The standing weekly authority in [`knowledge-compaction-task.md`](knowledge-compaction-task.md) permits only the narrow, meaning-preserving historical compaction defined there.
-- Any finding outside that task requires a separate explicit write instruction.
+- Knowledge compaction may modify curated history only when a current instruction or separately granted standing authority satisfies the [operating-rules Save gate](operating-rules.md#save-gate). The [`knowledge-compaction-task.md`](knowledge-compaction-task.md) constrains that operation but grants no authority by itself.
+- Any finding outside an authorised compaction operation requires a separate explicit write instruction.
