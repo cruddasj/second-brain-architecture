@@ -1,7 +1,7 @@
 ---
 title: Source-control and memory transaction policy
 type: system
-updated: 2026-08-23
+updated: 2026-08-28
 ---
 
 # Source-control and memory transaction policy
@@ -35,39 +35,62 @@ A direct write must still start from the latest remote default branch, pass the 
 
 ## Transaction identity
 
-Assign one stable transaction ID before editing:
+Assign one stable UUIDv4 transaction ID before editing.
 
-- `mem-YYYYMMDD-short-slug` for a state save or update
-- `evt-YYYYMMDD-short-slug` for an event
-- `fgt-YYYYMMDD-short-slug` for a logical forget
-- `src-YYYYMMDD-short-slug` for a source decision
-- `sys-YYYYMMDD-short-slug` for governance or structure
+Use the canonical lowercase UUID text form:
 
-If two transactions would otherwise collide, add a short time or numeric suffix. Put the same ID in the knowledge entry, Activity Log entry and commit-message scope.
+```text
+xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
+```
 
-A commit cannot contain its own SHA without changing that SHA. The Activity Log therefore records `Commit: enclosing commit`. After committing, return the actual SHA to the user as the durable receipt. The commit can later be located with its transaction ID or with `git log -- 2.core/system/activity-log.md`.
+Generate the UUID with a standard UUID library or trusted platform function. Do not hand-build it from dates, project names, provider names, operation types or other meaningful text. A transaction ID is an opaque identity only; human-readable meaning belongs in the record content, Activity Log description and commit message.
 
-For a pull request, the topic-branch SHA is only a proposal receipt. Squash, rebase or merge may produce a different canonical SHA. After merge, report the final commit reachable from the default branch; the transaction ID remains the stable cross-reference.
+The same UUID must be used in every record changed by the transaction, the Activity Log entry and the commit-message scope. Once a transaction becomes canonical, its UUID is immutable and must never be reassigned to another transaction.
+
+Example UUIDv4 transaction IDs:
+
+```text
+550e8400-e29b-41d4-a716-446655440000
+9f7c2e13-8b65-4d2a-a6f1-6cbe7e649b77
+```
+
+A commit cannot contain its own SHA without changing that SHA. The Activity Log therefore records `Commit: enclosing commit`. After committing, return the actual SHA to the user as the durable receipt. The commit can later be located with its transaction UUID or with `git log -- 2.core/system/activity-log.md`.
+
+For a pull request, the topic-branch SHA is only a proposal receipt. Squash, rebase or merge may produce a different canonical SHA. After merge, report the final commit reachable from the default branch; the transaction UUID remains the stable cross-reference.
+
+### Legacy transaction IDs
+
+Repositories created under an earlier version of this architecture may contain semantic transaction IDs such as date-and-slug identifiers.
+
+When adopting UUID transaction IDs:
+
+1. Use UUIDv4 for every new transaction from the migration point onwards.
+2. Do not rewrite shared Git history merely to replace an old transaction ID.
+3. When a current record must be migrated, assign a new UUID as its canonical transaction identity and preserve the old identifier only as a legacy alias or migration mapping where that history is still needed.
+4. Do not keep provider-specific or integration-specific legacy aliases in Core. Preserve those mappings in the relevant Plugin so Core remains provider-neutral.
+5. Never reuse an old identifier or UUID for a different transaction.
+
+The UUID is the permanent identity. Human-readable labels and legacy aliases are metadata, not identities.
 
 ## Remember transaction
 
 1. Start from the latest remote default branch. Fetch first and stop on unresolved divergence or conflicts.
 2. Confirm the explicit save authority, exact content and unambiguous folder.
-3. Assign a transaction ID and classify the fact as state or event.
+3. Assign a UUIDv4 transaction ID and classify the fact as state or event.
 4. Update the authoritative page, index and Activity Log atomically.
 5. Run `python 2.core/scripts/check_second_brain.py` and inspect the diff.
 6. Commit one logical memory operation. Do not mix unrelated memories in one commit.
 7. Apply the default write route above: open a focused pull request if any changed path is under `3.add-ons/`; otherwise push the focused commit directly to the remote default branch, unless the user's current explicit instruction overrides the default.
 8. A direct save is complete after the commit is reachable from the remote default branch. A pull-request save remains pending until merge.
-9. Confirm the transaction ID, canonical commit SHA, branch status and files changed. If a pull request is still open, report only the proposal SHA and say that no canonical SHA exists yet.
+9. Confirm the transaction UUID, canonical commit SHA, branch status and files changed. If a pull request is still open, report only the proposal SHA and say that no canonical SHA exists yet.
 
 Suggested messages:
 
 ```text
-memory(mem-20260815-communication): remember communication preference
-event(evt-20260815-project-decision): record project decision
-forget(fgt-20260815-old-preference): remove saved preference
-system(sys-20260815-routing): update routing policy
+memory(550e8400-e29b-41d4-a716-446655440000): remember communication preference
+event(9f7c2e13-8b65-4d2a-a6f1-6cbe7e649b77): record project decision
+forget(3b12f1df-5232-4804-897e-917bf397618a): remove saved preference
+system(6fa459ea-ee8a-4ca4-894e-db77e160355e): update routing policy
 ```
 
 ## Corrections
@@ -90,7 +113,7 @@ Use this only when one earlier commit contains exactly the one memory transactio
 
 Because the Activity Log is append-only, do not blindly revert a commit if doing so would delete its original log entry. In a command-line workflow:
 
-1. Inspect the target commit and confirm its transaction ID and complete diff.
+1. Inspect the target commit and confirm its transaction UUID and complete diff.
 2. Apply the inverse without committing, for example with `git revert --no-commit <sha>`.
 3. Restore the original Activity Log entry, then append a new forget entry referencing the reverted SHA.
 4. Validate the resulting current tree.

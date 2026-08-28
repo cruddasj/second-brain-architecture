@@ -19,8 +19,10 @@ Use one globally unique key for each changing value, for example project status,
   - Effective: YYYY-MM-DD
   - Last confirmed: YYYY-MM-DD
   - Source: User stated | Approved source
-  - Transaction: <transaction-id>
+  - Transaction: 550e8400-e29b-41d4-a716-446655440000
 ```
+
+The `Transaction` value is the immutable UUIDv4 assigned to the save transaction. Generate a fresh UUIDv4 for a new transaction and use that same UUID anywhere the transaction is referenced.
 
 ## Event log
 
@@ -29,7 +31,7 @@ Append decisions, completed milestones and other dated occurrences.
 ```markdown
 - [event:<YYYYMMDD-project-key-decision>] (YYYY-MM-DD) <event>
   - Source: User stated | Approved source
-  - Transaction: <transaction-id>
+  - Transaction: 9f7c2e13-8b65-4d2a-a6f1-6cbe7e649b77
 ```
 
 ## Purpose

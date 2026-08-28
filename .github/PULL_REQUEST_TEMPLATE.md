@@ -12,10 +12,12 @@
 
 ## Transaction
 
-- Transaction ID:
+- Transaction UUID:
 - State or event classification:
 - Target default branch:
 - Prior commit being reversed, if any:
+
+Use the immutable UUIDv4 defined by `2.core/system/source-control-policy.md`. The UUID must not encode dates, provider names, project names or operation meaning.
 
 ## Explicit authority
 
@@ -45,6 +47,7 @@ Confirm that inherited behaviour is linked rather than copied.
 
 - [ ] Save intent, exact content and destination were clear.
 - [ ] One logical memory operation is isolated in this transaction.
+- [ ] The transaction UUID is a UUIDv4 and is reused only for this transaction.
 - [ ] State replaces one globally unique current key, or the event is timestamped and appended.
 - [ ] No silent Inbox fallback or unapproved folder creation occurred.
 - [ ] Existing knowledge was updated instead of duplicated where possible.

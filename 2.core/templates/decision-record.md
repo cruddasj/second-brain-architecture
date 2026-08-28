@@ -60,7 +60,9 @@ Record only the minimum context explicitly authorised for saving.
   - Effective: YYYY-MM-DD
   - Last confirmed: YYYY-MM-DD
   - Source: User stated
-  - Transaction: <transaction-id>
+  - Transaction: 550e8400-e29b-41d4-a716-446655440000
+
+The `Transaction` value is the immutable UUIDv4 assigned to the save transaction. Generate a fresh UUIDv4 for a new transaction and use that same UUID throughout the transaction.
 
 ## Outcome review
 
@@ -75,7 +77,7 @@ Record only the minimum context explicitly authorised for saving.
 
 - [event:<YYYYMMDD-decision-made-key>] (YYYY-MM-DD) Decision made.
   - Source: User stated
-  - Transaction: <transaction-id>
+  - Transaction: 9f7c2e13-8b65-4d2a-a6f1-6cbe7e649b77
 
 ## Sources
 
