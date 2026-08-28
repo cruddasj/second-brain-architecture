@@ -2,6 +2,8 @@
 
 # Plugin name
 
+- Plugin ID: `<lowercase UUIDv4 registered in ../plugin-registry.json>`
+
 ## Purpose
 
 Describe the external provider, platform or system this Plugin adapts.
@@ -39,6 +41,11 @@ Examples:
 - folder or repository identifiers;
 - provider-specific query fields;
 - stable deduplication identifiers.
+
+When this Plugin can provide Core source material, document how
+`Plugin provider resource ID` maps to the provider's resource field and how
+an authorised operator resolves it. Keep the provider name, native field label,
+resource URL construction and lookup steps here rather than in Core.
 
 Do not store secrets, credentials or live tokens.
 

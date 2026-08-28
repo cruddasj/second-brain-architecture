@@ -35,6 +35,11 @@ Topic-specific state stays on its subject page. Core memory is not a general fal
 | `2.core/index.md` | Main navigation page |
 | `2.core/docs/` | Provider-neutral design explanation and research |
 
+Source locators stored in these evidence routes follow the
+[provider-neutral source reference policy](source-reference-policy.md).
+Provider names, provider-specific metadata labels and resource resolution
+rules belong under `1.plugins/`.
+
 Choose the authoritative record before considering a theme. Theme rules and reciprocal links are defined in [theme-and-decision-policy.md](theme-and-decision-policy.md).
 
 ## System and lifecycle routes
