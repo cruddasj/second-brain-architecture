@@ -43,6 +43,7 @@ Root `.github/` content is an activation shim required by GitHub, not a fourth a
 - Put each mutable fact in one authoritative state location rather than copying it across pages.
 - Record dated changes as events when history matters.
 - Preserve uncertainty, provenance and transaction lineage when correcting or compacting records.
+- Use the immutable UUIDv4 transaction identity defined by `2.core/system/source-control-policy.md`; do not encode dates, providers, projects or operation meaning into transaction IDs.
 - Keep `2.core/index.md` aligned with saved knowledge pages.
 - Use existing themes where the relationship is clear and maintain reciprocal Markdown links.
 - If theme classification is genuinely ambiguous, ask before inventing a classification.

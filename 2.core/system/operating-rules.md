@@ -1,7 +1,7 @@
 ---
 title: Operating rules
 type: system
-updated: 2026-08-27
+updated: 2026-08-28
 ---
 
 # Operating rules
@@ -48,16 +48,16 @@ If the invoking system retains reports, it may surface the pending decision for 
 
 1. Start from the latest canonical default branch.
 2. Read the destination and search for an existing page and state key.
-3. Assign the transaction ID required by the source-control policy.
+3. Assign the UUIDv4 transaction ID required by the source-control policy.
 4. Apply the routing and state-versus-event rules.
 5. Check approved themes separately from folder routing.
 6. Store the minimum useful content with source, dates and transaction lineage.
 7. Update reciprocal theme links in the same transaction when authorised and clear.
 8. Update `2.core/index.md` only for a new, moved, renamed or repurposed page or theme.
-9. Prepend one entry to `2.core/system/activity-log.md`.
+9. Prepend one entry to `2.core/system/activity-log.md` using the same transaction UUID.
 10. Run `python 2.core/scripts/check_second_brain.py` and inspect the complete diff.
 11. Persist one focused change using the source-control policy.
-12. Report the transaction ID, canonical status and exact files changed.
+12. Report the transaction UUID, canonical status and exact files changed.
 
 A connected tool, conversation memory or local edit cannot substitute for canonical repository persistence.
 

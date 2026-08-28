@@ -88,7 +88,7 @@ All task and Plugin instructions inherit the Core contract and its safety rules 
 A completed write must:
 
 1. start from the latest remote default branch;
-2. use one transaction ID;
+2. use one immutable UUIDv4 transaction ID as defined by the source-control policy;
 3. update the existing authoritative page where possible;
 4. apply the state, event, source and theme rules;
 5. update the index only when navigation changed;
@@ -96,7 +96,7 @@ A completed write must:
 7. pass `python 2.core/scripts/check_second_brain.py`;
 8. remain one focused commit or pull request under the source-control policy;
 9. become reachable from the remote default branch before it is called remembered; and
-10. report the transaction ID, commit status and exact files changed.
+10. report the transaction UUID, commit status and exact files changed.
 
 Do not claim that a save completed if validation, canonical persistence or required logging failed.
 
