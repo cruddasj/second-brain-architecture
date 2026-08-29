@@ -69,6 +69,10 @@ This is architecture-level coverage of the Plugin/Core boundary, not a claim tha
 - [Manual chat](manual-chat/README.md): universal copy-and-paste adapter requiring no connector, file or shell access.
 - [GitHub](github/README.md): optional GitHub hosting adapter and explanation of the required root activation shim.
 
+## Integration examples
+
+- [Handwritten-note ingestion](examples/handwritten-note-ingestion/README.md): a provider-neutral, privacy-safe pattern for collecting scanned notes from a cloud inbox, transcribing them to Markdown and persisting authorised results through Core.
+
 [portability-markers.json](portability-markers.json) is validation data used to detect named-provider leakage in Core and Add-ons. It contains no operating instructions.
 
 [plugin-registry.json](plugin-registry.json) maps stable opaque Plugin IDs to

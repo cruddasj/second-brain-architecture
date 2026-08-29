@@ -99,6 +99,8 @@ Plugins can support integrations such as:
 * schedulers and automation services; and
 * other systems that need controlled read or write access to Core.
 
+The [handwritten-note ingestion example](1.plugins/examples/handwritten-note-ingestion/README.md) shows how multiple Plugins and a provider-neutral Core task can work together. It includes reusable templates and a complete agent setup prompt without live provider details or personal data.
+
 A Plugin may contain provider-specific instructions, authentication guidance, scheduling configuration or tool mappings.
 
 A Plugin may be provider-specific. Core must not be.
