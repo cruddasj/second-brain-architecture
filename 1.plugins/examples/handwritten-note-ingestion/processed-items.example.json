@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "scope_ref": "1.plugins/<source-provider>/config.json",
+  "dedupe_key": "provider_item_id",
+  "processed": [],
+  "entry_schema": {
+    "provider_item_id": "stable provider item identifier",
+    "title": "item title at processing time",
+    "created_at": "provider creation timestamp",
+    "processed_at": "time the repository transaction became canonical",
+    "outcome": "saved | reviewed-no-save | needs-user-review",
+    "transaction_id": "Second Brain transaction UUID",
+    "note_path": "canonical Markdown transcription under 2.core/sources/notes/",
+    "curated_paths": "array of authoritative knowledge or memory paths changed",
+    "theme_paths": "array of existing approved theme paths linked"
+  },
+  "rules": [
+    "Do not select a recorded provider item automatically again.",
+    "Record an item only after its complete authorised transaction is canonical.",
+    "Do not record inaccessible, unreadable or failed items as processed.",
+    "Reprocess a recorded item only after an explicit request identifies it."
+  ]
+}
