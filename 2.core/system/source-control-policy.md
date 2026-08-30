@@ -1,7 +1,7 @@
 ---
 title: Source-control and memory transaction policy
 type: system
-updated: 2026-08-28
+updated: 2026-08-30
 ---
 
 # Source-control and memory transaction policy
@@ -82,7 +82,7 @@ The UUID is the permanent identity. Human-readable labels and legacy aliases are
 6. Commit one logical memory operation. Do not mix unrelated memories in one commit.
 7. Apply the default write route above: open a focused pull request if any changed path is under `3.add-ons/`; otherwise push the focused commit directly to the remote default branch, unless the user's current explicit instruction overrides the default.
 8. A direct save is complete after the commit is reachable from the remote default branch. A pull-request save remains pending until merge.
-9. Confirm the transaction UUID, canonical commit SHA, branch status and files changed. If a pull request is still open, report only the proposal SHA and say that no canonical SHA exists yet.
+9. Confirm the result using the [save confirmation format](operating-rules.md#save-confirmation-format). If a pull request is still open, report only the proposal commit link and state in `Caveats` that no canonical commit exists yet.
 
 Suggested messages:
 
