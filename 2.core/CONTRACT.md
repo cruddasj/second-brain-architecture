@@ -21,7 +21,7 @@ Before writing, also read [operating-rules.md](system/operating-rules.md), [fres
 - **Text-only Core:** Core knowledge, instructions and processes are plain text and remain usable without a named AI provider, product, model, API, SDK or managed memory service.
 - **One authoritative home:** keep each changing value in one place and link to it elsewhere.
 - **State and events:** replace a changing current state; append a dated event.
-- **User confirmation:** ask when the destination, state-versus-event classification, theme association, safety or requested operation is materially unclear; use the [unattended ambiguity fallback](system/operating-rules.md#unattended-ambiguity) when no user is present.
+- **User confirmation:** ask when the destination, state-versus-event classification, direct record relationship, theme association, safety or requested operation is materially unclear; use the [unattended ambiguity fallback](system/operating-rules.md#unattended-ambiguity) when no user is present.
 - **Minimum useful content:** retain only what is needed for later retrieval, including source, date and transaction lineage.
 - **Safety:** never store secrets or authentication material, and minimise sensitive or third-party personal information.
 
@@ -37,6 +37,7 @@ Each rule should have one detailed home:
 | Commits, pull requests, corrections and forgetting | [Source-control policy](system/source-control-policy.md) |
 | Sources and their approved scope | [Source register](system/source-register.md) |
 | Provider-neutral source references | [Source reference policy](system/source-reference-policy.md) |
+| Direct relationships between authoritative records | [Record relationship policy](system/record-relationship-policy.md) |
 | Themes and saved decisions | [Theme and decision policy](system/theme-and-decision-policy.md) |
 | Scheduled freshness review | [Freshness audit task](system/freshness-audit-task.md) |
 | Scheduled historical consolidation | [Knowledge compaction task](system/knowledge-compaction-task.md) |
@@ -59,7 +60,7 @@ Use this sequence:
 4. Put only genuinely new provider-neutral behaviour in Core.
 5. Put provider-specific configuration, identifiers, scopes and tool mappings in the relevant Plugin.
 6. Put scheduling, invocation phrases and provider-specific execution details in the relevant provider Plugin.
-7. Do not create a second definition of routing, state-versus-event handling, themes, safety, write authority, source control or persistence behaviour.
+7. Do not create a second definition of routing, state-versus-event handling, record relationships, themes, safety, write authority, source control or persistence behaviour.
 
 A task definition is primarily an orchestration layer. It may define:
 
@@ -99,7 +100,7 @@ A completed write must:
 1. start from the latest remote default branch;
 2. use one immutable UUIDv4 transaction ID as defined by the source-control policy;
 3. update the existing authoritative page where possible;
-4. apply the state, event, source and theme rules;
+4. apply the state, event, source, record-relationship and theme rules;
 5. update the index only when navigation changed;
 6. append one Activity Log entry;
 7. pass `python 2.core/scripts/check_second_brain.py`;
