@@ -10,6 +10,10 @@ updated: YYYY-MM-DD
 
 Link to every approved existing theme using relative Markdown links. Each linked theme page must link back to this record. If the correct existing theme is unclear, or a clear distinct theme has emerged, ask the user before writing.
 
+## Related records
+
+Link to another authoritative record when there is a clear, durable direct relationship. The other record must link back under its own `## Related records` section. Do not use this section for themes or source evidence, and do not copy mutable state from the linked record.
+
 ## Current state
 
 Use one globally unique key for each changing value, for example project status, current owner, next milestone or active constraint.
@@ -44,7 +48,7 @@ Express a changing constraint as state. Put the dated decision that introduced i
 
 ## Relevant saved preferences
 
-Link to the authoritative About Me or Core Memory entry rather than copying the same preference.
+Link to the authoritative record rather than copying the same preference. Use `## Related records` when the relationship is direct and durable.
 
 ## Sources
 

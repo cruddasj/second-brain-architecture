@@ -49,6 +49,8 @@ Platform-required root files are activation shims, not a fourth architecture lay
 - Preserve uncertainty, provenance and transaction lineage when correcting or compacting records.
 - Use the immutable UUIDv4 transaction identity defined by `2.core/system/source-control-policy.md`; do not encode dates, providers, projects or operation meaning into transaction IDs.
 - Keep `2.core/index.md` aligned with saved knowledge pages when navigation changes.
+- Link authoritative records under `## Related records` when they have a clear, durable direct relationship, and maintain the reciprocal link in the same transaction.
+- Keep direct record relationships separate from themes and source evidence, and do not duplicate mutable state across linked records.
 - Use existing themes where the relationship is clear and maintain reciprocal Markdown links.
 - If theme classification is genuinely ambiguous, ask before inventing a classification.
 - Propose a new theme rather than silently creating one when a clear new theme emerges.
@@ -98,6 +100,7 @@ For each required behaviour, record:
 | --- | --- | --- |
 | Folder or record routing | `2.core/system/directory.md` | Usually no |
 | Current state and events | `2.core/system/freshness-policy.md` | Usually no |
+| Direct record relationships | `2.core/system/record-relationship-policy.md` | Usually no |
 | Themes | `2.core/system/theme-and-decision-policy.md` | Usually no |
 | Repository writes, canonical status and transaction IDs | `2.core/system/source-control-policy.md` | Usually no |
 | General save workflow | `2.core/system/operating-rules.md` | Usually no |
@@ -187,7 +190,7 @@ For the browser explorer, regenerate or test its data only as required by its ow
 - Do not treat generated views, caches or browser data as canonical knowledge.
 - Do not publish a branch containing current-tree redactions while claiming its inherited Git history is free of the removed information.
 - Do not duplicate behavioural policy for convenience. Link to its authoritative owner.
-- Do not make a task definition self-contained by copying routing, theme, freshness, safety, source-reference or source-control rules.
+- Do not make a task definition self-contained by copying routing, record-relationship, theme, freshness, safety, source-reference or source-control rules.
 - Do not make a Plugin self-contained by copying Core semantics.
 - Do not invent Plugin-backed source IDs from temporary conversation or file context.
 - Do not assume an integration capability that its Plugin does not document.

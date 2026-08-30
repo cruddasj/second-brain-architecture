@@ -1,7 +1,7 @@
 ---
 title: Directory and routing
 type: system
-updated: 2026-08-23
+updated: 2026-08-30
 ---
 
 # Directory and routing
@@ -41,6 +41,8 @@ Provider names, provider-specific metadata labels and resource resolution
 rules belong under `1.plugins/`.
 
 Choose the authoritative record before considering a theme. Theme rules and reciprocal links are defined in [theme-and-decision-policy.md](theme-and-decision-policy.md).
+
+Direct relationships between authoritative records are separate from folder routing and themes. Record them using the reciprocal links defined in the [Record relationship policy](record-relationship-policy.md), without copying mutable state.
 
 ## System and lifecycle routes
 

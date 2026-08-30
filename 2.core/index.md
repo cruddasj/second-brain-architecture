@@ -1,7 +1,7 @@
 ---
 title: Second-brain index
 type: index
-updated: 2026-08-23
+updated: 2026-08-30
 ---
 
 # Second-brain index
@@ -47,7 +47,8 @@ For AI agentic use, start with [Core AGENTS.md](AGENTS.md) and follow the [opera
 - [Freshness policy](system/freshness-policy.md): state, events and contradiction handling.
 - [Freshness audit task](system/freshness-audit-task.md): recurring report-only review of current claims using deterministic scan candidates.
 - [Source-control policy](system/source-control-policy.md): commit, correction and forgetting semantics.
-- [Theme and decision policy](system/theme-and-decision-policy.md): relationships, saved decisions and reviews.
+- [Record relationship policy](system/record-relationship-policy.md): reciprocal direct links between authoritative records.
+- [Theme and decision policy](system/theme-and-decision-policy.md): thematic relationships, saved decisions and reviews.
 - [Knowledge compaction task](system/knowledge-compaction-task.md): controlled weekly historical consolidation.
 - [Source register](system/source-register.md): source status and approved scope.
 - [Activity log](system/activity-log.md): append-only history of authorised changes.
