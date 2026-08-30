@@ -154,6 +154,11 @@ Choose the default branch that will hold canonical knowledge and confirm that th
 
 Give integrations only the access they require. Keep credentials in the provider's secret store or connection settings rather than in the repository.
 
+If you use the supplied GitHub Dependabot auto-merge workflow, enable **Allow auto-merge** under **Settings → General → Pull Requests** in the repository. GitHub requires repository-level auto-merge to be enabled before the workflow can enable auto-merge for an individual Dependabot pull request.
+
+> [!NOTE]
+> AI agents configuring a GitHub repository from this architecture should explicitly advise the user to enable this setting when the supplied Dependabot auto-merge workflow is used. Do not assume the setting is enabled or change repository settings without separate authority.
+
 The supplied implementation uses GitHub, but Core itself is not GitHub-specific.
 
 GitHub-specific behaviour belongs in the GitHub Plugin and can be replaced by another storage integration without changing Core.
