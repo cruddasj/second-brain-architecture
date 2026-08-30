@@ -1,7 +1,7 @@
 ---
 title: Operating rules
 type: system
-updated: 2026-08-28
+updated: 2026-08-30
 ---
 
 # Operating rules
@@ -59,9 +59,32 @@ If the invoking system retains reports, it may surface the pending decision for 
 9. Prepend one entry to `2.core/system/activity-log.md` using the same transaction UUID.
 10. Run `python 2.core/scripts/check_second_brain.py` and inspect the complete diff.
 11. Persist one focused change using the source-control policy.
-12. Report the transaction UUID, canonical status and exact files changed.
+12. Report the result using the save confirmation format below.
 
 A connected tool, conversation memory or local edit cannot substitute for canonical repository persistence.
+
+## Save confirmation format
+
+After attempting to record information, return only these sections in this order:
+
+```text
+## Status
+<Successful or Failed>
+Transaction: <transaction UUID>
+Commit: <browser-openable commit link>
+
+<one very short confirmation notice>
+
+## Caveats
+<no more than two sentences>
+
+## Open questions
+<no more than three questions>
+```
+
+Always include `Status`. Under it, include only the result, transaction ID, commit link and, after one blank line, the short confirmation notice. Use only `Successful` or `Failed` as the result.
+
+Include `Caveats` only when caveats apply. Include `Open questions` only when answers would materially affect the overall knowledge being recorded. Do not add confirmation prose outside these sections.
 
 ## Source ingestion
 

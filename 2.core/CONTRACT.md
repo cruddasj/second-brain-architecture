@@ -105,7 +105,7 @@ A completed write must:
 7. pass `python 2.core/scripts/check_second_brain.py`;
 8. remain one focused commit or pull request under the source-control policy;
 9. become reachable from the remote default branch before it is called remembered; and
-10. report the transaction UUID, commit status and exact files changed.
+10. report the result using the [save confirmation format](system/operating-rules.md#save-confirmation-format).
 
 Do not claim that a save completed if validation, canonical persistence or required logging failed.
 
