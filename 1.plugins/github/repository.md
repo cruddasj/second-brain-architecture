@@ -1,7 +1,7 @@
 ---
 title: GitHub repository configuration
 type: integration
-updated: 2026-08-27
+updated: 2026-08-30
 ---
 
 # GitHub repository configuration
@@ -15,6 +15,12 @@ Before use, replace `OWNER/REPOSITORY` with the repository selected to hold the 
 - Hosting provider: GitHub
 - Canonical remote: `https://github.com/OWNER/REPOSITORY`
 - Default branch: `main`
+
+## Dependabot auto-merge
+
+The supplied repository-root `.github/workflows/dependabot-auto-merge.yml` workflow requires GitHub's repository-level **Allow auto-merge** setting. Enable it manually under **Settings → General → Pull Requests** before relying on the workflow.
+
+Agents configuring a repository that uses this workflow must explicitly advise the user about this setting. Do not assume it is enabled or change repository settings without separate authority.
 
 ## Supported write mechanisms
 
