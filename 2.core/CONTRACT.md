@@ -20,18 +20,33 @@ Start with [AGENTS.md](AGENTS.md), read this contract, then select the task rout
 
 ## Task context
 
+### Common tasks
+
 | Task | Required additional context |
 | --- | --- |
 | Answer from saved knowledge | [Read workflow](system/operating-rules.md#read-workflow), cross-topic memory, relevant index section and authoritative record |
-| Any repository write | [Save gate through save confirmation](system/operating-rules.md#save-gate), [privacy and safety](system/operating-rules.md#privacy-and-safety); source-control [checkpoints](system/source-control-policy.md#canonical-checkpoints), [write route](system/source-control-policy.md#default-write-route), [transaction identity](system/source-control-policy.md#transaction-identity), [remember transaction](system/source-control-policy.md#remember-transaction) and [concurrency and safety](system/source-control-policy.md#concurrency-and-safety); current destination files |
-| Save or update knowledge | Above write route plus [directory](system/directory.md), [freshness policy](system/freshness-policy.md) excluding the audit procedure unless auditing, [record relationships](system/record-relationship-policy.md), and applicable [theme and decision rules](system/theme-and-decision-policy.md) |
-| Ingest or cite source material | [Source ingestion](system/operating-rules.md#source-ingestion), [source register](system/source-register.md), [source reference policy](system/source-reference-policy.md), selected source adapter; add the write route if saving |
-| Design or change a task, Plugin or Add-on | [Integration design](system/integration-design-policy.md), relevant layer entry point and contract; add the write route if editing |
+| Prepare any repository change | [Write context](#write-context) and current destination files |
+| Save or update knowledge | [Write context](#write-context), [directory](system/directory.md), [freshness policy](system/freshness-policy.md) excluding its audit procedure, [record relationships](system/record-relationship-policy.md), and applicable [theme and decision rules](system/theme-and-decision-policy.md) |
+| Ingest or cite source material | [Source ingestion](system/operating-rules.md#source-ingestion), [source register](system/source-register.md), [source reference policy](system/source-reference-policy.md) and selected source adapter; add [write context](#write-context) when saving |
+
+### Specialist tasks
+
+| Task | Required additional context |
+| --- | --- |
+| Design or change a task, Plugin or Add-on | [Integration design](system/integration-design-policy.md) and the relevant layer entry point and contract; add [write context](#write-context) when editing |
 | Audit freshness | [Freshness audit task](system/freshness-audit-task.md) and its required inputs |
 | Compact history | [Compaction task](system/knowledge-compaction-task.md) and its staged inputs |
 | Review themes | [Theme review task](system/theme-review-task.md) |
-| Correct, archive or forget | Write route plus applicable [corrections and forgetting procedures](system/source-control-policy.md#corrections); read legacy transaction guidance only when migrating old identifiers |
-| Publish or export | [Public-release checks](system/public-release-policy.md), relevant layer and integration instructions; add the write route if editing |
+| Correct, archive or forget | [Write context](#write-context) and applicable [corrections and forgetting procedures](system/source-control-policy.md#corrections); read legacy transaction guidance only when migrating old identifiers |
+| Publish or export | [Public-release checks](system/public-release-policy.md) and relevant layer and integration instructions; add [write context](#write-context) when editing |
+
+### Write context
+
+For every repository change, read:
+
+- the [Save gate through save confirmation](system/operating-rules.md#save-gate) and [privacy and safety](system/operating-rules.md#privacy-and-safety);
+- the source-control [checkpoints](system/source-control-policy.md#canonical-checkpoints), [write route](system/source-control-policy.md#default-write-route), [transaction identity](system/source-control-policy.md#transaction-identity), [remember transaction](system/source-control-policy.md#remember-transaction) and [concurrency and safety](system/source-control-policy.md#concurrency-and-safety); and
+- each current destination file immediately before editing.
 
 Combine routes for mixed tasks. Routing reduces retrieval, not the scope of applicable rules. Before acting on a newly discovered concern, load its governing section. If section retrieval is unavailable or omits context needed to interpret a rule, read the full file.
 
