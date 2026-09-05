@@ -6,6 +6,8 @@ An optional Python 3 tool for finding and reading saved knowledge from a specifi
 
 Use the authorised integration to fetch and verify the latest canonical default branch, then supply its revision through `--ref`. The tool cannot establish remote freshness or permissions. Use a proposal revision only when the user asks about proposed work. Each result names the resolved immutable revision; all records in that result come from it, never the working tree.
 
+Resolve `--ref` to a commit SHA once per read task and reuse that same SHA for every related `search` and `read` call, rather than resolving a moving branch name each time; follow Core's [read workflow](../../2.core/system/operating-rules.md#read-workflow) for when to verify again.
+
 From the repository root:
 
 ```bash

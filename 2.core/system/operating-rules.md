@@ -12,19 +12,20 @@ The [Core contract](../CONTRACT.md) defines the invariants. This page does not r
 
 ## Read workflow
 
-For a question that may depend on saved knowledge:
+For architecture-only tasks, load the applicable policies and implementation files without loading saved personal knowledge. Instruction reuse follows the [contract's task context](../CONTRACT.md#task-context).
+
+For a question that may depend on saved knowledge, first check whether an optional retrieval interface is available. Prefer it when it can return the required context from a verified canonical revision. Use plain Markdown browsing below when it is unavailable or to fill gaps in its coverage. Treat previews as discovery only; a budget must never silently truncate a claim or its qualifications.
+
+Verify the canonical revision once at the start of a read task and reuse that immutable revision for its related lookups. Verify again for a new task, an explicit request for the latest state, or a known canonical change; refresh affected context together rather than silently mixing revisions. This does not replace the [freshness check before persistence](source-control-policy.md#remember-transaction).
+
+Both retrieval paths must include cross-topic context from `2.core/memory/core.md`, the authoritative claim's conditions, shared context, uncertainty, questions and source references. Follow dependencies when they could change the answer and read relevant linked sources when exact evidence matters. Answer from current state, use events to explain history, surface contradictions, and report unavailable evidence, omitted history or a silent repository. Ignore branches and pull requests unless the user asks about proposed work.
+
+For plain Markdown browsing:
 
 1. Read `2.core/memory/core.md` for cross-topic context.
 2. Use the relevant section of `2.core/index.md`, or search for the requested subject or state key, to locate its authoritative record. Read the whole index only when the scope requires it.
 3. Read the authoritative record. Load `2.core/system/directory.md` only when its location or ownership is unclear.
-4. Read relevant linked sources when exact evidence matters.
-5. Answer from current state; use events only to explain history.
-6. Surface contradictions and say when the repository is silent.
-7. Ignore branches and pull requests unless the user asks about proposed work.
-
-For architecture-only tasks, load the applicable policies and implementation files without loading saved personal knowledge. Instruction reuse follows the [contract's task context](../CONTRACT.md#task-context).
-
-An optional retrieval interface may return selected sections from a verified canonical revision. Include the claim's conditions, shared context, uncertainty, questions and source references. Treat previews as discovery only. Follow dependencies when they could change the answer, and report unavailable evidence or omitted history. A budget must never silently truncate a claim or its qualifications. Plain Markdown browsing remains the fallback.
+4. Follow the shared context and evidence requirements above.
 
 ## Save gate
 
