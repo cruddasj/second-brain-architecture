@@ -16,6 +16,9 @@ const minZoom = .25;
 const maxZoom = 1.6;
 const fitPadding = 72;
 
+// Transparent lighting preserves the existing theme colours, including pie slices.
+const nodeLighting = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><defs><radialGradient id="light" cx="32%" cy="25%" r="78%"><stop offset="0" stop-color="white" stop-opacity=".28"/><stop offset=".45" stop-color="white" stop-opacity=".03"/><stop offset="1" stop-color="black" stop-opacity=".28"/></radialGradient></defs><rect width="100" height="100" fill="url(#light)"/></svg>')}`;
+
 function readableDate(value?: string) {
   if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
   return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${value}T00:00:00Z`));
@@ -70,7 +73,7 @@ export default function KnowledgeGraph({ graph, loading = false }: { graph: Grap
       nodeOverlap: 32,
       gravity: .18,
       padding: fitPadding,
-      animate: true,
+      animate: !window.matchMedia("(prefers-reduced-motion: reduce)").matches,
       animationDuration: 650,
       fit: true,
       randomize: true,
@@ -102,10 +105,12 @@ export default function KnowledgeGraph({ graph, loading = false }: { graph: Grap
         { selector: "node.collection", style: { width: 58, height: 58, "background-color": unthemedColour, "border-color": "rgba(255,255,255,.72)", "border-width": 2, "font-size": 12 } },
         { selector: "node.theme", style: { width: 36, height: 36, shape: "diamond", "background-color": "#35b8b4", "border-color": "rgba(255,255,255,.8)", "border-width": 2 } },
         { selector: "node.themed", style: { "background-color": "data(themeColour)" } },
+        { selector: "node", style: { "background-opacity": 1, "background-image": nodeLighting, "background-width": "100%", "background-height": "100%", "background-image-containment": "over", "background-clip": "node", "border-width": .75, "border-color": "#ffffff", "border-opacity": .24, "text-outline-width": 2, "font-weight": 400 } },
         { selector: "node.multi-theme", style: { "pie-size": "100%", "pie-1-background-color": "data(pie1)", "pie-1-background-size": "data(pieSize1)", "pie-2-background-color": "data(pie2)", "pie-2-background-size": "data(pieSize2)", "pie-3-background-color": "data(pie3)", "pie-3-background-size": "data(pieSize3)", "pie-4-background-color": "data(pie4)", "pie-4-background-size": "data(pieSize4)", "pie-5-background-color": "data(pie5)", "pie-5-background-size": "data(pieSize5)", "pie-6-background-color": "data(pie6)", "pie-6-background-size": "data(pieSize6)", "pie-7-background-color": "data(pie7)", "pie-7-background-size": "data(pieSize7)" } },
-        { selector: "edge", style: { width: 1.25, "curve-style": "straight", "line-color": "data(edgeColour)", opacity: .64, "transition-property": "opacity", "transition-duration": 450 } },
-        { selector: "edge.reference", style: { width: 1.35, opacity: .86, "line-style": "dashed" } },
-        { selector: ".selected, .keyboard-focus", style: { "border-color": "#d9dde0", "border-width": 2.5, "underlay-color": "#d9dde0", "underlay-opacity": .38, "underlay-padding": 11, "underlay-shape": "ellipse" } },
+        { selector: "edge", style: { width: 1, "curve-style": "straight", "line-color": "data(edgeColour)", opacity: .32, "transition-property": "opacity", "transition-duration": 250 } },
+        { selector: "edge.reference", style: { width: 1.1, opacity: .5, "line-style": "dashed" } },
+        { selector: "edge.connected", style: { opacity: .8, width: 1.5 } },
+        { selector: ".selected, .keyboard-focus", style: { "border-color": "#d9dde0", "border-opacity": .9, "border-width": 2, "underlay-color": "#d9dde0", "underlay-opacity": .12, "underlay-padding": 7, "underlay-shape": "ellipse" } },
         { selector: ".focus-hidden", style: { opacity: 0, events: "no" } },
       ] as unknown as cytoscape.StylesheetJson,
     });
@@ -145,7 +150,7 @@ export default function KnowledgeGraph({ graph, loading = false }: { graph: Grap
     const cy = cyRef.current; if (!cy) return;
     cy.batch(() => {
       cy.nodes().forEach((node) => { node.style("display", visibleIds.has(node.id()) ? "element" : "none"); node.toggleClass("selected", node.id() === selectedId); node.toggleClass("keyboard-focus", node.id() === keyboardFocusId); node.toggleClass("focus-hidden", !interactiveIds.has(node.id())); });
-      cy.edges().forEach((edge) => { const visible = visibleIds.has(edge.source().id()) && visibleIds.has(edge.target().id()); edge.style("display", visible ? "element" : "none"); edge.toggleClass("focus-hidden", !interactiveIds.has(edge.source().id()) || !interactiveIds.has(edge.target().id())); });
+      cy.edges().forEach((edge) => { const visible = visibleIds.has(edge.source().id()) && visibleIds.has(edge.target().id()); edge.style("display", visible ? "element" : "none"); edge.toggleClass("connected", edge.source().id() === selectedId || edge.target().id() === selectedId || edge.source().id() === keyboardFocusId || edge.target().id() === keyboardFocusId); edge.toggleClass("focus-hidden", !interactiveIds.has(edge.source().id()) || !interactiveIds.has(edge.target().id())); });
     });
   }, [interactiveIds, keyboardFocusId, selectedId, visibleIds]);
 
@@ -157,8 +162,8 @@ export default function KnowledgeGraph({ graph, loading = false }: { graph: Grap
     const pulse = (now: number) => {
       const selectedNode = cy.getElementById(selectedId);
       if (selectedNode.length) {
-        const progress = (Math.sin((now - startedAt) / 480) + 1) / 2;
-        selectedNode.style({ "underlay-opacity": .22 + progress * .24, "underlay-padding": 9 + progress * 6 });
+        const progress = (Math.sin((now - startedAt) / 900) + 1) / 2;
+        selectedNode.style({ "underlay-opacity": .09 + progress * .05, "underlay-padding": 6 + progress * 2 });
       }
       frame = requestAnimationFrame(pulse);
     };
