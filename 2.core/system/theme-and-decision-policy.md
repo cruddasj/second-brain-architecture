@@ -1,7 +1,7 @@
 ---
 title: Theme and decision policy
 type: system
-updated: 2026-08-23
+updated: 2026-09-05
 ---
 
 # Theme and decision policy
@@ -12,7 +12,7 @@ Themes are non-authoritative navigation lenses across canonical knowledge. They 
 
 ## Theme model
 
-- The approved theme set is the collection of pages under `2.core/themes/`.
+- The approved theme set is the collection of instance-approved pages under `2.core/themes/`. Scaffold pages explicitly marked as optional examples are excluded until approved; the theme index distinguishes examples from approved themes.
 - Theme classification is separate from choosing an authoritative knowledge destination.
 - A record may link to more than one theme when each association is clear.
 - A theme page contains links and stable navigation context, not duplicated mutable state.
@@ -87,7 +87,7 @@ Capture what was learned and whether any reusable rule or skill should be propos
 
 ## Maintenance review
 
-Maintenance must check for one-way theme links, records with a clear existing-theme match and coherent patterns that may justify a distinct new theme. Findings are proposals unless the maintenance task grants a narrower standing write authority. Ambiguous matches and emergent themes must be put to the user before links or theme pages are created.
+Use the separate [theme review task](theme-review-task.md) to review associations. Mechanical validation checks broken and non-reciprocal links; semantic review checks existing-theme matches and durable patterns. Findings are proposals and do not authorise theme or link changes.
 
 ## Dashboard publication gate
 

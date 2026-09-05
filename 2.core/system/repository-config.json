@@ -9,7 +9,5 @@
     "health-and-wellbeing",
     "people-and-relationships"
   ],
-  "required_theme_pages": [
-    "finances.md"
-  ]
+  "required_theme_pages": []
 }

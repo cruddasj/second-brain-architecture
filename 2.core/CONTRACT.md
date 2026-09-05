@@ -2,14 +2,7 @@
 
 This is the provider-neutral authority for Core. It defines the rules; the linked policies define the detailed procedures. Plugins and add-ons cannot override it.
 
-For AI agentic use, start with [AGENTS.md](AGENTS.md), then read this contract. For a task that may depend on saved knowledge, continue through:
-
-1. [memory/core.md](memory/core.md)
-2. [index.md](index.md)
-3. [system/directory.md](system/directory.md)
-4. the relevant authoritative record
-
-Before writing, also read [operating-rules.md](system/operating-rules.md), [freshness-policy.md](system/freshness-policy.md), [source-control-policy.md](system/source-control-policy.md) and the destination file.
+Start with [AGENTS.md](AGENTS.md), read this contract, then select the task route below. Load applicable sections and their required references, not every linked document.
 
 ## Core invariants
 
@@ -25,90 +18,34 @@ Before writing, also read [operating-rules.md](system/operating-rules.md), [fres
 - **Minimum useful content:** retain only what is needed for later retrieval, including source, date and transaction lineage.
 - **Safety:** never store secrets or authentication material, and minimise sensitive or third-party personal information.
 
-## Policy ownership
+## Task context
 
-Each rule should have one detailed home:
-
-| Subject | Detailed authority |
+| Task | Required additional context |
 | --- | --- |
-| Folder choice and naming | [Directory and routing](system/directory.md) |
-| Read and authorised-save workflow | [Operating rules](system/operating-rules.md) |
-| Current state, events and contradictions | [Freshness policy](system/freshness-policy.md) |
-| Commits, pull requests, corrections and forgetting | [Source-control policy](system/source-control-policy.md) |
-| Sources and their approved scope | [Source register](system/source-register.md) |
-| Provider-neutral source references | [Source reference policy](system/source-reference-policy.md) |
-| Direct relationships between authoritative records | [Record relationship policy](system/record-relationship-policy.md) |
-| Themes and saved decisions | [Theme and decision policy](system/theme-and-decision-policy.md) |
-| Scheduled freshness review | [Freshness audit task](system/freshness-audit-task.md) |
-| Scheduled historical consolidation | [Knowledge compaction task](system/knowledge-compaction-task.md) |
-| Source and evidence destinations | [Directory and routing](system/directory.md) |
-| Source-inbox task orchestration | [Operating rules](system/operating-rules.md) |
-| Integration adapter scope and provider configuration | Relevant file under `1.plugins/<provider-or-system>/` |
-| Provider-specific scheduling and invocation | Relevant provider Plugin |
+| Answer from saved knowledge | [Read workflow](system/operating-rules.md#read-workflow), cross-topic memory, relevant index section and authoritative record |
+| Any repository write | [Save gate through save confirmation](system/operating-rules.md#save-gate), [privacy and safety](system/operating-rules.md#privacy-and-safety); source-control [checkpoints](system/source-control-policy.md#canonical-checkpoints), [write route](system/source-control-policy.md#default-write-route), [transaction identity](system/source-control-policy.md#transaction-identity), [remember transaction](system/source-control-policy.md#remember-transaction) and [concurrency and safety](system/source-control-policy.md#concurrency-and-safety); current destination files |
+| Save or update knowledge | Above write route plus [directory](system/directory.md), [freshness policy](system/freshness-policy.md) excluding the audit procedure unless auditing, [record relationships](system/record-relationship-policy.md), and applicable [theme and decision rules](system/theme-and-decision-policy.md) |
+| Ingest or cite source material | [Source ingestion](system/operating-rules.md#source-ingestion), [source register](system/source-register.md), [source reference policy](system/source-reference-policy.md), selected source adapter; add the write route if saving |
+| Design or change a task, Plugin or Add-on | [Integration design](system/integration-design-policy.md), relevant layer entry point and contract; add the write route if editing |
+| Audit freshness | [Freshness audit task](system/freshness-audit-task.md) and its required inputs |
+| Compact history | [Compaction task](system/knowledge-compaction-task.md) and its staged inputs |
+| Review themes | [Theme review task](system/theme-review-task.md) |
+| Correct, archive or forget | Write route plus applicable [corrections and forgetting procedures](system/source-control-policy.md#corrections); read legacy transaction guidance only when migrating old identifiers |
+| Publish or export | [Public-release checks](system/public-release-policy.md), relevant layer and integration instructions; add the write route if editing |
 
-Summaries in other files must link to these authorities rather than restating their full rules.
+Combine routes for mixed tasks. Routing reduces retrieval, not the scope of applicable rules. Before acting on a newly discovered concern, load its governing section. If section retrieval is unavailable or omits context needed to interpret a rule, read the full file.
+
+Reuse instructions already loaded in the current session only after confirming their content version is unchanged on the canonical branch, using a file hash or equivalent revision evidence. A changed branch revision requires checking the relevant files, not automatically rereading all of them. Reload changed, missing or truncated instructions. Re-read destination files immediately before editing and check canonical branch freshness before persistence. Conversation summaries and caches are not authority.
+
+The [index](index.md) lists the detailed policies. The repository README is human orientation, not a mandatory read for each routine operation.
 
 ## Behaviour ownership and integration design
 
-Before adding a new task, Plugin, Add-on or integration workflow, identify the authoritative owner of every behaviour the change requires.
-
-Use this sequence:
-
-1. List the behaviours the new feature needs.
-2. Map each behaviour to an existing Core policy or contract where one already owns it.
-3. Link to that authority instead of restating its detailed rules.
-4. Put only genuinely new provider-neutral behaviour in Core.
-5. Put provider-specific configuration, identifiers, scopes and tool mappings in the relevant Plugin.
-6. Put scheduling, invocation phrases and provider-specific execution details in the relevant provider Plugin.
-7. Do not create a second definition of routing, state-versus-event handling, record relationships, themes, safety, write authority, source control or persistence behaviour.
-
-A task definition is primarily an orchestration layer. It may define:
-
-- the sequence in which existing rules are applied;
-- task-specific eligibility;
-- task-specific limits for separately granted standing authority;
-- task-specific inputs and outputs; and
-- task-specific failure or completion conditions.
-
-A task should not copy the detailed semantics of policies it invokes.
-
-A Plugin is primarily an adapter and configuration layer. It may define:
-
-- external-system identifiers and locations;
-- approved integration scope;
-- provider timestamps and identifiers;
-- tool mappings;
-- provider-specific eligibility settings;
-- provider-owned processed-item or synchronisation state; and
-- provider-specific restrictions.
-
-When Core records a source reached through a Plugin, it stores only the
-Plugin's registered UUID and the provider resource identifier under
-provider-neutral field names. Provider names, provider-specific labels,
-resource URLs and resolution rules stay in the Plugins layer. The
-[source reference policy](system/source-reference-policy.md) defines this
-boundary.
-
-A Plugin must link back to the relevant Core task or policy rather than reproducing its behaviour.
-
-All task and Plugin instructions inherit the Core contract and its safety rules unless the user's explicit current instruction authorises a narrower exception. A lower-level task or Plugin instruction must not accidentally weaken or contradict a higher-level Core rule.
+For task, Plugin or Add-on design, follow the [integration design policy](system/integration-design-policy.md). Each behaviour has one authoritative owner; link to it rather than copying its rules.
 
 ## Authorised write outcome
 
-A completed write must:
-
-1. start from the latest remote default branch;
-2. use one immutable UUIDv4 transaction ID as defined by the source-control policy;
-3. update the existing authoritative page where possible;
-4. apply the state, event, source, record-relationship and theme rules;
-5. update the index only when navigation changed;
-6. append one Activity Log entry;
-7. pass `python 2.core/scripts/check_second_brain.py`;
-8. remain one focused commit or pull request under the source-control policy;
-9. become reachable from the remote default branch before it is called remembered; and
-10. report the result using the [save confirmation format](system/operating-rules.md#save-confirmation-format).
-
-Do not claim that a save completed if validation, canonical persistence or required logging failed.
+Follow the [authorised save workflow](system/operating-rules.md#authorised-save-workflow) and [source-control policy](system/source-control-policy.md#remember-transaction). Validate with `python 2.core/scripts/check_second_brain.py`, keep one transaction and Activity Log entry, and report canonical or proposed status accurately. Do not claim completion if validation, required logging or persistence failed.
 
 ## Layer boundaries
 
