@@ -9,7 +9,7 @@ Portability has three separate concerns. Do not treat a shared packaging convent
 ### Provider-neutral workflow content
 
 - Add-on behaviour, code, instructions, examples, tests, generated formats and documentation must not require or assume a named AI provider, hosting provider, model, proprietary memory service, provider-specific API, SDK, tool action, record field or integration path.
-- An Add-on may consume stable Core formats or a provider-neutral interface exposed by a Plugin, but its basic operation cannot depend on one provider adapter.
+- An Add-on may consume stable Core formats or a provider-neutral interface exposed by a Plugin. Core's documented read-only Markdown interface is [`2.core/scripts/record_text.py`](../2.core/CONTRACT.md#shared-core-interfaces); an Add-on may use its listed functions while preserving this contract. An Add-on cannot depend on one provider adapter.
 - When portable Add-on content must identify a specific optional Plugin without importing its provider identity, use the immutable Plugin UUID from `1.plugins/plugin-registry.json` as defined by `1.plugins/CONTRACT.md`.
 - A Plugin UUID reference identifies an optional adapter contract only. It does not grant access, widen capabilities, authorise a write or make that Plugin required for the Add-on's basic operation.
 

@@ -68,6 +68,10 @@ Reuse instructions already loaded in the current session only after confirming t
 
 The [index](index.md) lists the detailed policies. The repository README is human orientation, not a mandatory read for each routine operation.
 
+### Shared Core interfaces
+
+`2.core/scripts/record_text.py` is a stable, provider-neutral read-only interface for Markdown record conventions used by Core validators and optional Add-ons. Its public functions are `visible_lines`, `metadata`, `headings`, `anchors`, `sections`, `links` and `local_target`. Keep this path and these function meanings compatible; a breaking change requires updating its documented consumers and validation in the same transaction. The module parses the repository's limited record conventions and is not a general Markdown renderer.
+
 ## Behaviour ownership and integration design
 
 For task, Plugin or Add-on design, follow the [integration design policy](system/integration-design-policy.md). Each behaviour has one authoritative owner; link to it rather than copying its rules.

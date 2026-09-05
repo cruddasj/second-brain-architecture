@@ -55,6 +55,7 @@ For AI agentic use, start with [Core AGENTS.md](AGENTS.md) and follow the [opera
 - [Integration design](system/integration-design-policy.md): behaviour ownership when extending the architecture.
 - [Public-release policy](system/public-release-policy.md): generic distribution and export checks.
 - [Source register](system/source-register.md): source status and approved scope.
+- [Source reference policy](system/source-reference-policy.md): provider-neutral source provenance and identifiers.
 - [Activity log](system/activity-log.md): append-only history of authorised changes.
 
 ## Templates
