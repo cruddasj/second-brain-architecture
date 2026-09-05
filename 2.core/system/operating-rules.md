@@ -67,11 +67,13 @@ If the invoking system retains reports, it may surface the pending decision for 
 11. Prepend one entry to `2.core/system/activity-log.md` using the same transaction UUID.
 12. Run `python 2.core/scripts/check_second_brain.py` and inspect the complete diff.
 13. Persist one focused change using the source-control policy.
-14. Report the result using the save confirmation format below.
+14. Return the save confirmation as the final step of the transaction. The write is not complete from the user's perspective until this receipt has been returned.
 
 A connected tool, conversation memory or local edit cannot substitute for canonical repository persistence.
 
 ## Save confirmation format
+
+This format is mandatory after every attempted authorised save. Do not replace it with a conversational confirmation or provider-specific write response.
 
 After attempting to record information, return only these sections in this order:
 
