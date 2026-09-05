@@ -24,9 +24,9 @@ Start with [AGENTS.md](AGENTS.md), read this contract, then select the task rout
 
 | Task | Required additional context |
 | --- | --- |
-| Answer from saved knowledge | [Read workflow](system/operating-rules.md#read-workflow), cross-topic memory, relevant index section and authoritative record |
+| Answer from saved knowledge | [Read workflow](system/operating-rules.md#read-workflow), cross-topic memory and authoritative record with relevant context; use the index only as needed to locate records |
 | Prepare any repository change | [Write context](#write-context) and current destination files |
-| Save or update knowledge | [Write context](#write-context), [directory](system/directory.md), [freshness policy](system/freshness-policy.md) excluding its audit procedure, [record relationships](system/record-relationship-policy.md), and applicable [theme and decision rules](system/theme-and-decision-policy.md) |
+| Save or update knowledge | [Write context](#write-context) and [knowledge save context](#knowledge-save-context) |
 | Ingest or cite source material | [Source ingestion](system/operating-rules.md#source-ingestion), [source register](system/source-register.md), [source reference policy](system/source-reference-policy.md) and selected source adapter; add [write context](#write-context) when saving |
 
 ### Specialist tasks
@@ -37,8 +37,20 @@ Start with [AGENTS.md](AGENTS.md), read this contract, then select the task rout
 | Audit freshness | [Freshness audit task](system/freshness-audit-task.md) and its required inputs |
 | Compact history | [Compaction task](system/knowledge-compaction-task.md) and its staged inputs |
 | Review themes | [Theme review task](system/theme-review-task.md) |
+| Save or review a decision | Knowledge save route plus the theme policy's [Save gate](system/theme-and-decision-policy.md#save-gate), [Decision record](system/theme-and-decision-policy.md#decision-record) and, when reviewing an outcome, [Outcome review](system/theme-and-decision-policy.md#outcome-review) |
 | Correct, archive or forget | [Write context](#write-context) and applicable [corrections and forgetting procedures](system/source-control-policy.md#corrections); read legacy transaction guidance only when migrating old identifiers |
 | Publish or export | [Public-release checks](system/public-release-policy.md) and relevant layer and integration instructions; add [write context](#write-context) when editing |
+
+### Knowledge save context
+
+For an ordinary knowledge save, load:
+
+- the [directory's opening routing rule](system/directory.md#directory-and-routing), [Authoritative knowledge routes](system/directory.md#authoritative-knowledge-routes) and [Naming](system/directory.md#naming); add [Common ambiguities](system/directory.md#common-ambiguities) when ownership is unclear;
+- the [freshness policy](system/freshness-policy.md), excluding its audit procedure;
+- the full [record relationship policy](system/record-relationship-policy.md), whose creation, reciprocity, boundary and save checks all apply; and
+- the theme policy's [Theme model](system/theme-and-decision-policy.md#theme-model), [Theme selection during a write](system/theme-and-decision-policy.md#theme-selection-during-a-write) and [Reciprocal content-link rule](system/theme-and-decision-policy.md#reciprocal-content-link-rule).
+
+Load [Evidence and navigation routes](system/directory.md#evidence-and-navigation-routes) when writing sources, indexes or themes, and [System and lifecycle routes](system/directory.md#system-and-lifecycle-routes) for those destinations. A new-theme proposal also needs [Emergent-theme proposal](system/theme-and-decision-policy.md#emergent-theme-proposal). Saving decisions uses the specialist route above; changing browser inclusion needs the [Dashboard publication gate](system/theme-and-decision-policy.md#dashboard-publication-gate).
 
 ### Write context
 
