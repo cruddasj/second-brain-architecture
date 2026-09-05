@@ -27,6 +27,12 @@ jobs:
         run: python 2.core/scripts/check_second_brain.py
       - name: Test deterministic freshness scanner
         run: python -m unittest discover -s 2.core/scripts -p 'test_*.py'
+      - name: Test optional knowledge retrieval
+        run: |
+          if [ -d 3.add-ons/knowledge-retrieval ]; then
+            python -m unittest discover -s 3.add-ons/knowledge-retrieval -p 'test_*.py'
+            python 3.add-ons/knowledge-retrieval/benchmark.py
+          fi
       - name: Validate browser data generation
         run: |
           node 3.add-ons/browser-explorer/scripts/build-brain-data.mjs

@@ -24,6 +24,8 @@ For a question that may depend on saved knowledge:
 
 For architecture-only tasks, load the applicable policies and implementation files without loading saved personal knowledge. Instruction reuse follows the [contract's task context](../CONTRACT.md#task-context).
 
+An optional retrieval interface may return selected sections from a verified canonical revision. Include the claim's conditions, shared context, uncertainty, questions and source references. Treat previews as discovery only. Follow dependencies when they could change the answer, and report unavailable evidence or omitted history. A budget must never silently truncate a claim or its qualifications. Plain Markdown browsing remains the fallback.
+
 ## Save gate
 
 Proceed with a write only when all of these are clear:

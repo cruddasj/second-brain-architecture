@@ -8,6 +8,7 @@ Read [`CONTRACT.md`](CONTRACT.md) for the portability and packaging boundary. Fo
 
 Current Add-ons:
 
+- [`knowledge-retrieval/`](knowledge-retrieval/README.md): revision-bound search and context-preserving Markdown retrieval.
 - [`browser-explorer/`](browser-explorer/README.md): read-only browser view and local skill-draft interface.
 - [`skills/`](skills/README.md): provider-neutral skill catalogue, lifecycle and authoring rules.
 

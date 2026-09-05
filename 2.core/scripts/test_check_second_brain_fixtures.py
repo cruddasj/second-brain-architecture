@@ -84,6 +84,7 @@ class ValidatorFixture:
             Path(check.__file__).read_text(encoding="utf-8"),
         )
         self.write("2.core/scripts/audit_freshness.py")
+        self.write("2.core/scripts/record_text.py", Path(check.record_text.__file__).read_text(encoding="utf-8"))
         self.write("2.core/scripts/test_audit_freshness.py")
         self.write("2.core/scripts/test_check_second_brain.py")
 

@@ -1,4 +1,14 @@
+---
+title: Source title
+type: source-note
+record_id: <generate-a-UUIDv4>
+aliases: []
+updated: YYYY-MM-DD
+---
+
 # Source title
+
+Use the [record structure policy](../system/record-structure-policy.md) for identity, headings and context placement. Replace the ID placeholder once; remove these authoring instructions and empty optional sections when saving.
 
 ## Source record
 
@@ -20,15 +30,15 @@ field labels, resource URLs and resolution instructions out of Core. See the
 
 ## Summary
 
-## Claims and evidence
-
 ## Limits or uncertainty
 
 State whether the material describes a dated event, a claim that was current only at publication, or a claim expected to remain stable. A newer publication is evidence, not automatic authority.
 
-## Connections
-
 ## Contradictions
+
+## Claims and evidence
+
+## Connections
 
 ## Potential updates to curated knowledge
 
