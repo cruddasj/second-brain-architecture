@@ -25,6 +25,14 @@ To use the architecture, create a private repository based on it and add your ow
 
 The public repository contains the architecture and scaffold. Your private repository becomes your second brain.
 
+## What you can use it for
+
+A second brain built with this architecture can support many kinds of long-term knowledge and AI-assisted work. For example:
+
+* **Personal knowledge and decisions** — Build a second brain that remembers important facts, decisions and reasoning, making your knowledge easy to find and use later.
+* **Projects and personal goals** — Track projects, goals, progress and next actions, giving AI the context to help you stay organised and move things forward.
+* **Shared memory across AI providers** — Give different AI assistants access to the same knowledge base, allowing them to share context and work from the same durable knowledge without locking it to a single provider.
+
 ## What this is not
 
 * **It is not an AI product or model.** AI systems are replaceable interfaces to a second brain built using this architecture.
@@ -43,6 +51,7 @@ The public repository contains the architecture and scaffold. Your private repos
 
 ## Contents
 
+* [What you can use it for](#what-you-can-use-it-for)
 * [Why portable memory matters](#why-portable-memory-matters)
 * [Architecture](#architecture)
 * [Get started](#get-started)
