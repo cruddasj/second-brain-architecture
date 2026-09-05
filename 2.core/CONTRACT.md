@@ -17,6 +17,7 @@ Start with [AGENTS.md](AGENTS.md), read this contract, then select the task rout
 - **User confirmation:** ask when the destination, state-versus-event classification, direct record relationship, theme association, safety or requested operation is materially unclear; use the [unattended ambiguity fallback](system/operating-rules.md#unattended-ambiguity) when no user is present.
 - **Minimum useful content:** retain only what is needed for later retrieval, including source, date and transaction lineage.
 - **Safety:** never store secrets or authentication material, and minimise sensitive or third-party personal information.
+- **Write completion and receipt:** an attempted authorised save is not complete until its persistence result has been reported using the canonical [save confirmation format](system/operating-rules.md#save-confirmation-format). A successful canonical write must report the transaction UUID and actual commit reachable from the configured remote default branch. A proposed branch or pull-request commit must not be reported as canonical. Integrations may control presentation only when they preserve the required fields, status semantics and proposed-versus-canonical distinction.
 
 ## Task context
 
