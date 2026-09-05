@@ -49,6 +49,10 @@ class ValidatorFixture:
         self.write("2.core/README.md", "Contract marker (CONTRACT.md)\n")
         self.write("2.core/AGENTS.md", "Contract marker (CONTRACT.md)\n")
         self.write("2.core/CONTRACT.md")
+        for path in ("system/theme-review-task.md", "system/integration-design-policy.md",
+                     "system/public-release-policy.md", "scripts/scan_compaction.py",
+                     "scripts/test_scan_compaction.py"):
+            self.write("2.core/" + path)
         self.write("2.core/docs/research.md")
         self.write("2.core/index.md", "# Index\n")
         self.write("2.core/memory/core.md", "# Core memory\n\n## Current state\n")

@@ -1,10 +1,10 @@
 ---
-title: Weekly knowledge compaction task
+title: Knowledge compaction task
 type: system
-updated: 2026-08-28
+updated: 2026-09-05
 ---
 
-# Weekly knowledge compaction task
+# Knowledge compaction task
 
 Use this task definition when running maintenance. It is not part of the normal reading path through saved knowledge.
 
@@ -16,7 +16,7 @@ This provider-neutral task defines a recurring maintenance operation. A schedule
 - This task definition grants no standing write authority.
 - A compaction write is permitted only when a current explicit instruction or standing authority granted separately by the user satisfies the [operating-rules Save gate](operating-rules.md#save-gate) and invokes this task.
 - A bundled public architecture must not contain instance-specific standing-authority grants. Such authority belongs to the deployed second brain, not this distributable task definition.
-- When write authority is absent, perform eligibility checking and the theme review as report-only work and make no repository change.
+- When write authority is absent, perform eligibility checking as report-only work and make no repository change.
 - Authority to run compaction is limited to the `Required result` below. It does not authorise broader freshness corrections, new knowledge, theme creation, thematic link changes, inference, archiving, forgetting or history rewriting.
 
 ## Purpose
@@ -53,7 +53,7 @@ Compaction changes representation, not knowledge. It must not merge distinct eve
 
 ## Safety gates
 
-- Read the latest canonical default branch and the Core contract and policies before judging candidates.
+- Use the latest canonical default branch and the Core contract. Load policies according to the staged candidate review below before an authorised edit.
 - Compare the proposed compact record against every source entry line by line.
 - Do not infer a missing date, amount, relationship, outcome or source.
 - Do not change `## Current state`, promote an event into state, or turn mutable state into an immutable record.
@@ -62,20 +62,20 @@ Compaction changes representation, not knowledge. It must not merge distinct eve
 - Process at most one subject page in a run so the change remains reviewable and reversible.
 - If no candidate passes every gate, make no repository change.
 
-## Theme review
+## Staged candidate review
 
-Every run must include a theme review, whether or not any record qualifies for compaction.
+1. Read the latest canonical branch and this task. Run the read-only screen before loading subject records:
 
-1. Read the current theme index and theme pages.
-2. Review knowledge added or materially changed since the previous run, plus currently unthemed records when practical.
-3. Identify one-way or broken reciprocal theme associations.
-4. Identify records that have a clear match to an existing theme but are not linked to it.
-5. Identify only strong, durable patterns that are distinct from existing themes and could connect more than one authoritative record or a clear continuing stream of knowledge.
-6. Report each proposal with the existing or proposed theme, its purpose, the affected authoritative records and the exact reciprocal links that would be added.
-7. If the correct existing theme is unclear, ask the user which theme or themes should apply.
-8. If a distinct theme appears warranted, ask whether to create it and do not create it automatically.
+   ```bash
+   python 2.core/scripts/scan_compaction.py 2.core --json
+   ```
 
-The theme review is report-only. Authority to perform compaction does not permit creating or broadening themes or adding, moving or removing thematic links. Those changes require a separate explicit instruction and normal validation.
+2. The scanner lists pages containing at least two structured events dated at least 12 calendar months earlier. It does not establish that they concern the same settled event or closed period. Read its coverage warnings; unstructured history and closed-period end dates require semantic review.
+3. If there are no candidates, report the scope and warnings and stop. An empty screen is not proof that all history is compact. A separately requested review may inspect history the screen cannot assess.
+4. For a candidate, load that page and the evidence needed to apply every eligibility and safety gate. Work through candidates in path order and stop after finding one eligible page. Report any unreviewed candidates; a run may stop earlier if its configured review budget is reached.
+5. Only after a page qualifies and write authority is established, load the contract's write route and the applicable freshness, relationship and theme rules. Re-read the destination before editing. No compaction can bypass semantic comparison or normal validation.
+
+Theme review is a separate [report-only task](theme-review-task.md). A compaction invocation does not require it. Normal validation still checks links affected by an authorised edit.
 
 ## Authorised transaction
 
@@ -93,4 +93,4 @@ If validation, semantic comparison or required persistence fails, stop and repor
 
 ## No-op report
 
-When nothing qualifies, or when a candidate qualifies but write authority is absent, report that no compaction was made and identify the main reason. Always include the result of the theme review, even when it found no link gaps or emergent-theme proposals.
+When nothing qualifies, or when a candidate qualifies but write authority is absent, report that no compaction was made and identify the main reason. Include the scan date, branch revision, paths inspected, coverage warnings and any unreviewed candidates. A scanner failure is a failed screen, not a successful empty result.

@@ -1,7 +1,7 @@
 ---
 title: Second-brain index
 type: index
-updated: 2026-08-30
+updated: 2026-09-05
 ---
 
 # Second-brain index
@@ -24,8 +24,8 @@ Add records only when the user explicitly authorises them. Each saved page must 
 
 ### Themes
 
-- [Theme index](themes/index.md): navigation across approved themes. The public scaffold starts with an empty generic Finances theme as an example of the theme structure.
-- [Finances](themes/finances.md): empty example theme with no personal records.
+- [Theme index](themes/index.md): navigation across approved themes. The public scaffold includes a removable example, separate from instance-approved themes.
+- [Finances](themes/finances.md): optional, unapproved example theme with no personal records.
 
 ### Cross-topic memory
 
@@ -49,7 +49,10 @@ For AI agentic use, start with [Core AGENTS.md](AGENTS.md) and follow the [opera
 - [Source-control policy](system/source-control-policy.md): commit, correction and forgetting semantics.
 - [Record relationship policy](system/record-relationship-policy.md): reciprocal direct links between authoritative records.
 - [Theme and decision policy](system/theme-and-decision-policy.md): thematic relationships, saved decisions and reviews.
-- [Knowledge compaction task](system/knowledge-compaction-task.md): controlled weekly historical consolidation.
+- [Knowledge compaction task](system/knowledge-compaction-task.md): candidate-led historical consolidation.
+- [Theme review task](system/theme-review-task.md): separate report-only review of changed associations, with periodic wider coverage.
+- [Integration design](system/integration-design-policy.md): behaviour ownership when extending the architecture.
+- [Public-release policy](system/public-release-policy.md): generic distribution and export checks.
 - [Source register](system/source-register.md): source status and approved scope.
 - [Activity log](system/activity-log.md): append-only history of authorised changes.
 

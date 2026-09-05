@@ -10,6 +10,8 @@ The skill workspace teaches reusable workflows without bypassing the Core write 
 4. **Adopted:** explicitly approved for regular use.
 5. **Disabled, Uninstalled or Retired:** recorded as later lifecycle events without erasing earlier history.
 
+A distributed catalogue package may have status `Bundled`: source is available, but installation and adoption have not been recorded for an instance. Do not seed installation or adoption dates in a public scaffold. Bundled packages are not eligible for routine composition until explicitly adopted in the deployed instance.
+
 Creating or downloading a draft never implies installation. Successful use never implies adoption.
 
 ## Canonical source copy

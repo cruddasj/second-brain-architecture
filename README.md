@@ -222,7 +222,7 @@ It helps an AI agent understand:
 
 Install it using your AI tool's normal skill mechanism.
 
-The skill complements the repository's `AGENTS.md` files and contracts. It does not replace them.
+The skill routes to the repository's `AGENTS.md` files and task-specific contract sections. It does not copy or replace their operating rules. Bundling the source does not install or adopt it for an instance; record those steps only when they actually happen.
 
 ### 5. Add your first useful knowledge
 
@@ -310,7 +310,9 @@ When adding or updating knowledge:
 * update indexes and themes where required; and
 * validate authorised changes before treating the save as complete.
 
-The [`2.core/index.md`](2.core/index.md) file is the main entry point for browsing saved knowledge.
+The [`2.core/index.md`](2.core/index.md) file is the main entry point for browsing saved knowledge. Agents use the [task-context table](2.core/CONTRACT.md#task-context) to load relevant instructions, reuse verified unchanged instruction versions, and avoid reading unrelated policies for routine questions.
+
+The empty Finances theme is an optional example, not an approved instance theme or a required file. It can be removed together with its index links; new instances may begin without any approved themes.
 
 Detailed operating rules are defined by the [Core contract](2.core/CONTRACT.md) and the policies under [`2.core/system/`](2.core/system/).
 
@@ -378,8 +380,11 @@ Core includes provider-neutral task definitions for maintaining a second brain o
 
 The supplied tasks currently include:
 
-* [`knowledge-compaction-task.md`](2.core/system/knowledge-compaction-task.md), which consolidates repetitive descriptions of settled historical knowledge while preserving meaning, evidence and transaction lineage; and
-* [`freshness-audit-task.md`](2.core/system/freshness-audit-task.md), which identifies potentially stale, contradictory or unsupported claims without changing the repository.
+* [`knowledge-compaction-task.md`](2.core/system/knowledge-compaction-task.md), which screens for old event candidates before consolidating one eligible page while preserving meaning, evidence and transaction lineage;
+* [`freshness-audit-task.md`](2.core/system/freshness-audit-task.md), which identifies potentially stale, contradictory or unsupported claims without changing the repository; and
+* [`theme-review-task.md`](2.core/system/theme-review-task.md), which separately reviews changed theme associations and supports periodic wider reviews without changing links.
+
+Compaction stops when its deterministic screen finds no candidates, reporting coverage limits. It does not require a theme review. Review checkpoints and retained reports belong to the invoking integration; the public scaffold includes no live audit or adoption status.
 
 Core defines **what** a maintenance task does and what authority it has.
 

@@ -1,7 +1,7 @@
 ---
 title: Skill register
 type: register
-updated: 2026-08-23
+updated: 2026-09-05
 ---
 
 # Skill register
@@ -10,26 +10,20 @@ Installation and adoption are separate decisions. Provider-specific plugin lifec
 
 ## Status definitions
 
+- `Bundled`: distributed source only; no instance installation or adoption implied.
 - `Experimental`: installed or enabled for evaluation.
 - `Adopted`: explicitly confirmed for regular use.
 - `Disabled`: retained but not active.
 - `Uninstalled`: removed from the environment.
 - `Retired`: no longer intended for use, while history remains.
 
-## Work with the Second Brain Architecture
+## Bundled catalogue
 
-- Type: Reusable skill
-- Origin: Second Brain architecture
-- Installed: 2026-08-23
-- Status: Adopted
-- Purpose: work safely and consistently with repositories that implement the portable Second Brain architecture
-- Access notes: applies when reading, maintaining, extending, sanitising or integrating the Second Brain architecture; complete source: `3.add-ons/skills/catalogue/work-with-second-brain-architecture/`
-- Adoption date: 2026-08-23
-- Version: Not recorded
+- [Work with the Second Brain architecture](catalogue/work-with-second-brain-architecture/): available source package; no instance installation or adoption is recorded.
 
-### Lifecycle
+## Instance lifecycle
 
-- 2026-08-23: Added to the public release as the architecture's bundled reusable skill and adopted for regular use.
+No instance lifecycle events are included in the public scaffold. Record actual authorised installation and adoption in the deployed repository, not in this distribution.
 
 ## Entry format
 

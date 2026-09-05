@@ -1,7 +1,7 @@
 ---
 title: Source-control and memory transaction policy
 type: system
-updated: 2026-08-30
+updated: 2026-09-05
 ---
 
 # Source-control and memory transaction policy
@@ -74,24 +74,14 @@ The UUID is the permanent identity. Human-readable labels and legacy aliases are
 
 ## Remember transaction
 
-1. Start from the latest remote default branch. Fetch first and stop on unresolved divergence or conflicts.
-2. Confirm the explicit save authority, exact content and unambiguous folder.
-3. Assign a UUIDv4 transaction ID and classify the fact as state or event.
-4. Update the authoritative page, index and Activity Log atomically.
-5. Run `python 2.core/scripts/check_second_brain.py` and inspect the diff.
-6. Commit one logical memory operation. Do not mix unrelated memories in one commit.
-7. Apply the default write route above: open a focused pull request if any changed path is under `3.add-ons/`; otherwise push the focused commit directly to the remote default branch, unless the user's current explicit instruction overrides the default.
-8. A direct save is complete after the commit is reachable from the remote default branch. A pull-request save remains pending until merge.
-9. Confirm the result using the [save confirmation format](operating-rules.md#save-confirmation-format). If a pull request is still open, report only the proposal commit link and state in `Caveats` that no canonical commit exists yet.
+Use the [authorised save workflow](operating-rules.md#authorised-save-workflow) for editing, logging and validation. Persistence adds these requirements:
 
-Suggested messages:
+1. Fetch the latest remote default branch and stop on unresolved divergence or conflicts.
+2. Keep one logical transaction in one focused commit, using its UUID in the commit-message scope.
+3. Apply the default write route above unless the current instruction overrides it. A branch or open pull request remains proposed until its commit is reachable from the remote default branch.
+4. Return the actual commit receipt using the [save confirmation format](operating-rules.md#save-confirmation-format). For a proposal, identify that no canonical commit exists yet.
 
-```text
-memory(550e8400-e29b-41d4-a716-446655440000): remember communication preference
-event(9f7c2e13-8b65-4d2a-a6f1-6cbe7e649b77): record project decision
-forget(3b12f1df-5232-4804-897e-917bf397618a): remove saved preference
-system(6fa459ea-ee8a-4ca4-894e-db77e160355e): update routing policy
-```
+For example, `system(<transaction-uuid>): update routing policy` labels an architecture change without embedding a mutable fact in the message.
 
 ## Corrections
 

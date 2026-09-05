@@ -1,14 +1,14 @@
 ---
 title: Recurring freshness audit task
 type: system
-updated: 2026-08-27
+updated: 2026-09-05
 ---
 
 # Recurring freshness audit task
 
 This provider-neutral task defines a recurring, read-only review of current knowledge. A scheduler, agent or person may invoke it. No provider, model, hosting service, account, API or scheduling product is part of the definition.
 
-This task is separate from [weekly knowledge compaction](knowledge-compaction-task.md). Freshness auditing finds claims that may no longer be true; compaction reduces repeated descriptions of settled history. One must not be treated as authority to perform the other.
+This task is separate from [knowledge compaction](knowledge-compaction-task.md). Freshness auditing finds claims that may no longer be true; compaction reduces repeated descriptions of settled history. One must not be treated as authority to perform the other.
 
 ## Authority and cadence
 
@@ -70,5 +70,7 @@ Every run reports:
 4. other candidate conflicts, ordered by likely effect on future answers;
 5. any proposed focused corrections and the evidence for each; and
 6. a clear statement that no repository write was made.
+
+Return audit status in the invocation report; do not copy it into always-loaded memory. If retained, the invoking system owns that report and its run metadata outside Core.
 
 Do not append an Activity Log entry for a report-only run because Core did not change. If the user later authorises a correction, that correction receives its own transaction ID, validation, Activity Log entry and canonical commit.

@@ -4,7 +4,7 @@ Core is the portable, text-only second brain. It contains the canonical knowledg
 
 Start with the [Second-brain index](index.md) to browse and navigate saved knowledge. Read system policies when reviewing how the repository is governed.
 
-For AI agentic use, read [AGENTS.md](AGENTS.md), then the shared [operating contract](CONTRACT.md). Before a write, follow the linked operating, freshness and source-control policies.
+For AI agentic use, read [AGENTS.md](AGENTS.md), then the shared [operating contract](CONTRACT.md). Use the contract's task-context table to load the applicable policies before acting.
 
 ## What Core contains
 
