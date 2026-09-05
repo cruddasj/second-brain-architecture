@@ -32,6 +32,8 @@ Represent every approved direct relationship with two relative Markdown links:
 
 Add a short description when the record titles alone do not explain the relationship. Link to the authoritative record instead of repeating its mutable state.
 
+Use precise, stable section links when they explain the relationship better than a whole-page link. Follow the [record structure policy](record-structure-policy.md) for identifiers, anchors and moves. The validator checks that each direct backlink appears under `Related records`, not merely elsewhere on the target page.
+
 When a related record is moved or renamed, update both links. When an authorised change ends the relationship, remove both links in the same transaction. A one-way link under `## Related records` is incomplete.
 
 The section may be omitted when a record has no clear direct relationship. Add it to both existing records when creating their first relationship.

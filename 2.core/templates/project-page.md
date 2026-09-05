@@ -1,20 +1,22 @@
 ---
 title: Project title
 type: knowledge
+record_id: <generate-a-UUIDv4>
+aliases: []
 updated: YYYY-MM-DD
 ---
 
 # Project title
 
-## Themes
+Use the [record structure policy](../system/record-structure-policy.md) for identity, headings and context placement. Replace the ID placeholder once; remove these authoring instructions and empty optional sections when saving.
 
-Link to every approved existing theme using relative Markdown links. Each linked theme page must link back to this record. If the correct existing theme is unclear, or a clear distinct theme has emerged, ask the user before writing.
+## Purpose
 
-## Related records
-
-Link to another authoritative record when there is a clear, durable direct relationship. The other record must link back under its own `## Related records` section. Do not use this section for themes or source evidence, and do not copy mutable state from the linked record.
+Describe the project's aim and scope without repeating its current status.
 
 ## Current state
+
+Keep each claim's conditions, exceptions and uncertainty in the same entry. Use a stable descriptive subheading when a claim needs a direct link.
 
 Use one globally unique key for each changing value, for example project status, current owner, next milestone or active constraint.
 
@@ -28,6 +30,28 @@ Use one globally unique key for each changing value, for example project status,
 
 The `Transaction` value is the immutable UUIDv4 assigned to the save transaction. Generate a fresh UUIDv4 for a new transaction and use that same UUID anywhere the transaction is referenced.
 
+## Confirmed constraints
+
+Express a changing constraint as state. Put the dated decision that introduced it in the Event log when useful.
+
+## Open questions
+
+## Uncertainty or contradictions
+
+Keep unresolved conditions visible without silently choosing a version.
+
+## Related records
+
+Link to another authoritative record when there is a clear, durable direct relationship. The other record must link back under its own `## Related records` section. Do not use this section for themes or source evidence, and do not copy mutable state from the linked record.
+
+## Themes
+
+Link to every approved existing theme using relative Markdown links. Each linked theme page must link back to this record. If the correct existing theme is unclear, or a clear distinct theme has emerged, ask the user before writing.
+
+## Relevant saved preferences
+
+Link to the authoritative record rather than copying the same preference. Use `## Related records` when the relationship is direct and durable.
+
 ## Event log
 
 Append decisions, completed milestones and other dated occurrences.
@@ -38,20 +62,6 @@ Append decisions, completed milestones and other dated occurrences.
   - Transaction: 9f7c2e13-8b65-4d2a-a6f1-6cbe7e649b77
 ```
 
-## Purpose
-
-## Confirmed constraints
-
-Express a changing constraint as state. Put the dated decision that introduced it in the Event log when useful.
-
-## Open questions
-
-## Relevant saved preferences
-
-Link to the authoritative record rather than copying the same preference. Use `## Related records` when the relationship is direct and durable.
-
 ## Sources
 
 Use only sources whose status and scope permit the intended use.
-
-## Uncertainty or contradictions

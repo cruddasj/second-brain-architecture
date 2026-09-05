@@ -79,6 +79,21 @@ Theme review is a separate [report-only task](theme-review-task.md). A compactio
 
 ## Authorised transaction
 
+Before committing a compacted page, prepare a context-preservation review using the [compaction checker](../scripts/check_compaction.py). Retain exact before and proposed-after copies in the invocation's private temporary workspace:
+
+```bash
+python 2.core/scripts/check_compaction.py before.md after.md
+python 2.core/scripts/check_compaction.py before.md after.md --review review.json
+```
+
+The first command prints a pending JSON map. Capture it using the invoking tool and complete every original nonblank Event log line with its exact before text, destination heading anchor, exact after text, an equivalence explanation and any phrases that must be retained verbatim. `retain` should include names, units, conditions, exceptions and uncertainty where rewording would risk changing meaning. Many original lines may point to one compact passage.
+
+Review entities, conditions and exceptions, negation and uncertainty, reasons and alternatives, sources and relationships, and whether any new claim was introduced. Record an explanation for each in `checks`; mark each mapping `meaning: equivalent` and `semantic_review: confirmed` only after that comparison. The tool does not perform or approve this semantic review.
+
+The checker binds the review to both content hashes, requires complete line coverage, checks preserved numbers, references and chosen phrases, and rejects changes outside Event log apart from the page's updated date. A failed check blocks compaction. A mechanical pass is not proof that meaning is unchanged: preserve the original wording whenever equivalence is uncertain. Keep conditions and contradictions alongside the claim they qualify. Record unstructured history as evidence rather than forcing it through compaction.
+
+Keep the review map with the invocation evidence, outside the public scaffold. Preserve event and transaction lineage in the resulting record and retain source references. No source may be removed merely because it is quoted by the map. Link to supporting evidence in the canonical record; a temporary review file is not a durable citation.
+
 When a candidate is eligible and write authority has been confirmed:
 
 1. Assign the immutable UUIDv4 transaction ID required by the [source-control policy](source-control-policy.md).

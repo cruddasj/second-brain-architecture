@@ -48,6 +48,7 @@ For AI agentic use, start with [Core AGENTS.md](AGENTS.md) and follow the [opera
 - [Freshness audit task](system/freshness-audit-task.md): recurring report-only review of current claims using deterministic scan candidates.
 - [Source-control policy](system/source-control-policy.md): commit, correction and forgetting semantics.
 - [Record relationship policy](system/record-relationship-policy.md): reciprocal direct links between authoritative records.
+- [Record structure policy](system/record-structure-policy.md): readable order, stable identity and precise section links.
 - [Theme and decision policy](system/theme-and-decision-policy.md): thematic relationships, saved decisions and reviews.
 - [Knowledge compaction task](system/knowledge-compaction-task.md): candidate-led historical consolidation.
 - [Theme review task](system/theme-review-task.md): separate report-only review of changed associations, with periodic wider coverage.

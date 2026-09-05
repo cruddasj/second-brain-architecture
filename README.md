@@ -411,6 +411,8 @@ A report-only task must remain report-only even if the integration running it ha
 
 ## Explore your second brain
 
+For AI-assisted lookup, the optional [knowledge retrieval tool](3.add-ons/knowledge-retrieval/README.md) searches a verified Git revision and returns readable context with source links. It reuses unchanged records in a private disposable cache and reports omitted history or unresolved evidence. It does not replace ordinary Markdown navigation.
+
 Core can always be browsed directly as Markdown through [`2.core/index.md`](2.core/index.md).
 
 The optional [`Browser explorer`](3.add-ons/browser-explorer/README.md) provides a visual knowledge graph and Markdown reader.

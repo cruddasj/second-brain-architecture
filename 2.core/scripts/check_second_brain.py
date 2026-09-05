@@ -9,6 +9,8 @@ import sys
 from pathlib import Path
 from urllib.parse import unquote
 
+import record_text
+
 
 ROOT = Path(__file__).resolve().parents[2]
 CORE = ROOT / "2.core"
@@ -156,13 +158,60 @@ def is_raw_source(path: Path) -> bool:
 
 
 def local_links(path: Path) -> list[str]:
-    text = path.read_text(encoding="utf-8")
-    links: list[str] = []
-    for match in LINK_PATTERN.finditer(text):
-        target = match.group(1).strip().split("#", 1)[0]
-        if target and not re.match(r"^[a-z][a-z0-9+.-]*:", target, re.I):
-            links.append(unquote(target))
-    return links
+    return [target[0] for destination in record_text.links(path.read_text(encoding="utf-8"))
+            if (target := record_text.local_target(destination)) and target[0]]
+
+
+def check_record_links(errors: list[str], markdown_files: list[Path]) -> None:
+    """Check precise record links, identity uniqueness and direct backlinks."""
+    identities: dict[str, Path] = {}
+    texts = {p.resolve(): p.read_text(encoding="utf-8") for p in markdown_files}
+    knowledge = (CORE / "knowledge").resolve()
+    memory = (CORE / "memory").resolve()
+    source_notes = (CORE / "sources/notes").resolve()
+    def authoritative(p: Path) -> bool:
+        return p.is_relative_to(knowledge) or p.is_relative_to(memory)
+    for path, text in texts.items():
+        is_record = authoritative(path) or path.is_relative_to(source_notes)
+        if not is_record:
+            continue
+        record_id = record_text.metadata(text).get("record_id")
+        if record_id:
+            if not isinstance(record_id, str) or not UUID4_PATTERN.fullmatch(record_id):
+                errors.append(f"Invalid record_id: {path.relative_to(ROOT)}")
+            elif record_id in identities:
+                errors.append(f"Duplicate record_id: {path.relative_to(ROOT)} and {identities[record_id].relative_to(ROOT)}")
+            else:
+                identities[record_id] = path
+        for destination in record_text.links(text):
+            target = record_text.local_target(destination)
+            if not target:
+                continue
+            filename, fragment = target
+            resolved = (path.parent / filename).resolve() if filename else path
+            if fragment and resolved in texts and fragment not in record_text.anchors(texts[resolved]):
+                errors.append(f"Broken record anchor: {path.relative_to(ROOT)} -> {destination}")
+        if not authoritative(path):
+            continue
+        related = [s for s in record_text.sections(text) if s['title'] == 'Related records']
+        for section in related:
+            for destination in record_text.links(section['text'], text):
+                target = record_text.local_target(destination)
+                resolved = (path.parent / target[0]).resolve() if target and target[0] else path
+                if not target or not authoritative(resolved) or resolved == path:
+                    errors.append(f"Related records target is not another authoritative record: {path.relative_to(ROOT)} -> {destination}")
+                    continue
+                if resolved not in texts:
+                    continue  # Missing files are reported by the normal link check.
+                backlinks = set()
+                for other in record_text.sections(texts[resolved]):
+                    if other['title'] == 'Related records':
+                        for link in record_text.links(other['text'], texts[resolved]):
+                            back = record_text.local_target(link)
+                            if back and back[0]:
+                                backlinks.add((resolved.parent / back[0]).resolve())
+                if path not in backlinks:
+                    errors.append(f"Related records link is not reciprocal: {path.relative_to(ROOT)} -> {destination}")
 
 
 def resolved_local_links(path: Path) -> set[Path]:
@@ -728,6 +777,7 @@ def main() -> int:
 
     markdown_files = tracked_markdown()
     check_theme_link_reciprocity(errors, markdown_files)
+    check_record_links(errors, markdown_files)
     index_text = INDEX.read_text(encoding="utf-8") if INDEX.exists() else ""
 
     for path in markdown_files:

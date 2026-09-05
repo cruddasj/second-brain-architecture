@@ -50,6 +50,8 @@ For every repository change, read:
 
 Combine routes for mixed tasks. Routing reduces retrieval, not the scope of applicable rules. Before acting on a newly discovered concern, load its governing section. If section retrieval is unavailable or omits context needed to interpret a rule, read the full file.
 
+When creating or restructuring a record, use the [record structure policy](system/record-structure-policy.md) for readable order, stable identity and precise links.
+
 Reuse instructions already loaded in the current session only after confirming their content version is unchanged on the canonical branch, using a file hash or equivalent revision evidence. A changed branch revision requires checking the relevant files, not automatically rereading all of them. Reload changed, missing or truncated instructions. Re-read destination files immediately before editing and check canonical branch freshness before persistence. Conversation summaries and caches are not authority.
 
 The [index](index.md) lists the detailed policies. The repository README is human orientation, not a mandatory read for each routine operation.

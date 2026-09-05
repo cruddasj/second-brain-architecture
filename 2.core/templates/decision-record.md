@@ -1,24 +1,43 @@
 ---
 title: Decision title
 type: decision
-decision_id: dec-YYYYMMDD-short-slug
-status: pending
-asked: YYYY-MM-DD
-decided: YYYY-MM-DD
-review_on: YYYY-MM-DD
+record_id: <generate-a-UUIDv4>
+aliases: []
 dashboard: false
 updated: YYYY-MM-DD
 ---
 
 # Decision title
 
-## Themes
-
-Link to every approved existing theme using relative Markdown links. Each linked theme page must link back to this record. If the correct existing theme is unclear, or a clear distinct theme has emerged, ask the user before writing.
+Use the [record structure policy](../system/record-structure-policy.md) for identity, headings and context placement. Replace the ID placeholder once; remove these authoring instructions and empty optional sections when saving.
 
 ## Question
 
-State the question as it was asked.
+State the question as it was asked, including the date when known.
+
+## Current state
+
+Keep each claim's conditions, exceptions and uncertainty in the same entry. Use a stable descriptive subheading when a claim needs a direct link.
+
+- [state:<globally-unique-decision-status-key>] Pending review
+  - Effective: YYYY-MM-DD
+  - Last confirmed: YYYY-MM-DD
+  - Source: User stated
+  - Transaction: 550e8400-e29b-41d4-a716-446655440000
+
+The `Transaction` value is the immutable UUIDv4 assigned to the save transaction. Generate a fresh UUIDv4 for a new transaction and use that same UUID throughout the transaction.
+
+## Uncertainty or contradictions
+
+Record unresolved points without silently choosing one version.
+
+## Related records
+
+Use labelled, reciprocal Markdown links for clear dependencies or context. See the [relationship policy](../system/record-relationship-policy.md).
+
+## Themes
+
+Link to every approved existing theme using relative Markdown links. Each linked theme page must link back to this record. If the correct existing theme is unclear, or a clear distinct theme has emerged, ask the user before writing.
 
 ## Context
 
@@ -54,16 +73,6 @@ Record only the minimum context explicitly authorised for saving.
 - Evidence to collect:
 - Conditions that would trigger reconsideration:
 
-## Current state
-
-- [state:<globally-unique-decision-status-key>] Pending review
-  - Effective: YYYY-MM-DD
-  - Last confirmed: YYYY-MM-DD
-  - Source: User stated
-  - Transaction: 550e8400-e29b-41d4-a716-446655440000
-
-The `Transaction` value is the immutable UUIDv4 assigned to the save transaction. Generate a fresh UUIDv4 for a new transaction and use that same UUID throughout the transaction.
-
 ## Outcome review
 
 - Outcome: Pending | Sensible | Mixed | Reconsider | Superseded
@@ -82,7 +91,3 @@ The `Transaction` value is the immutable UUIDv4 assigned to the save transaction
 ## Sources
 
 Link only to sources whose recorded status and scope permit this use.
-
-## Uncertainty or contradictions
-
-Record unresolved points without silently choosing one version.
