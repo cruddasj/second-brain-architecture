@@ -10,6 +10,8 @@ updated: YYYY-MM-DD
 
 Use the [record structure policy](../system/record-structure-policy.md) for identity, headings and context placement. Replace the ID placeholder once; remove these authoring instructions and empty optional sections when saving.
 
+See the [fictional worked example](knowledge-page.example.md) for a filled-in record and both sides of its related-record and theme links.
+
 ## Purpose and scope
 
 State what this record covers and its boundary in one or two sentences. Do not repeat current values here.
