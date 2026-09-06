@@ -228,6 +228,7 @@ body:has(.brain-shell) { overflow: hidden; }
 .detail-collapsed .graph-detail { width: 64px; padding: 18px 13px; overflow: hidden; }
 .detail-collapsed .detail-content { display: none; }
 .detail-collapsed .detail-panel-header { margin: 0; }
+.detail-collapsed .detail-panel-header > span { display: none; }
 .detail-content > button { width: 100%; min-height: 40px; margin: 0; border: 1px solid var(--primary-container); border-radius: 20px; padding: 9px 16px; background: var(--primary-container); color: var(--on-primary-container); cursor: pointer; font-weight: 700; }
 .detail-content > button:hover { background: color-mix(in srgb, var(--primary-container) 80%, var(--primary)); }
 .detail-content > button.active { background: var(--primary); color: var(--on-primary); }
@@ -275,13 +276,14 @@ body:has(.brain-shell) { overflow: hidden; }
 }
 
 @media (max-width: 680px) {
-  .workspace-pane { height: auto; min-height: 760px; }
+  .workspace-pane:has(.graph-workspace) { height: auto; min-height: 0; }
   .graph-controls { top: 12px; left: 12px; width: calc(100% - 24px); }
   .graph-actions { top: 60px; right: 12px; }
-  .graph-stage-wrap, .graph-workspace.detail-collapsed .graph-stage-wrap { display: grid; grid-template-columns: 1fr; grid-template-rows: minmax(480px, 62dvh) auto; overflow: visible; }
-  .graph-workspace { height: auto; min-height: 740px; overflow: visible; }
-  .graph-detail { position: static; width: auto; min-height: 250px; border-top: 1px solid var(--line-soft); border-left: 0; overflow: visible; box-shadow: none; }
+  .graph-stage-wrap, .graph-workspace.detail-collapsed .graph-stage-wrap { display: grid; grid-template-columns: 1fr; grid-template-rows: max(480px, 62dvh) auto; align-content: start; overflow: visible; }
+  .graph-workspace { height: auto; min-height: 0; grid-template-rows: auto; overflow: visible; }
+  .graph-detail { position: static; width: auto; min-height: 0; border-top: 1px solid var(--line-soft); border-left: 0; overflow: visible; box-shadow: none; }
   .detail-panel-header { justify-content: center; }
   .detail-toggle { transform: rotate(90deg); }
-  .detail-collapsed .graph-detail { width: auto; min-height: 48px; }
+  .detail-collapsed .graph-detail { width: auto; min-height: 0; padding: 12px 16px; }
+  .detail-collapsed .detail-panel-header > span { display: inline; }
 }
