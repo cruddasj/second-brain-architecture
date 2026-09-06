@@ -17,9 +17,6 @@ const minZoom = .25;
 const maxZoom = 1.6;
 const fitPadding = 72;
 
-// Transparent lighting preserves the existing theme colours, including pie slices.
-const nodeLighting = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><defs><radialGradient id="light" cx="32%" cy="25%" r="78%"><stop offset="0" stop-color="white" stop-opacity=".28"/><stop offset=".45" stop-color="white" stop-opacity=".03"/><stop offset="1" stop-color="black" stop-opacity=".28"/></radialGradient></defs><rect width="100" height="100" fill="url(#light)"/></svg>')}`;
-
 function readableDate(value?: string) {
   if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
   return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${value}T00:00:00Z`));
@@ -31,6 +28,7 @@ function loadPositions(): Record<string, Point> {
 
 export default function KnowledgeGraph({ graph, loading = false }: { graph: GraphData; loading?: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const hoveredIdRef = useRef<string | null>(null);
   const cyRef = useRef<Core | null>(null);
   const stopDragRef = useRef<() => void>(() => {});
   const hasInitialFitRef = useRef(false);
@@ -71,10 +69,12 @@ export default function KnowledgeGraph({ graph, loading = false }: { graph: Grap
     const visibleElements = visibleNodes.union(cy.edges(":visible"));
     const layout = visibleElements.layout({
       name: "cose",
-      nodeRepulsion: 12000,
-      idealEdgeLength: 150,
-      nodeOverlap: 32,
-      gravity: .18,
+      nodeDimensionsIncludeLabels: true,
+      nodeRepulsion: 24000,
+      idealEdgeLength: 240,
+      nodeOverlap: 80,
+      componentSpacing: 100,
+      gravity: .08,
       padding: fitPadding,
       animate: !window.matchMedia("(prefers-reduced-motion: reduce)").matches,
       animationDuration: 650,
@@ -108,7 +108,7 @@ export default function KnowledgeGraph({ graph, loading = false }: { graph: Grap
         { selector: "node.collection", style: { width: 58, height: 58, "background-color": unthemedColour, "border-color": "rgba(255,255,255,.72)", "border-width": 2, "font-size": 12 } },
         { selector: "node.theme", style: { width: 36, height: 36, shape: "diamond", "background-color": "#35b8b4", "border-color": "rgba(255,255,255,.8)", "border-width": 2 } },
         { selector: "node.themed", style: { "background-color": "data(themeColour)" } },
-        { selector: "node", style: { "background-opacity": 1, "background-image": nodeLighting, "background-width": "100%", "background-height": "100%", "background-image-containment": "over", "background-clip": "node", "border-width": .75, "border-color": "#ffffff", "border-opacity": .24, "text-outline-width": 2, "font-weight": 400 } },
+        { selector: "node", style: { "background-opacity": 1, "border-width": .75, "border-color": "#ffffff", "border-opacity": .24, "text-outline-width": 2, "font-weight": 400 } },
         { selector: "node.multi-theme", style: { "pie-size": "100%", "pie-1-background-color": "data(pie1)", "pie-1-background-size": "data(pieSize1)", "pie-2-background-color": "data(pie2)", "pie-2-background-size": "data(pieSize2)", "pie-3-background-color": "data(pie3)", "pie-3-background-size": "data(pieSize3)", "pie-4-background-color": "data(pie4)", "pie-4-background-size": "data(pieSize4)", "pie-5-background-color": "data(pie5)", "pie-5-background-size": "data(pieSize5)", "pie-6-background-color": "data(pie6)", "pie-6-background-size": "data(pieSize6)", "pie-7-background-color": "data(pie7)", "pie-7-background-size": "data(pieSize7)" } },
         { selector: "edge", style: { width: 1, "curve-style": "straight", "line-color": "data(edgeColour)", opacity: .32, "transition-property": "opacity", "transition-duration": 250 } },
         { selector: "edge.reference", style: { width: 1.1, opacity: .5, "line-style": "dashed" } },
@@ -118,6 +118,8 @@ export default function KnowledgeGraph({ graph, loading = false }: { graph: Grap
       ] as unknown as cytoscape.StylesheetJson,
     });
     cy.on("tap", "node", (event) => { setSelectedId(event.target.id()); setDetailOpen(true); });
+    cy.on("mouseover", "node", (event) => { hoveredIdRef.current = event.target.id(); containerRef.current?.classList.add("node-hover"); });
+    cy.on("mouseout", "node", () => { hoveredIdRef.current = null; containerRef.current?.classList.remove("node-hover"); });
     let simulation: ReturnType<typeof createDragPhysics> | null = null;
     let draggedId: string | null = null;
     let frame = 0, previousTime = 0, accumulator = 0, releasedSteps = 0;
@@ -206,6 +208,7 @@ export default function KnowledgeGraph({ graph, loading = false }: { graph: Grap
     const cy = cyRef.current; if (!cy) return;
     stopDragRef.current();
     cy.batch(() => {
+      if (!interactiveIds.has(hoveredIdRef.current ?? "")) { hoveredIdRef.current = null; containerRef.current?.classList.remove("node-hover"); }
       cy.nodes().forEach((node) => { node.style("display", visibleIds.has(node.id()) ? "element" : "none"); node.toggleClass("selected", node.id() === selectedId); node.toggleClass("keyboard-focus", node.id() === keyboardFocusId); node.toggleClass("focus-hidden", !interactiveIds.has(node.id())); });
       cy.edges().forEach((edge) => { const visible = visibleIds.has(edge.source().id()) && visibleIds.has(edge.target().id()); edge.style("display", visible ? "element" : "none"); edge.toggleClass("connected", edge.source().id() === selectedId || edge.target().id() === selectedId || edge.source().id() === keyboardFocusId || edge.target().id() === keyboardFocusId); edge.toggleClass("focus-hidden", !interactiveIds.has(edge.source().id()) || !interactiveIds.has(edge.target().id())); });
     });
