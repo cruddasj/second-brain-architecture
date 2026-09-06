@@ -3,6 +3,7 @@
 import cytoscape, { type Core, type ElementDefinition, type NodeSingular } from "cytoscape";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { headingDefinition, uniqueHeadingId } from "./records/[...path]/markdown-content";
+import { createDragPhysics } from "./drag-physics";
 
 export type GraphNode = { id: string; title: string; kind: string; collection: string; path: string; excerpt: string; details: { effectiveDate?: string; lastConfirmedDate?: string; source?: string }; headings: string[]; stateCount: number; eventCount: number; themeIds: string[] };
 export type GraphEdge = { source: string; target: string; kind: "collection" | "reference" };
@@ -31,6 +32,7 @@ function loadPositions(): Record<string, Point> {
 export default function KnowledgeGraph({ graph, loading = false }: { graph: GraphData; loading?: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const cyRef = useRef<Core | null>(null);
+  const stopDragRef = useRef<() => void>(() => {});
   const hasInitialFitRef = useRef(false);
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -64,6 +66,7 @@ export default function KnowledgeGraph({ graph, loading = false }: { graph: Grap
 
   const arrangeGraph = useCallback(() => {
     const cy = cyRef.current; if (!cy) return;
+    stopDragRef.current();
     const visibleNodes = cy.nodes(":visible"); if (!visibleNodes.length) return;
     const visibleElements = visibleNodes.union(cy.edges(":visible"));
     const layout = visibleElements.layout({
@@ -115,19 +118,72 @@ export default function KnowledgeGraph({ graph, loading = false }: { graph: Grap
       ] as unknown as cytoscape.StylesheetJson,
     });
     cy.on("tap", "node", (event) => { setSelectedId(event.target.id()); setDetailOpen(true); });
+    let simulation: ReturnType<typeof createDragPhysics> | null = null;
+    let draggedId: string | null = null;
+    let frame = 0, previousTime = 0, accumulator = 0, releasedSteps = 0;
+    let released = false;
+    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const saveSimulation = () => {
+      if (!simulation) return;
+      const positions = loadPositions();
+      simulation.bodies.forEach(body => { positions[body.id] = { x: body.x, y: body.y }; });
+      localStorage.setItem(storageKey, JSON.stringify(positions));
+    };
+    const stopDrag = () => {
+      cancelAnimationFrame(frame);
+      saveSimulation();
+      simulation = null; draggedId = null; frame = 0;
+    };
+    stopDragRef.current = stopDrag;
+    const tick = (now: number) => {
+      if (!simulation || !draggedId) return;
+      const pinned = cy.getElementById(draggedId);
+      if (!pinned.length) { stopDrag(); return; }
+      simulation.pin(pinned.position("x"), pinned.position("y"));
+      accumulator += Math.min(50, now - previousTime);
+      previousTime = now;
+      let speed = Infinity;
+      while (accumulator >= 1000 / 60) {
+        speed = simulation.step();
+        accumulator -= 1000 / 60;
+        if (released) releasedSteps++;
+      }
+      cy.batch(() => simulation?.bodies.forEach(body => {
+        if (body.id !== draggedId && !body.fixed) cy.getElementById(body.id).position({ x: body.x, y: body.y });
+      }));
+      if (released && ((releasedSteps >= 12 && speed < .08) || releasedSteps >= 90)) { stopDrag(); return; }
+      frame = requestAnimationFrame(tick);
+    };
+    cy.on("grab", "node", (event) => {
+      stopDrag();
+      if (motion.matches) return;
+      const nodes = cy.nodes(":visible").filter(node => !node.hasClass("focus-hidden")).nodes();
+      simulation = createDragPhysics(nodes.map(node => ({ id: node.id(), x: node.position("x"), y: node.position("y"), radius: Math.max(node.width(), node.height()) / 2, fixed: node.locked() })), cy.edges(":visible").map(edge => ({ source: edge.source().id(), target: edge.target().id() })), event.target.id());
+      draggedId = event.target.id(); released = false; releasedSteps = 0; accumulator = 0;
+    });
+    cy.on("drag", "node", () => {
+      if (!simulation || frame) return;
+      previousTime = performance.now();
+      frame = requestAnimationFrame(tick);
+    });
     cy.on("free", "node", (event) => {
       const positions = loadPositions();
       positions[event.target.id()] = event.target.position();
       localStorage.setItem(storageKey, JSON.stringify(positions));
+      if (simulation) { simulation.pin(event.target.position("x"), event.target.position("y")); released = true; saveSimulation(); if (!frame) stopDrag(); }
     });
+    const suspend = () => { if (document.hidden || motion.matches) stopDrag(); };
+    document.addEventListener("visibilitychange", suspend);
+    motion.addEventListener("change", suspend);
     const resizeObserver = new ResizeObserver(() => cy.resize());
     resizeObserver.observe(containerRef.current);
     cyRef.current = cy;
-    return () => { resizeObserver.disconnect(); cyRef.current = null; cy.destroy(); };
+    return () => { stopDrag(); stopDragRef.current = () => {}; document.removeEventListener("visibilitychange", suspend); motion.removeEventListener("change", suspend); resizeObserver.disconnect(); cyRef.current = null; cy.destroy(); };
   }, []);
 
   useEffect(() => {
     const cy = cyRef.current; if (!cy) return;
+    stopDragRef.current();
     const existing = Object.fromEntries(cy.nodes().map((node) => [node.id(), node.position()]));
     const saved = loadPositions();
     const hasSavedPositions = Object.keys(saved).length > 0;
@@ -148,6 +204,7 @@ export default function KnowledgeGraph({ graph, loading = false }: { graph: Grap
 
   useEffect(() => {
     const cy = cyRef.current; if (!cy) return;
+    stopDragRef.current();
     cy.batch(() => {
       cy.nodes().forEach((node) => { node.style("display", visibleIds.has(node.id()) ? "element" : "none"); node.toggleClass("selected", node.id() === selectedId); node.toggleClass("keyboard-focus", node.id() === keyboardFocusId); node.toggleClass("focus-hidden", !interactiveIds.has(node.id())); });
       cy.edges().forEach((edge) => { const visible = visibleIds.has(edge.source().id()) && visibleIds.has(edge.target().id()); edge.style("display", visible ? "element" : "none"); edge.toggleClass("connected", edge.source().id() === selectedId || edge.target().id() === selectedId || edge.source().id() === keyboardFocusId || edge.target().id() === keyboardFocusId); edge.toggleClass("focus-hidden", !interactiveIds.has(edge.source().id()) || !interactiveIds.has(edge.target().id())); });
@@ -176,6 +233,7 @@ export default function KnowledgeGraph({ graph, loading = false }: { graph: Grap
   }, [selectedId]);
 
   const persistPosition = useCallback((id: string, point: Point) => {
+    stopDragRef.current();
     const node = cyRef.current?.getElementById(id); if (!node?.length) return;
     const bounded = { x: Math.max(35, Math.min(965, point.x)), y: Math.max(35, Math.min(685, point.y)) };
     node.position(bounded); const saved = loadPositions(); saved[id] = bounded; localStorage.setItem(storageKey, JSON.stringify(saved));
