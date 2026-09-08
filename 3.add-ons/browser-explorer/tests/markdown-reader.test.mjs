@@ -10,7 +10,7 @@ test("shared shell exposes both destinations and pathname-based active semantics
   assert.match(shell, /href: "\/", label: "Knowledge graph"/);
   assert.match(shell, /href: "\/markdown", label: "Markdown reader"/);
   assert.match(shell, /aria-current=\{item\.active \? "page"/);
-  for (const route of ["../app/page.tsx", "../app/markdown/page.tsx", "../app/records/[...path]/page.tsx"])
+  for (const route of ["../app/page.tsx", "../app/markdown/page.tsx", "../app/record/page.tsx"])
     assert.match(await source(route), /ApplicationShell/);
 });
 
@@ -18,7 +18,7 @@ test("reader search is case-insensitive across filename, title, and path and lin
   const reader = await source("../app/markdown/page.tsx");
   assert.match(reader, /\[file\.filename, file\.title, file\.path\]/);
   assert.match(reader, /toLocaleLowerCase\(\)/);
-  assert.match(reader, /filePath\.split\("\/"\)\.map\(encodeURIComponent\)\.join\("\/"\)/);
+  assert.match(reader, /recordHref\(file.path\)/);
   assert.match(reader, /Search Markdown files/);
   assert.match(reader, /<details open=/);
   assert.doesNotMatch(reader, /name: "Repository"/);
@@ -30,7 +30,7 @@ test("reader search is case-insensitive across filename, title, and path and lin
 
 test("record grid places article before the sticky right-hand contents disclosure", async () => {
   const [page, toc, css] = await Promise.all([
-    source("../app/records/[...path]/page.tsx"),
+    source("../app/record/page.tsx"),
     source("../app/records/[...path]/table-of-contents.tsx"),
     source("../app/globals.css"),
   ]);

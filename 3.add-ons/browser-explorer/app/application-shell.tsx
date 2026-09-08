@@ -1,15 +1,16 @@
 "use client";
 
-import Link from "next/link";
+import { appPath } from "../offline/paths.mjs";
 import { usePathname } from "next/navigation";
 import { type ReactNode, useState } from "react";
 
 export default function ApplicationShell({ children }: { children: ReactNode }) {
-  const pathname = usePathname();
+  const pathname = usePathname().replace(/\/$/, "") || "/";
   const [navigationOpen, setNavigationOpen] = useState(false);
   const destinations = [
     { href: "/", label: "Knowledge graph", icon: "fa-diagram-project", active: pathname === "/" },
-    { href: "/markdown", label: "Markdown reader", icon: "fa-book-open", active: pathname === "/markdown" || pathname.startsWith("/records/") },
+    { href: "/markdown", label: "Markdown reader", icon: "fa-book-open", active: pathname === "/markdown" || pathname === "/record" },
+    { href: "/connection", label: "Repository setup", icon: "fa-key", active: pathname === "/connection" },
   ];
   return <main className={`brain-shell ${navigationOpen ? "navigation-expanded" : "navigation-collapsed"}`}>
     <aside className="navigation-panel" aria-label="Application navigation">
@@ -20,9 +21,9 @@ export default function ApplicationShell({ children }: { children: ReactNode }) 
       </div>
       <div className="navigation-content">
         <nav className="application-menu" aria-label="Explorer destinations">
-          {destinations.map((item) => <Link key={item.href} href={item.href} aria-current={item.active ? "page" : undefined} title={item.label}>
+          {destinations.map((item) => <a key={item.href} href={appPath(item.href === "/" ? "/" : item.href + "/")} aria-current={item.active ? "page" : undefined} title={item.label}>
             <i className={`fa-solid ${item.icon}`} aria-hidden="true" /><span>{item.label}</span>
-          </Link>)}
+          </a>)}
         </nav>
         <div className="navigation-note"><p className="eyebrow">Read only</p><h2>Explore the repository</h2><p>Explore themes, collections and connections in .md files.</p></div>
       </div>

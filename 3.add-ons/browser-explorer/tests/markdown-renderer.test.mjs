@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
 import test from "node:test";
-
-async function startProductionServer(port) {
- const server=spawn(process.execPath,["node_modules/next/dist/bin/next","start","-p",String(port)],{stdio:["ignore","pipe","pipe"]});
- let output="";
- const ready=new Promise((resolve,reject)=>{const inspect=(chunk)=>{output+=chunk; if (output.includes("Ready")) resolve();}; server.stdout.on("data",inspect); server.stderr.on("data",inspect); server.once("exit",code=>reject(new Error(`Next.js exited before becoming ready (${code}): ${output}`)));});
- await ready;
- return server;
-}
+import React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import MarkdownContent from "../app/records/[...path]/markdown-content.tsx";
+test("state cards hide internal keys and render compact metadata tables", () => {
+ const html = renderToStaticMarkup(React.createElement(MarkdownContent, { markdown: "# Example\n\n## Current state\n\n- [state:example] A synthetic fact.\n  - Effective: 2026-09-07\n  - Last confirmed: 2026-09-07\n  - Source: Test fixture\n  - Transaction: 550e8400-e29b-41d4-a716-446655440000" }));
+ assert.doesNotMatch(html, /state:example/);
+ assert.match(html, /class="state-item"/);
+ assert.match(html, /aria-label="Fact metadata"/);
+ assert.match(html, /A synthetic fact/);
+});

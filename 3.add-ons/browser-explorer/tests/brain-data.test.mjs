@@ -29,3 +29,9 @@ test("Markdown index covers the repository deterministically", () => {
   assert.deepEqual(data.markdown.files.map((file) => file.path), [...data.markdown.files.map((file) => file.path)].sort((a, b) => a.localeCompare(b)));
   assert.ok(data.markdown.files.every((file) => file.path.endsWith(".md") && !file.path.split("/").some((part) => [".git", ".next", "node_modules"].includes(part))));
 });
+
+
+test("local snapshot and Markdown index describe the same files", () => {
+  assert.deepEqual(data.snapshot.files.map(file => file.path), data.markdown.files.map(file => file.path));
+  assert.ok(data.snapshot.files.every(file => typeof file.content === "string"));
+});

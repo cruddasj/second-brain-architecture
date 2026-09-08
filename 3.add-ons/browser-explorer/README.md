@@ -25,6 +25,8 @@ Run all npm commands below from the `3.add-ons/browser-explorer/` directory.
 
 ## Local use
 
+The `/connection` page shares the explorer's navigation, full-width reader card and styling. Development mode clearly identifies the local checkout as the source and skips connection setup. Restart development to rebuild the snapshot after editing Markdown.
+
 ```bash
 npm ci
 npm run brain:check
@@ -32,6 +34,29 @@ npm run dev
 ```
 
 The data builder writes schema version 5 of `public/brain-data.json`. Its `graph` property retains the curated Core-only graph semantics; its `markdown.files` index lists every committed repository `.md` file with a title, filename, normalized repository-relative path, and folder segments. Generated, dependency, and VCS directories are excluded. Graph connections represent only explicit Markdown links and collection membership. Theme membership is exposed only when a record and a Core theme contain reciprocal Markdown links, so the visualisation does not infer or invent relationships.
+
+## Installable app and connection testing
+
+From this same directory, stop development and run:
+
+```bash
+npm run build
+npm run preview
+```
+
+Open `http://localhost:4173/connection`. Production preview enables connection setup even on localhost; only development mode bypasses it. The preview is a static-file server, not a sync API. The build exports this application to `out/`, without local or demo repository data. Do not serve the repository root or development `public/` folder.
+
+An optional adapter, selected by Plugin UUID `befe7498-69c4-4f09-913d-9b36830a9882` through the plugin registry, supplies retrieval and provider-specific setup guidance. It is not a separate application. Without it, local browsing still works. No credential is built into the app.
+
+Connect and sync downloads Markdown from one default-branch commit. Both views use that snapshot; refresh replaces it atomically, reuses unchanged files and removes deleted files. Failed refreshes preserve the previous copy. Settings are saved in browser storage; saving the token is opt-in. Disconnect removes the connection, token and downloaded Markdown. Storage is namespaced by the application path within the browser origin. Different hostnames, ports and browsers do not share it; paths on the same origin are not a security boundary. It is not encrypted by this app and can be cleared by the browser or device.
+
+Setup includes **Install app**, with browser-menu guidance when a prompt is unavailable. Windows and Android browsers can offer installation. On an iPhone or iPad, open the page in Safari, tap the Share button, then choose Add to Home Screen. Installation and offline shell caching are production-only. After the shell caches and content syncs, both views work offline, including reloads. Icons are bundled locally. A first visit needs network access.
+
+On mobile, localhost means the phone, not your computer. Mobile installation needs this static output served from an HTTPS address accessible to the device. The local build does not publish anything. For a URL subdirectory, set `NEXT_PUBLIC_BASE_PATH=/example` for build and preview. Routes, icons, installation scope and offline caches then use that path. Keep the value consistent between commands.
+
+Record links now use `/record/?file=<encoded repository path>#heading`, so new files do not require rebuilding the application. Old server-rendered `/records/...` bookmarks are replaced by these links. Executable links are inert, raw HTML is not executed, and attachments/images remain outside V1.
+
+Run `npm test` for the build and reader regression suite. Adapter-specific browser tests live with the optional adapter.
 
 ## Screenshots
 
@@ -53,10 +78,10 @@ A new installation can run the explorer without adding any real knowledge:
 
 ```bash
 npm ci
-npm run demo
+npm start
 ```
 
-`npm run demo` generates `public/demo-brain-data.json` and launches the development server configured to use a synthetic graph instead of the normal Core-derived graph. The demo graph is deterministic and contains exactly 100 synthetic nodes across example collections and seven themes, including cross-theme records and enough relationships to demonstrate filtering, selection, neighbourhood exploration, automatic layout, dragging, zooming and theme colouring.
+`npm start` launches the same demo workspace as `npm run demo`, on the normal development address. Both commands generate `public/demo-brain-data.json` and configure the explorer to use a synthetic graph instead of the normal Core-derived graph. The demo graph is deterministic and contains exactly 100 synthetic nodes across example collections and seven themes, including cross-theme records and enough relationships to demonstrate filtering, selection, neighbourhood exploration, automatic layout, dragging, zooming and theme colouring.
 
 Demo mode changes only the graph data. The application remains read-only, so the normal repository Markdown index is retained and the Markdown reader can still browse Core and the rest of the committed repository. Synthetic graph records deliberately have no repository file paths, so selecting a synthetic node does not pretend that a matching real record exists.
 
@@ -70,4 +95,4 @@ Dragging gently pulls linked nodes through damped springs. Nearby nodes repel on
 
 **Arrange graph** runs the automatic layout over the currently visible nodes, fits them in the viewport, and saves the result; choosing it may replace coordinates created by manual dragging for those nodes. **Reset layout** first clears every saved coordinate, then automatically arranges and fits the visible nodes and saves the resulting stable positions. Filtering before either action limits the arrangement and fit to visible nodes. Scroll a mouse wheel or use a trackpad over the canvas to zoom around the pointer.
 
-Hosting, authentication and deployment adapters are deliberately absent. Add any provider-specific integration under `1.plugins/` while keeping this add-on unchanged.
+Provider-specific authentication and retrieval belong to optional adapters under `1.plugins/`; this application consumes their portable interface. Standard browser installation and static shell caching are owned by the add-on.

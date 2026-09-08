@@ -16,12 +16,12 @@ async function productionServer() {
   });
  });
  const cwd = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
- const child = spawn(process.execPath, ["node_modules/next/dist/bin/next", "start", "--hostname", "127.0.0.1", "--port", String(port)], { cwd, stdio: "ignore" });
- const origin = `http://127.0.0.1:${port}`;
+ const child = spawn(process.execPath, ["scripts/preview.mjs"], { cwd, stdio: "ignore", env: { ...process.env, PORT: String(port) } });
+ const origin = `http://127.0.0.1:${port}${process.env.NEXT_PUBLIC_BASE_PATH || ""}`;
  for (let attempt = 0; attempt < 100; attempt += 1) {
   if (child.exitCode !== null) throw new Error(`Next.js server exited with code ${child.exitCode}`);
   try {
-   const response = await fetch(origin);
+   const response = await fetch(origin + "/");
    if (response.ok) return { child, origin };
   } catch {}
   await new Promise((resolve) => setTimeout(resolve, 50));
@@ -29,6 +29,12 @@ async function productionServer() {
  child.kill();
  throw new Error("Timed out waiting for the Next.js server");
 }
+test("start and demo launch the same explorer mode", async () => {
+ const packageJson = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
+ assert.equal(packageJson.scripts.start, "node scripts/demo.mjs");
+ assert.equal(packageJson.scripts.demo, "node scripts/demo.mjs");
+ assert.equal(packageJson.scripts.preview, "node scripts/preview.mjs");
+});
 test("production build renders the graph-focused explorer shell", async () => {
  const html=await readFile(new URL("../.next/server/app/index.html",import.meta.url),"utf8");
  assert.match(html,/<title>Second Brain Explorer<\/title>/); assert.doesNotMatch(html,/Private knowledge workspace|Collapse menu/);assert.match(html,/<h1>Second Brain Explorer<\/h1>/); assert.match(html,/Knowledge graph/); assert.doesNotMatch(html,/Switch to (?:dark|light) mode/); assert.doesNotMatch(html,/Read-only Core records|class="brand-mark"/); assert.doesNotMatch(html,/Skill Studio/);
@@ -40,7 +46,7 @@ test("saved positions support drag and keyboard movement without an automatic ov
 test("Arrange graph uses a spacious animated cose layout over visible elements", async()=>{const source=await readFile(new URL("../app/knowledge-graph.tsx",import.meta.url),"utf8");assert.match(source,/function|const arrangeGraph/);assert.match(source,/cy\.nodes\(":visible"\)/);assert.match(source,/visibleNodes\.union\(cy\.edges\(":visible"\)\)/);assert.match(source,/name: "cose"/);assert.match(source,/nodeRepulsion: 24000/);assert.match(source,/idealEdgeLength: 240/);assert.match(source,/nodeOverlap: 80/);assert.match(source,/gravity: \.08/);assert.match(source,/padding: fitPadding/);assert.match(source,/animate: !window\.matchMedia\("\(prefers-reduced-motion: reduce\)"\)\.matches/);assert.match(source,/fit: true/);assert.match(source,/aria-label="Arrange graph" title="Arrange graph"/);assert.match(source,/cy\.fit\(visibleNodes, fitPadding\)/);});
 test("Arrange graph is the only automatic layout control and persists stable results", async()=>{const source=await readFile(new URL("../app/knowledge-graph.tsx",import.meta.url),"utf8");assert.match(source,/layout\.one\("layoutstop"/);assert.match(source,/visibleNodes\.forEach[\s\S]*saved\[node\.id\(\)\] = node\.position\(\)/);assert.doesNotMatch(source,/resetLayout|Reset layout|fa-rotate-left/);});
 test("search and collection filters are overlaid inside the graph canvas", async()=>{const source=await readFile(new URL("../app/knowledge-graph.tsx",import.meta.url),"utf8");const css=await readFile(new URL("../app/globals.css",import.meta.url),"utf8");assert.match(source,/className="graph-stage">\s*<div className="graph-controls"/);assert.match(css,/\.graph-controls, \.graph-actions \{ position: absolute/);assert.doesNotMatch(source,/graph-toolbar/);});
-test("collection filter precedes search and controls use Font Awesome icons", async()=>{const graph=await readFile(new URL("../app/knowledge-graph.tsx",import.meta.url),"utf8");const page=await readFile(new URL("../app/application-shell.tsx",import.meta.url),"utf8");const layout=await readFile(new URL("../app/layout.tsx",import.meta.url),"utf8");assert.match(graph,/className="graph-controls"><select[\s\S]*?<label>/);assert.match(page,/fa-solid fa-bars/);assert.match(graph,/fa-solid fa-plus/);assert.match(layout,/fontawesome\.com\/releases\/v6\.7\.2\/css\/all\.css/);});
+test("collection filter precedes search and controls use Font Awesome icons", async()=>{const graph=await readFile(new URL("../app/knowledge-graph.tsx",import.meta.url),"utf8");const page=await readFile(new URL("../app/application-shell.tsx",import.meta.url),"utf8");const layout=await readFile(new URL("../app/layout.tsx",import.meta.url),"utf8");assert.match(graph,/className="graph-controls"><select[\s\S]*?<label>/);assert.match(page,/fa-solid fa-bars/);assert.match(graph,/fa-solid fa-plus/);assert.match(layout,/@fortawesome\/fontawesome-free\/css\/all.min.css/);});
 test("collection filter preserves collection node title casing", async()=>{const source=await readFile(new URL("../app/knowledge-graph.tsx",import.meta.url),"utf8");assert.match(source,/label: node\.title/);assert.match(source,/<option key=\{value\} value=\{value\}>\{label\}<\/option>/);});
 test("search exposes an accessible, theme-styled clear button without covering its text", async()=>{const graph=await readFile(new URL("../app/knowledge-graph.tsx",import.meta.url),"utf8");const css=await readFile(new URL("../app/globals.css",import.meta.url),"utf8");assert.match(graph,/query && <button type="button" className="search-clear"/);assert.match(graph,/onClick=\{\(\) => setQuery\(""\)\}/);assert.match(graph,/aria-label="Clear search"/);assert.match(graph,/className="search-clear-icon" aria-hidden="true"/);assert.match(css,/\.graph-controls input \{[^}]*padding: 0 40px 0 14px/);assert.match(css,/\.graph-controls \.search-clear \{[^}]*position: absolute[^}]*background: var\(--primary-container\)[^}]*color: var\(--on-primary-container\)/);assert.match(css,/\.search-clear-icon \{[^}]*display: block[^}]*width: 11px[^}]*height: 11px/);assert.match(css,/\.search-clear-icon::before \{ transform: rotate\(45deg\)/);assert.match(css,/\.search-clear-icon::after \{ transform: rotate\(-45deg\)/);});
 test("graph filters use a quiet focus state and give the collection arrow room", async()=>{const css=await readFile(new URL("../app/globals.css",import.meta.url),"utf8");assert.match(css,/\.graph-controls select \{[^}]*appearance: none/);assert.match(css,/\.graph-controls select \{[^}]*padding: 0 50px 0 12px/);assert.match(css,/\.graph-controls select \{[^}]*background-position: right 20px center/);assert.match(css,/\.graph-controls input:focus-visible, \.graph-controls select:focus-visible \{ outline: none; \}/);assert.match(css,/\.graph-controls input:focus, \.graph-controls select:focus \{ background-color: rgba\(255, 255, 255, \.05\); \}/);});
@@ -66,30 +72,19 @@ test("desktop navigation toggle stays fixed while its panel expands", async()=>{
 
 test("dark appearance uses flat surfaces and a text-based neutral favicon", async()=>{const css=await readFile(new URL("../app/globals.css",import.meta.url),"utf8");const layout=await readFile(new URL("../app/layout.tsx",import.meta.url),"utf8");const favicon=await readFile(new URL("../public/favicon.svg",import.meta.url),"utf8");assert.match(css,/--canvas: #121212/);assert.match(css,/--shadow: transparent/);assert.match(css,/backdrop-filter: none/);assert.match(css,/--text: rgba\(255, 255, 255, \.87\)/);assert.match(layout,/favicon\.svg/);assert.match(favicon,/<svg/);assert.match(favicon,/#4f378b/);});
 
-test("selected nodes expose links to associated Markdown files", async()=>{const source=await readFile(new URL("../app/knowledge-graph.tsx",import.meta.url),"utf8");assert.match(source,/Associated Markdown files/);assert.match(source,/href={`\/records\//);assert.match(source,/target="_blank"/);});
+test("selected nodes expose links to associated Markdown files", async()=>{const source=await readFile(new URL("../app/knowledge-graph.tsx",import.meta.url),"utf8");assert.match(source,/Associated Markdown files/);assert.match(source,/href=\{recordHref\(file.path\)\}/);assert.match(source,/target="_blank"/);});
 
 test("selected records present dates and sources separately from their summary", async()=>{const source=await readFile(new URL("../app/knowledge-graph.tsx",import.meta.url),"utf8");assert.match(source,/className="detail-metadata"/);assert.match(source,/Last confirmed/);assert.match(source,/month: "long"/);});
 
-test("record pages render styled Markdown with graph navigation", async()=>{const page=await readFile(new URL("../app/records/[...path]/page.tsx",import.meta.url),"utf8");const renderer=await readFile(new URL("../app/records/[...path]/markdown-content.tsx",import.meta.url),"utf8");const css=await readFile(new URL("../app/globals.css",import.meta.url),"utf8");assert.doesNotMatch(page,/Back to knowledge graph/);assert.match(page,/ApplicationShell/);assert.match(page,/MarkdownContent/);assert.match(renderer,/type: "heading"/);assert.match(renderer,/type: "table"/);assert.match(css,/\.markdown-content h1/);});
+test("record pages render styled Markdown with graph navigation", async()=>{const page=await readFile(new URL("../app/record/page.tsx",import.meta.url),"utf8");const renderer=await readFile(new URL("../app/records/[...path]/markdown-content.tsx",import.meta.url),"utf8");const css=await readFile(new URL("../app/globals.css",import.meta.url),"utf8");assert.doesNotMatch(page,/Back to knowledge graph/);assert.match(page,/ApplicationShell/);assert.match(page,/MarkdownContent/);assert.match(renderer,/type: "heading"/);assert.match(renderer,/type: "table"/);assert.match(css,/\.markdown-content h1/);});
 
 test("event log entries use the same card and metadata-table treatment as current state", async()=>{const renderer=await readFile(new URL("../app/records/[...path]/markdown-content.tsx",import.meta.url),"utf8");const css=await readFile(new URL("../app/globals.css",import.meta.url),"utf8");assert.match(renderer,/function eventItem/);assert.match(renderer,/className="event-list"/);assert.match(renderer,/className="event-metadata-wrap"/);assert.match(renderer,/aria-label="Event metadata"/);assert.match(css,/\.state-list, \.event-list/);assert.match(css,/\.state-item, \.event-item/);assert.match(css,/\.state-metadata-wrap, \.event-metadata-wrap/);});
 
-test("record routes render Core memory while rejecting paths outside approved roots", async (t) => {
+test("static record shell does not expose local files or filesystem paths", async (t) => {
  const { child, origin } = await productionServer();
  t.after(() => child.kill());
-
- const memory = await fetch(`${origin}/records/2.core/memory/core.md`);
- assert.equal(memory.status, 200);
- assert.match(await memory.text(), /Core memory/);
-
- const repositoryMarkdown = await fetch(`${origin}/records/2.core/system/directory.md`);
- assert.equal(repositoryMarkdown.status, 200);
-
- const traversal = await fetch(`${origin}/records/2.core/memory/..%2Fsystem%2Fdirectory.md`);
- assert.equal(traversal.status, 404);
- assert.equal((await fetch(`${origin}/records/package.json`)).status, 404);
- assert.equal((await fetch(`${origin}/records/2.core/missing.md`)).status, 404);
- assert.equal((await fetch(`${origin}/records/node_modules/example.md`)).status, 404);
+ assert.equal((await fetch(origin + "/record?file=2.core/memory/core.md")).status, 200);
+ for (const file of ["/brain-data.json", "/demo-brain-data.json", "/2.core/memory/core.md", "/records/package.json", "/record/..%2F..%2Fpackage.json"]) assert.equal((await fetch(origin + file)).status, 404);
 });
 
 test("knowledge graph retains its dark radial canvas", async()=>{const css=await readFile(new URL("../app/globals.css",import.meta.url),"utf8");const stage=css.match(/\.graph-stage \{[^}]+\}/)?.[0] || "";assert.match(stage,/--graph-canvas: #111416/);assert.match(stage,/radial-gradient/);assert.match(css,/\.cytoscape-graph/);});

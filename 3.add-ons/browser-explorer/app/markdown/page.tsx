@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import ApplicationShell from "../application-shell";
-import type { BrainData, MarkdownFile } from "../brain-data";
-import { brainDataPath } from "../data-source";
+import type { MarkdownFile } from "../brain-data";
+import { useBrain } from "../brain-provider";
+import { recordHref } from "../../offline/links.mjs";
 
 type Folder = { name: string; path: string; folders: Folder[]; files: MarkdownFile[] };
 
@@ -26,7 +27,6 @@ export function buildFolderTree(files: MarkdownFile[]): Folder {
   return root;
 }
 
-function recordHref(filePath: string) { return `/records/${filePath.split("/").map(encodeURIComponent).join("/")}`; }
 
 function FileNode({ file }: { file: MarkdownFile }) {
   return <li><a className="markdown-file-link" href={recordHref(file.path)}><i className="fa-regular fa-file-lines" aria-hidden="true" /><span><strong>{file.title}</strong><small>{file.path}</small></span></a></li>;
@@ -41,10 +41,10 @@ function FolderNode({ folder, searching }: { folder: Folder; searching: boolean 
 }
 
 export default function MarkdownPage() {
-  const [files, setFiles] = useState<MarkdownFile[]>([]);
+  const { data, loading, message } = useBrain();
+  const files = data.markdown.files;
   const [query, setQuery] = useState("");
-  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
-  useEffect(() => { fetch(brainDataPath).then((response) => { if (!response.ok) throw new Error(); return response.json(); }).then((data: BrainData) => { setFiles(data.markdown.files); setStatus("ready"); }).catch(() => setStatus("error")); }, []);
+  const status = loading ? "loading" : message && !files.length ? "error" : "ready";
   const matches = useMemo(() => files.filter((file) => matchesMarkdownFile(file, query)), [files, query]);
   const tree = useMemo(() => buildFolderTree(matches), [matches]);
   return <ApplicationShell><section className="reader-workspace" aria-labelledby="reader-title">

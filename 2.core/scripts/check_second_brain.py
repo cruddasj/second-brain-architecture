@@ -100,6 +100,7 @@ EXCLUDED_PARTS = {
     "dist",
     "node_modules",
     "outputs",
+    "out",
 }
 ALLOWED_RAW_SOURCE_SUFFIXES = {".txt", ".rtf", ".md"}
 LINK_PATTERN = re.compile(r"(?<!!)\[[^]]+\]\(([^)]+)\)")
