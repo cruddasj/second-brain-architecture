@@ -8,6 +8,12 @@ updated: 2026-09-08
 
 Append-only record of authorised changes to the second brain. Add new entries at the top beneath this introduction. Correct earlier entries by adding a new entry rather than rewriting history.
 
+## 2026-09-08 — Render Markdown task lists
+
+- Transaction: `27c1b16f-be3c-4d51-8652-d6b65edc4ed1`
+- Change: Added read-only checked and unchecked controls for Markdown task-list syntax in Browser Explorer records.
+- Commit: enclosing commit
+
 ## 2026-09-08 — Separate repository sync arrows
 
 - Transaction: `f6c8549e-8747-4aea-a1ae-27e1d656ae6e`

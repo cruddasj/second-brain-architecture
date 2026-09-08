@@ -144,6 +144,9 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 .markdown-content :is(ul, ol) :is(ul, ol) { margin: 7px 0 0; }
 .markdown-content li { margin: 7px 0; padding-left: 5px; }
 .markdown-content li::marker { color: var(--primary); font-weight: 700; }
+.markdown-content .task-list-item { padding-left: 0; list-style: none; }
+.task-list-label { display: flex; align-items: flex-start; gap: 10px; }
+.task-list-label input { flex: none; width: 17px; height: 17px; margin: .3em 0 0; accent-color: var(--primary); opacity: 1; }
 .markdown-content blockquote { margin: 28px 0; padding: 18px 22px; border-left: 4px solid var(--primary); border-radius: 0 14px 14px 0; background: var(--surface-2); color: var(--muted); }
 .markdown-content code { border-radius: 5px; padding: 2px 6px; background: var(--surface-3); color: var(--tertiary); font-family: "SFMono-Regular", Consolas, monospace; font-size: .9em; }
 .markdown-content pre { overflow-x: auto; margin: 28px 0; padding: 20px; border-radius: 14px; background: var(--surface-3); line-height: 1.55; }

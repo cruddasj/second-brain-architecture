@@ -50,3 +50,19 @@ test("bullet and numbered lists retain semantic nesting and visible markers", as
  assert.match(css, /\.markdown-content ul ul \{ list-style-type: circle; \}/);
  assert.match(css, /\.markdown-content :is\(ul, ol\) :is\(ul, ol\) \{ margin: 7px 0 0; \}/);
 });
+
+test("task-list syntax renders read-only checked and unchecked controls", async () => {
+ const markdown = `- [ ] Pending task
+- [x] Completed **task**
+- [X] Also complete`;
+ const html = renderToStaticMarkup(React.createElement(MarkdownContent, { markdown }));
+ const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+ assert.match(html, /class="task-list-item"/);
+ assert.match(html, /type="checkbox" disabled=""/);
+ assert.match(html, /type="checkbox" disabled="" checked=""/);
+ assert.match(html, /Pending task/);
+ assert.match(html, /Completed <strong>task<\/strong>/);
+ assert.doesNotMatch(html, /\[\s\]|\[[xX]\]/);
+ assert.match(css, /\.markdown-content \.task-list-item \{[^}]*list-style: none/);
+ assert.match(css, /\.task-list-label input \{[^}]*accent-color: var\(--primary\)/);
+});
