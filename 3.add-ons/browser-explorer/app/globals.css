@@ -122,9 +122,9 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 .record-toc a:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .markdown-content a:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
 .record-context { margin: 0 0 16px; text-align: left; }
-.record-path { overflow: hidden; color: var(--muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
-.markdown-card { padding: 32px clamp(28px, 6vw, 72px) clamp(28px, 6vw, 72px); border: 1px solid var(--line-soft); border-radius: 28px; background: var(--surface); box-shadow: 0 8px 24px var(--shadow); }
-.markdown-content { color: var(--text); font-size: 16px; line-height: 1.75; }
+.record-path { display: block; max-width: 100%; overflow: hidden; color: var(--muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.markdown-card { padding: 32px clamp(28px, 6vw, 72px) clamp(28px, 6vw, 72px); min-width: 0; border: 1px solid var(--line-soft); border-radius: 28px; background: var(--surface); box-shadow: 0 8px 24px var(--shadow); }
+.markdown-content { min-width: 0; overflow-wrap: anywhere; color: var(--text); font-size: 16px; line-height: 1.75; }
 .markdown-content h1, .markdown-content h2, .markdown-content h3, .markdown-content h4, .markdown-content h5, .markdown-content h6 { color: var(--text); font-weight: 500; line-height: 1.25; letter-spacing: -.02em; }
 .heading-permalink { margin-left: .55em; color: var(--primary) !important; font-size: .65em; opacity: 0; text-decoration: none; }
 .markdown-content :is(h1, h2, h3, h4, h5, h6):hover .heading-permalink, .heading-permalink:focus-visible { opacity: 1; }
@@ -148,13 +148,13 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 .markdown-content th, .markdown-content td { padding: 12px 14px; border-bottom: 1px solid var(--line-soft); text-align: left; vertical-align: top; }
 .markdown-content th { background: var(--surface-2); color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
 .markdown-content tr:last-child td { border-bottom: 0; }
-.state-list, .event-list { display: grid; gap: 24px; margin: 0 0 24px; }
-.state-item, .event-item { padding: 20px; border: 1px solid var(--line-soft); border-radius: 14px; background: var(--surface-2); }
+.state-list, .event-list { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; gap: 24px; margin: 0 0 24px; }
+.state-item, .event-item { min-width: 0; padding: 20px; border: 1px solid var(--line-soft); border-radius: 14px; background: var(--surface-2); }
 .state-item > p, .event-item > p { margin-bottom: 14px; }
 .state-metadata-wrap, .event-metadata-wrap { overflow-x: auto; border: 1px solid var(--line-soft); border-radius: 10px; background: var(--surface); }
-.markdown-content :is(.state-metadata-wrap, .event-metadata-wrap) table { width: auto; min-width: 360px; font-size: 12px; }
+.markdown-content :is(.state-metadata-wrap, .event-metadata-wrap) table { width: 100%; table-layout: fixed; font-size: 12px; }
 .markdown-content :is(.state-metadata-wrap, .event-metadata-wrap) :is(th, td) { padding: 7px 10px; }
-.markdown-content :is(.state-metadata-wrap, .event-metadata-wrap) th { width: 120px; background: transparent; color: var(--muted); font-size: 10px; white-space: nowrap; }
+.markdown-content :is(.state-metadata-wrap, .event-metadata-wrap) th { width: 35%; background: transparent; color: var(--muted); font-size: 10px; white-space: normal; }
 .markdown-content :is(.state-metadata-wrap, .event-metadata-wrap) tr:last-child :is(th, td) { border-bottom: 0; }
 
 @media (max-width: 1000px) { .graph-stage-wrap { grid-template-columns: 1fr; } .graph-detail { min-height: 270px; border-top: 1px solid var(--line-soft); border-left: 0; } .detail-empty { min-height: 210px; } }
