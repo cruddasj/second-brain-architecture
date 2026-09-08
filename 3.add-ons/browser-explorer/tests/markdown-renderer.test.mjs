@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -31,4 +32,21 @@ This whole section is hidden.
  assert.doesNotMatch(html, /hidden inline|Hidden heading|whole section/);
  assert.match(html, /A visible code example/);
  assert.deepEqual(headingOutline(markdown).map(({ text }) => text), ["Visible heading"]);
+});
+
+test("bullet and numbered lists retain semantic nesting and visible markers", async () => {
+ const markdown = `- First bullet
+  - Nested bullet
+- Second bullet
+
+1. First step
+2. Second step`;
+ const html = renderToStaticMarkup(React.createElement(MarkdownContent, { markdown }));
+ const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+ assert.match(html, /<ul><li>First bullet<ul><li>Nested bullet<\/li><\/ul><\/li><li>Second bullet<\/li><\/ul>/);
+ assert.match(html, /<ol><li>First step<\/li><li>Second step<\/li><\/ol>/);
+ assert.match(css, /\.markdown-content ul \{ list-style-type: disc; \}/);
+ assert.match(css, /\.markdown-content ol \{ list-style-type: decimal; \}/);
+ assert.match(css, /\.markdown-content ul ul \{ list-style-type: circle; \}/);
+ assert.match(css, /\.markdown-content :is\(ul, ol\) :is\(ul, ol\) \{ margin: 7px 0 0; \}/);
 });

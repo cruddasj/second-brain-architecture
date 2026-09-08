@@ -8,6 +8,12 @@ updated: 2026-09-08
 
 Append-only record of authorised changes to the second brain. Add new entries at the top beneath this introduction. Correct earlier entries by adding a new entry rather than rewriting history.
 
+## 2026-09-08 — Restore Markdown list markers
+
+- Transaction: `337e00c9-ba47-4d3e-8037-cdb307f611e2`
+- Change: Restored visible bullet and numbered-list markers in Browser Explorer Markdown, with distinct nested bullets and tighter nested-list spacing.
+- Commit: enclosing commit
+
 ## 2026-09-08 — Refine Markdown and installation presentation
 
 - Transaction: `d363a53a-19c9-4f3f-88d8-dee0f6ed764a`
