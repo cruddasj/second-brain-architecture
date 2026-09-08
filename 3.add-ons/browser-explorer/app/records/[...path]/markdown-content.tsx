@@ -17,12 +17,42 @@ type ListItem = { text: string; indent: number; children: List[] };
 type ListLine = { indent: number; ordered: boolean; text: string };
 type StateItem = { description: string; metadata: { label: string; value: string }[] };
 type EventItem = { description: string; metadata: { label: string; value: string }[] };
+type TaskItem = { checked: boolean; text: string };
 
 const stateMetadata = /^(Effective|Last confirmed|Source|Transaction):\s*(.+)$/i;
 const eventMetadata = /^(Date|Source|Transaction):\s*(.+)$/i;
 
 function stripFrontmatter(markdown: string) {
   return markdown.replace(/^---\s*\r?\n[\s\S]*?\r?\n---\s*(?:\r?\n|$)/, "");
+}
+
+function stripHtmlComments(markdown: string) {
+  let hidden = false;
+  let fenced = false;
+  return markdown.split(/\r?\n/).map((line) => {
+    if (!hidden && /^\s*```/.test(line)) {
+      fenced = !fenced;
+      return line;
+    }
+    if (fenced) return line;
+    let visible = "";
+    let remainder = line;
+    while (remainder) {
+      if (hidden) {
+        const end = remainder.indexOf("-->");
+        if (end < 0) return visible;
+        hidden = false;
+        remainder = remainder.slice(end + 3);
+      } else {
+        const start = remainder.indexOf("<!--");
+        if (start < 0) return visible + remainder;
+        visible += remainder.slice(0, start);
+        hidden = true;
+        remainder = remainder.slice(start + 4);
+      }
+    }
+    return visible;
+  }).join("\n");
 }
 
 function cells(line: string) {
@@ -83,7 +113,7 @@ export function uniqueHeadingId(base: string, used: Set<string>) {
 }
 
 export function parseMarkdown(markdown: string): Block[] {
-  const lines = stripFrontmatter(markdown).split(/\r?\n/);
+  const lines = stripHtmlComments(stripFrontmatter(markdown)).split(/\r?\n/);
   const blocks: Block[] = [];
   const headingIds = new Set<string>();
   for (let i = 0; i < lines.length;) {
@@ -162,6 +192,11 @@ function eventItem(item: ListItem): EventItem | null {
   return { description: match[1], metadata: metadata as EventItem["metadata"] };
 }
 
+function taskItem(item: ListItem): TaskItem | null {
+  const match = item.text.match(/^\[([ xX])\]\s+(.+)$/);
+  return match ? { checked: match[1].toLowerCase() === "x", text: match[2] } : null;
+}
+
 export default function MarkdownContent({ markdown, resolveLink = (href) => /^(https?:\/\/|mailto:|#)/i.test(href) ? href : undefined }: { markdown: string; resolveLink?: (href: string) => string | undefined }) {
   const inline = (text: string) => renderInline(text, resolveLink);
   function renderList(list: List, key: number) {
@@ -188,9 +223,12 @@ export default function MarkdownContent({ markdown, resolveLink = (href) => /^(h
       )}</div>;
     }
     const ListTag = list.ordered ? "ol" : "ul";
-    return <ListTag key={key}>{list.items.map((item, itemIndex) =>
-      <li key={itemIndex}>{inline(item.text)}{item.children.map(renderList)}</li>
-    )}</ListTag>;
+    return <ListTag key={key}>{list.items.map((item, itemIndex) => {
+      const task = taskItem(item);
+      return <li className={task ? "task-list-item" : undefined} key={itemIndex}>{task ?
+        <label className="task-list-label"><input type="checkbox" checked={task.checked} disabled /><span>{inline(task.text)}</span></label> :
+        inline(item.text)}{item.children.map(renderList)}</li>;
+    })}</ListTag>;
   }
 
   return <div className="markdown-content">{parseMarkdown(markdown).map((block, index) => {

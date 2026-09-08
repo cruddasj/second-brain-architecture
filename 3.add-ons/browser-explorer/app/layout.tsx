@@ -1,5 +1,5 @@
 import { appPath } from "../offline/paths.mjs";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./globals.css";
 import BrainProvider from "./brain-provider";
@@ -15,6 +15,12 @@ export const metadata: Metadata = {
     icon: appPath("/favicon.svg"),
     shortcut: appPath("/favicon.svg"),
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
