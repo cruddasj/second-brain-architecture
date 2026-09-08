@@ -22,6 +22,7 @@
   --tertiary: #efb8c8;
   --focus: #d0bcff;
   --shadow: transparent;
+  --bottom-navigation-height: 64px;
 }
 
 * { box-sizing: border-box; }
@@ -179,9 +180,6 @@ body:has(.brain-shell) { overflow: hidden; }
 .application-menu a:focus-visible, .folder-control:focus-visible, .markdown-file-link:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
 .brand-lockup { align-items: flex-start; flex-direction: column; }
 .brand-lockup h1 { max-width: 220px; font-size: 26px; }
-.navigation-note { margin-top: auto; padding-top: 24px; border-top: 1px solid var(--line-soft); }
-.navigation-note h2 { margin: 0 0 10px; font-size: 30px; font-weight: 400; line-height: 1.05; letter-spacing: -.03em; }
-.navigation-note > p:last-child { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
 .panel-toggle { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid var(--line-soft); border-radius: 50%; background: var(--surface-6); color: var(--text); cursor: pointer; font-size: 15px; box-shadow: 0 2px 7px var(--shadow); }
 .panel-toggle:hover { background: var(--primary-container); color: var(--on-primary-container); }
 .navigation-toggle { flex: none; }
@@ -189,7 +187,6 @@ body:has(.brain-shell) { overflow: hidden; }
 .navigation-collapsed .navigation-header { margin-bottom: 30px; }
 .navigation-collapsed .navigation-header h1 { display: none; }
 .navigation-collapsed .navigation-content { align-items: center; }
-.navigation-collapsed .navigation-note { display: none; }
 .navigation-collapsed .application-menu a { justify-content: center; width: 44px; padding-inline: 0; }
 .navigation-collapsed .application-menu span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 .workspace-pane { width: 100%; height: 100%; min-width: 0; min-height: 0; padding: 16px 16px 16px 316px; transition: padding-left .2s ease; }
@@ -302,30 +299,42 @@ body:has(.brain-shell) { overflow: hidden; }
 }
 
 @media (max-width: 900px) {
-  body:has(.brain-shell) { overflow: auto; }
-  .brain-shell, .brain-shell.navigation-collapsed { height: auto; min-height: 100dvh; overflow: visible; }
-  .navigation-panel { position: relative; inset: auto; width: auto; min-height: 74px; padding: 18px 20px; border-right: 0; border-bottom: 1px solid var(--line-soft); }
-  .navigation-content { height: auto; }
-  .application-menu { grid-template-columns: minmax(0, 1fr); padding-right: 0; }
-  .application-menu a { min-width: 0; }
-  .application-menu a span { overflow-wrap: anywhere; }
-  .navigation-note { display: none; }
-  .navigation-header { position: static; height: auto; min-height: 36px; margin: 0 0 12px; white-space: normal; }
-  .navigation-header h1 { min-width: 0; font-size: clamp(15px, 3vw, 18px); overflow-wrap: anywhere; }
-  .navigation-collapsed .navigation-panel { width: auto; min-height: 56px; padding: 0; }
-  .navigation-collapsed .navigation-header { position: absolute; top: 10px; left: 20px; right: auto; margin: 0; }
-  .navigation-collapsed .navigation-content { display: none; }
-  .navigation-collapsed .application-menu { display: flex; padding: 0; }
-  .workspace-pane { height: calc(100dvh - 180px); min-height: 620px; padding: 10px; }
-  .navigation-collapsed .workspace-pane { height: calc(100dvh - 56px); padding: 10px; }
+  body:has(.brain-shell) { overflow: hidden; }
+  .brain-shell, .brain-shell.navigation-collapsed { height: 100dvh; min-height: 100svh; overflow: hidden; }
+  .navigation-panel, .navigation-collapsed .navigation-panel {
+    position: fixed;
+    z-index: 10;
+    inset: auto 0 0;
+    width: auto;
+    height: calc(var(--bottom-navigation-height) + env(safe-area-inset-bottom));
+    min-height: 0;
+    padding: 0 12px env(safe-area-inset-bottom);
+    overflow: visible;
+    border-top: 1px solid var(--line-soft);
+    border-right: 0;
+    background: var(--surface-2);
+    box-shadow: 0 -3px 12px color-mix(in srgb, var(--shadow) 45%, transparent);
+  }
+  .navigation-header, .navigation-collapsed .navigation-header { display: none; }
+  .navigation-content, .navigation-collapsed .navigation-content { display: block; height: var(--bottom-navigation-height); }
+  .application-menu, .navigation-collapsed .application-menu { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); height: 100%; gap: 4px; padding: 4px 0; }
+  .application-menu a, .navigation-collapsed .application-menu a { justify-content: center; width: auto; min-width: 0; min-height: 56px; gap: 8px; padding: 8px 10px; }
+  .application-menu a span, .navigation-collapsed .application-menu span { position: static; width: auto; height: auto; overflow: visible; clip-path: none; white-space: nowrap; }
+  .application-menu a[aria-current="page"] { box-shadow: inset 0 -3px var(--primary); }
+  .workspace-pane, .navigation-collapsed .workspace-pane {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    padding: 10px 10px calc(10px + var(--bottom-navigation-height) + env(safe-area-inset-bottom));
+  }
   .graph-detail { width: 280px; }
 }
 
 @media (max-width: 680px) {
-  .workspace-pane:has(.graph-workspace) { height: auto; min-height: 0; }
+  .workspace-pane:has(.graph-workspace) { height: 100%; min-height: 0; overflow-y: auto; }
   .graph-controls { top: 12px; left: 12px; width: calc(100% - 24px); }
   .graph-actions { top: 60px; right: 12px; }
-  .graph-stage-wrap, .graph-workspace.detail-collapsed .graph-stage-wrap { display: grid; grid-template-columns: 1fr; grid-template-rows: max(480px, 62dvh) auto; align-content: start; overflow: visible; }
+  .graph-stage-wrap, .graph-workspace.detail-collapsed .graph-stage-wrap { display: grid; grid-template-columns: 1fr; grid-template-rows: max(420px, calc(100dvh - var(--bottom-navigation-height) - env(safe-area-inset-bottom) - 20px)) auto; align-content: start; overflow: visible; }
   .graph-workspace { height: auto; min-height: 0; grid-template-rows: auto; overflow: visible; }
   .graph-detail { position: static; width: auto; min-height: 0; border-top: 1px solid var(--line-soft); border-left: 0; overflow: visible; box-shadow: none; }
   .detail-panel-header { justify-content: center; }
@@ -335,7 +344,15 @@ body:has(.brain-shell) { overflow: hidden; }
 }
 
 @media (max-width: 680px) {
+  .record-shell { width: 100%; padding: 0; }
+  .reader-workspace { padding: 28px 20px; }
   .reader-workspace.connection-page { padding: 28px 20px; }
   .setup-step, .install-section { padding: 22px 18px; }
   .mobile-install-help p { grid-template-columns: 1fr; gap: 4px; }
+}
+
+@media (max-width: 519px) {
+  .navigation-panel, .navigation-collapsed .navigation-panel { padding-inline: 8px; }
+  .application-menu a, .navigation-collapsed .application-menu a { gap: 0; padding-inline: 0; font-size: 18px; }
+  .application-menu a span, .navigation-collapsed .application-menu span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }

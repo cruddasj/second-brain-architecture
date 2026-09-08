@@ -10,7 +10,7 @@ export default function ApplicationShell({ children }: { children: ReactNode }) 
   const destinations = [
     { href: "/", label: "Knowledge graph", icon: "fa-diagram-project", active: pathname === "/" },
     { href: "/markdown", label: "Markdown reader", icon: "fa-book-open", active: pathname === "/markdown" || pathname === "/record" },
-    { href: "/connection", label: "Repository setup", icon: "fa-key", active: pathname === "/connection" },
+    { href: "/connection", label: "Repository sync", icon: "fa-right-left", active: pathname === "/connection" },
   ];
   return <main className={`brain-shell ${navigationOpen ? "navigation-expanded" : "navigation-collapsed"}`}>
     <aside className="navigation-panel" aria-label="Application navigation">
@@ -25,7 +25,6 @@ export default function ApplicationShell({ children }: { children: ReactNode }) 
             <i className={`fa-solid ${item.icon}`} aria-hidden="true" /><span>{item.label}</span>
           </a>)}
         </nav>
-        <div className="navigation-note"><p className="eyebrow">Read only</p><h2>Explore the repository</h2><p>Explore themes, collections and connections in .md files.</p></div>
       </div>
     </aside>
     <div className="workspace-pane">{children}</div>
