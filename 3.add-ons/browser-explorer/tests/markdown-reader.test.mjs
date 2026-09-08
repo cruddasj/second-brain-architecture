@@ -9,7 +9,7 @@ test("shared shell exposes every destination with pathname-based active semantic
   assert.match(shell, /usePathname\(\)/);
   assert.match(shell, /href: "\/", label: "Knowledge graph"/);
   assert.match(shell, /href: "\/markdown", label: "Markdown reader"/);
-  assert.match(shell, /href: "\/connection", label: "Repository sync", icon: "fa-right-left"/);
+  assert.match(shell, /href: "\/connection", label: "Repository sync", icon: "fa-up-down"/);
   assert.match(shell, /aria-current=\{item\.active \? "page"/);
   assert.doesNotMatch(shell, /navigation-note|fa-key/);
   for (const route of ["../app/page.tsx", "../app/markdown/page.tsx", "../app/record/page.tsx", "../app/connection/page.tsx"])
