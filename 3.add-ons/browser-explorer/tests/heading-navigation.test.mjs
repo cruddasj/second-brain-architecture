@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const rendererUrl = new URL("../app/records/[...path]/markdown-content.tsx", import.meta.url);
-const pageUrl = new URL("../app/records/[...path]/page.tsx", import.meta.url);
+const pageUrl = new URL("../app/record/page.tsx", import.meta.url);
 const tocUrl = new URL("../app/records/[...path]/table-of-contents.tsx", import.meta.url);
 
 test("heading slugs are stable, preserve explicit fragments, and disambiguate duplicates", async () => {
@@ -39,5 +39,5 @@ test("responsive table of contents uses a persistent labelled navigation panel",
 test("graph section labels link into record fragments", async () => {
   const graph = await readFile(new URL("../app/knowledge-graph.tsx", import.meta.url), "utf8");
   assert.match(graph, /selectedSections\.map/);
-  assert.match(graph, /#\$\{encodeURIComponent\(id\)\}/);
+  assert.match(graph, /recordHref\(selected.path, id\)/);
 });

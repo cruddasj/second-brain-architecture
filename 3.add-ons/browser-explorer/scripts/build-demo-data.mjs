@@ -13,6 +13,7 @@ const outputPath = path.join(addonRoot, "public", "demo-brain-data.json");
 await execFileAsync(process.execPath, [path.join(addonRoot, "scripts", "build-brain-data.mjs")], { cwd: addonRoot });
 const normalData = JSON.parse(await fs.readFile(normalDataPath, "utf8"));
 const output = createDemoData(normalData.markdown);
+output.snapshot = normalData.snapshot;
 
 await fs.mkdir(path.dirname(outputPath), { recursive: true });
 await fs.writeFile(outputPath, `${JSON.stringify(output, null, 2)}\n`, "utf8");

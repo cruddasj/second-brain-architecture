@@ -128,11 +128,11 @@ export function headingOutline(markdown: string): Heading[] {
   return parseMarkdown(markdown).filter((block): block is Heading => block.type === "heading");
 }
 
-function inline(text: string): ReactNode[] {
+function renderInline(text: string, resolveLink: (href: string) => string | undefined): ReactNode[] {
   const pattern = /(\[[^\]]+\]\([^)]+\)|`[^`]+`|\*\*[^*]+\*\*|__[^_]+__|(?<!\*)\*[^*]+\*(?!\*)|(?<!_)_[^_]+_(?!_))/g;
   return text.split(pattern).filter(Boolean).map((part, index) => {
     const link = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
-    if (link) return <a key={index} href={link[2]}>{link[1]}</a>;
+    if (link) return <a key={index} href={resolveLink(link[2])} rel="noreferrer">{link[1]}</a>;
     if (part.startsWith("`")) return <code key={index}>{part.slice(1, -1)}</code>;
     if (part.startsWith("**") || part.startsWith("__")) return <strong key={index}>{part.slice(2, -2)}</strong>;
     if (part.startsWith("*") || part.startsWith("_")) return <em key={index}>{part.slice(1, -1)}</em>;
@@ -162,7 +162,8 @@ function eventItem(item: ListItem): EventItem | null {
   return { description: match[1], metadata: metadata as EventItem["metadata"] };
 }
 
-export default function MarkdownContent({ markdown }: { markdown: string }) {
+export default function MarkdownContent({ markdown, resolveLink = (href) => /^(https?:\/\/|mailto:|#)/i.test(href) ? href : undefined }: { markdown: string; resolveLink?: (href: string) => string | undefined }) {
+  const inline = (text: string) => renderInline(text, resolveLink);
   function renderList(list: List, key: number) {
     const states = !list.ordered ? list.items.map(stateItem) : [];
     if (states.length > 0 && states.every(Boolean)) {

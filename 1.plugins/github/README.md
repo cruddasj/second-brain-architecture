@@ -38,6 +38,8 @@ labels, API URLs or account details.
 
 ## Tool mapping
 
+The optional [browser adapter](browser-explorer/README.md) supplies browser-side read-only access. [Pages deployment](browser-explorer/pages.md) documents the static application workflow and its root activation shim.
+
 | Core operation | Provider action |
 | --- | --- |
 | Read canonical repository state | Read the configured GitHub repository and default branch |
