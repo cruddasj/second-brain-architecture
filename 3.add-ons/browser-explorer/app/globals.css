@@ -296,6 +296,7 @@ body:has(.brain-shell) { overflow: hidden; }
 
 @media (min-width: 901px) {
   .navigation-expanded .navigation-header .navigation-toggle { margin-left: 4px; }
+  .install-section { width: 100%; max-width: none; }
 }
 
 @media (max-width: 900px) {

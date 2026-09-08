@@ -8,6 +8,12 @@ updated: 2026-09-08
 
 Append-only record of authorised changes to the second brain. Add new entries at the top beneath this introduction. Correct earlier entries by adding a new entry rather than rewriting history.
 
+## 2026-09-08 — Refine Markdown and installation presentation
+
+- Transaction: `d363a53a-19c9-4f3f-88d8-dee0f6ed764a`
+- Change: Hid HTML-commented sections from Browser Explorer Markdown output and allowed the installation panel to use the full desktop connection workspace width.
+- Commit: enclosing commit
+
 ## 2026-09-08 — Refine repository sync icon
 
 - Transaction: `3a6eccc4-2317-4b5c-a1b3-829fb2c8dbb5`

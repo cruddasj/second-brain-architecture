@@ -25,6 +25,35 @@ function stripFrontmatter(markdown: string) {
   return markdown.replace(/^---\s*\r?\n[\s\S]*?\r?\n---\s*(?:\r?\n|$)/, "");
 }
 
+function stripHtmlComments(markdown: string) {
+  let hidden = false;
+  let fenced = false;
+  return markdown.split(/\r?\n/).map((line) => {
+    if (!hidden && /^\s*```/.test(line)) {
+      fenced = !fenced;
+      return line;
+    }
+    if (fenced) return line;
+    let visible = "";
+    let remainder = line;
+    while (remainder) {
+      if (hidden) {
+        const end = remainder.indexOf("-->");
+        if (end < 0) return visible;
+        hidden = false;
+        remainder = remainder.slice(end + 3);
+      } else {
+        const start = remainder.indexOf("<!--");
+        if (start < 0) return visible + remainder;
+        visible += remainder.slice(0, start);
+        hidden = true;
+        remainder = remainder.slice(start + 4);
+      }
+    }
+    return visible;
+  }).join("\n");
+}
+
 function cells(line: string) {
   return line.trim().replace(/^\||\|$/g, "").split("|").map((cell) => cell.trim());
 }
@@ -83,7 +112,7 @@ export function uniqueHeadingId(base: string, used: Set<string>) {
 }
 
 export function parseMarkdown(markdown: string): Block[] {
-  const lines = stripFrontmatter(markdown).split(/\r?\n/);
+  const lines = stripHtmlComments(stripFrontmatter(markdown)).split(/\r?\n/);
   const blocks: Block[] = [];
   const headingIds = new Set<string>();
   for (let i = 0; i < lines.length;) {
