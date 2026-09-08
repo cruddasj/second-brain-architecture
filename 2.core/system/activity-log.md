@@ -8,6 +8,12 @@ updated: 2026-09-08
 
 Append-only record of authorised changes to the second brain. Add new entries at the top beneath this introduction. Correct earlier entries by adding a new entry rather than rewriting history.
 
+## 2026-09-08 — Separate repository sync arrows
+
+- Transaction: `f6c8549e-8747-4aea-a1ae-27e1d656ae6e`
+- Change: Replaced the combined repository synchronisation glyph with distinct upward and downward arrow icons in Browser Explorer navigation.
+- Commit: enclosing commit
+
 ## 2026-09-08 — Restore Markdown list markers
 
 - Transaction: `337e00c9-ba47-4d3e-8037-cdb307f611e2`
