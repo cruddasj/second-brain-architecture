@@ -7,7 +7,7 @@ import { appPath, storageScope } from "../offline/paths.mjs";
 // Generated local/demo data must never be shipped in the static application.
 for (const file of ["brain-data.json", "demo-brain-data.json"]) await rm(path.join("out", file), { force: true });
 const icon = await readFile("public/favicon.svg");
-for (const size of [192, 512]) await sharp(icon).resize(size, size).png().toFile(`out/icon-${size}.png`);
+for (const size of [192, 512]) await sharp(icon).resize(size, size).flatten({ background: "#ffffff" }).png().toFile(`out/icon-${size}.png`);
 await writeFile("out/manifest.webmanifest", JSON.stringify({ id: appPath("/"), name: "Second Brain Explorer", short_name: "Second Brain", start_url: appPath("/"), scope: appPath("/"), display: "standalone", background_color: "#111719", theme_color: "#111719", icons: [192, 512].map(size => ({ src: appPath(`/icon-${size}.png`), sizes: `${size}x${size}`, type: "image/png", purpose: "any" })) }));
 async function files(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
