@@ -15,7 +15,7 @@ type Point = { x: number; y: number };
 const themePalette = ["#2f7fc1", "#20a7c9", "#35b8b4", "#66b99a", "#91bd78", "#c4c966", "#e1c84f"];
 const unthemedColour = "#f4f1ef";
 const storageKey = `second-brain-graph-positions-v1:${storageScope}`;
-const minZoom = .25;
+const minZoom = .025;
 const maxZoom = 1.6;
 const fitPadding = 72;
 
@@ -259,13 +259,14 @@ export default function KnowledgeGraph({ graph, loading = false }: { graph: Grap
     containerRef.current?.scrollIntoView({ block: "start" });
     detailsJumpRef.current?.focus({ preventScroll: true });
   }
-  function zoomBy(delta: number) { const cy = cyRef.current; if (!cy) return; cy.zoom({ level: Math.max(minZoom, Math.min(maxZoom, cy.zoom() + delta)), renderedPosition: { x: cy.width() / 2, y: cy.height() / 2 } }); }
+  function zoomBy(delta: number) { const cy = cyRef.current; if (!cy) return; cy.zoom({ level: Math.max(minZoom, Math.min(maxZoom, cy.zoom() * Math.exp(delta))), renderedPosition: { x: cy.width() / 2, y: cy.height() / 2 } }); }
+  function fitGraph() { const cy = cyRef.current; if (cy?.nodes(":visible").length) cy.fit(cy.nodes(":visible"), fitPadding); }
   function keyboardMove(node: NodeSingular, key: string, large: boolean) { const delta = large ? 20 : 5; const point = node.position(); persistPosition(node.id(), { x: point.x + (key === "ArrowLeft" ? -delta : key === "ArrowRight" ? delta : 0), y: point.y + (key === "ArrowUp" ? -delta : key === "ArrowDown" ? delta : 0) }); }
 
   return <section className={`graph-workspace ${detailOpen ? "" : "detail-collapsed"}`}>
     <div className="graph-stage-wrap"><div className="graph-stage">
       <div className="graph-controls"><select aria-label="Filter by collection" value={collection} onChange={(event) => setCollection(event.target.value)}><option value="all">All collections</option>{collections.map(({ value, label }) => <option key={value} value={value}>{label}</option>)}</select><label><span className="sr-only">Search all records</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search records and concepts" />{query && <button type="button" className="search-clear" onClick={() => setQuery("")} aria-label="Clear search" title="Clear search"><span className="search-clear-icon" aria-hidden="true" /></button>}</label></div>
-      <div className="graph-actions"><button onClick={() => zoomBy(.15)} aria-label="Zoom in"><i className="fa-solid fa-plus" aria-hidden="true" /></button><button onClick={() => zoomBy(-.15)} aria-label="Zoom out"><i className="fa-solid fa-minus" aria-hidden="true" /></button><button onClick={arrangeGraph} aria-label="Arrange graph" title="Arrange graph"><i className="fa-solid fa-wand-magic-sparkles" aria-hidden="true" /></button></div>
+      <div className="graph-actions"><button onClick={() => zoomBy(.15)} aria-label="Zoom in"><i className="fa-solid fa-plus" aria-hidden="true" /></button><button onClick={() => zoomBy(-.15)} aria-label="Zoom out"><i className="fa-solid fa-minus" aria-hidden="true" /></button><button onClick={fitGraph} aria-label="Fit graph" title="Fit graph"><i className="fa-solid fa-compress" aria-hidden="true" /></button><button onClick={arrangeGraph} aria-label="Arrange graph" title="Arrange graph"><i className="fa-solid fa-wand-magic-sparkles" aria-hidden="true" /></button></div>
       <div ref={containerRef} className="cytoscape-graph" role="img" aria-label={`Knowledge graph with ${visibleIds.size} visible nodes`} />
       <div className="graph-keyboard-nodes" aria-label="Keyboard-accessible graph nodes">{graph.nodes.filter((node) => interactiveIds.has(node.id)).map((node) => <button key={node.id} aria-label={`${node.title}. ${node.themeIds.length ? `Themes: ${node.themeIds.map((id) => themeNames.get(id)).join(", ")}` : "No linked theme"}. Use arrow keys to move.`} aria-pressed={node.id === selectedId} onFocus={() => setKeyboardFocusId(node.id)} onBlur={() => setKeyboardFocusId(null)} onClick={() => setSelectedId(node.id)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setSelectedId(node.id); } else if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) { event.preventDefault(); const cyNode = cyRef.current?.getElementById(node.id); if (cyNode?.isNode()) keyboardMove(cyNode, event.key, event.shiftKey); } }}>{node.title}</button>)}</div>
       {loading && <div className="graph-zero"><strong>Mapping your records…</strong></div>}{!loading && !visibleIds.size && <div className="graph-zero"><strong>No matching records</strong><span>Try a different search or collection.</span></div>}

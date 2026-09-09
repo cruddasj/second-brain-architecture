@@ -282,6 +282,10 @@ body:has(.brain-shell) { overflow: hidden; }
 .connection-token-help a:hover { color: var(--on-primary-container); }
 .connection-token-help a:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; border-radius: 2px; }
 .connection-token-help p { margin-top: 12px; }
+.connection-token-input { position: relative; min-width: 0; }
+.connection-token-input input { padding-right: 76px; }
+.connection-token-input .token-visibility { position: absolute; top: 1px; right: 1px; min-width: 64px; height: calc(100% - 2px); padding: 8px; background: transparent; color: var(--primary); }
+.connection-feedback { overflow-wrap: anywhere; }
 .connection-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 .connection-notice { padding: 20px; border: 1px solid var(--line-soft); border-radius: 8px; background: var(--surface-2); margin-bottom: 24px; }
 .connection-notice h3 { margin-top: 0; }
@@ -346,8 +350,11 @@ body:has(.brain-shell) { overflow: hidden; }
 
 @media (max-width: 680px) {
   .workspace-pane:has(.graph-workspace) { height: 100%; min-height: 0; overflow-y: auto; }
-  .graph-controls { top: 12px; left: 12px; width: calc(100% - 24px); }
-  .graph-actions { top: 60px; left: auto; right: 12px; flex-direction: column; }
+  .graph-controls { top: 12px; left: 12px; width: calc(100% - 80px); flex-direction: column; }
+  .graph-controls select { width: 100%; max-width: none; border-right: 0; border-bottom: 1px solid var(--line-soft); }
+  .graph-controls input, .graph-controls select { height: 44px; font-size: 16px; }
+  .graph-controls .search-clear { top: 2px; right: 2px; width: 40px; height: 40px; }
+  .graph-actions { top: 12px; left: auto; right: 12px; flex-direction: column; }
   .graph-actions button { min-width: 44px; height: 44px; border-right: 0; border-bottom: 1px solid var(--line-soft); }
   .graph-stage-wrap, .graph-workspace.detail-collapsed .graph-stage-wrap { display: grid; grid-template-columns: 1fr; grid-template-rows: max(280px, calc(100dvh - var(--bottom-navigation-height) - env(safe-area-inset-bottom) - 80px)) auto auto; align-content: start; overflow: visible; }
   .graph-workspace { height: auto; min-height: 0; grid-template-rows: auto; overflow: visible; }
@@ -365,8 +372,23 @@ body:has(.brain-shell) { overflow: hidden; }
 @media (max-width: 680px) {
   .record-shell { width: 100%; padding: 0; }
   .reader-workspace { padding: 28px 20px; }
-  .reader-workspace.connection-page { padding: 28px 20px; }
-  .setup-step, .install-section { padding: 22px 18px; }
+  .reader-workspace.connection-page { padding: 20px 12px; overflow-x: hidden; scroll-padding-block: 20px; }
+  .connection-page .reader-header { margin-bottom: 24px; }
+  .connection-page .reader-header h2 { font-size: 28px; }
+  .connection-page .reader-header > p { font-size: 16px; }
+  .connection-page .setup-step h3 { font-size: 19px; }
+  .connection-form, .setup-step, .setup-step-heading > div { min-width: 0; }
+  .connection-page { overflow-wrap: anywhere; }
+  .connection-form { gap: 14px; }
+  .connection-form input { min-width: 0; min-height: 48px; font-size: 16px; scroll-margin-block: 24px; }
+  .connection-form button, .install-section button { min-height: 48px; font-size: 16px; }
+  .connection-actions { flex-direction: column; }
+  .connection-actions button, .connection-form .connection-token-toggle, .install-section button { width: 100%; }
+  .connection-token-help { padding: 12px; }
+  .connection-notice { padding: 16px; }
+  .setup-privacy summary { padding-block: 12px; }
+  .connection-page .install-section h3 { font-size: 23px; }
+  .setup-step, .install-section { padding: 18px 14px; gap: 14px; }
   .mobile-install-help p { grid-template-columns: 1fr; gap: 4px; }
 }
 
