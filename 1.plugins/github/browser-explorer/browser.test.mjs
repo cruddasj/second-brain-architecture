@@ -42,7 +42,9 @@ test("installed shell syncs a remote fixture into graph and reader, refreshes at
   await page.getByRole("button", { name: "Connect and sync" }).waitFor();
   const manifest = await (await fetch(origin + "/manifest.webmanifest")).json();
   assert.equal(manifest.display, "standalone");
-  assert.deepEqual(manifest.icons.map(icon => icon.sizes), ["192x192", "512x512"]);
+  for (const purpose of ["any", "maskable"]) {
+    assert.deepEqual(manifest.icons.filter(icon => icon.purpose === purpose).map(icon => icon.sizes).sort(), ["192x192", "512x512"], `Expected both install icon sizes for ${purpose}`);
+  }
   for (const width of [1280, 390]) {
     await page.setViewportSize({ width, height: 844 });
     await page.waitForTimeout(300); // Let the existing responsive panel transition settle.
