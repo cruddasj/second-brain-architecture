@@ -1,0 +1,45 @@
+@media (max-width: 680px) {
+  .graph-controls label:has(input:placeholder-shown)::after {
+    position: absolute;
+    inset: 0 40px 0 14px;
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, .58);
+    content: "Search";
+    pointer-events: none;
+  }
+
+  .graph-controls input::placeholder {
+    color: transparent;
+  }
+
+  .graph-controls .search-clear {
+    background: transparent;
+  }
+
+  .graph-controls .search-clear-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--primary-container);
+    color: var(--on-primary-container);
+  }
+
+  .graph-controls .search-clear-icon::before,
+  .graph-controls .search-clear-icon::after {
+    top: 11px;
+    left: 7px;
+    width: 10px;
+  }
+
+  .graph-controls .search-clear:hover {
+    background: transparent;
+    color: inherit;
+    transform: none;
+  }
+
+  .graph-controls .search-clear:hover .search-clear-icon {
+    background: var(--primary);
+    color: var(--on-primary);
+  }
+}

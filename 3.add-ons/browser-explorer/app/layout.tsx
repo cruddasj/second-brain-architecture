@@ -2,6 +2,7 @@ import { appPath } from "../offline/paths.mjs";
 import type { Metadata, Viewport } from "next";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./globals.css";
+import "./graph-mobile.css";
 import BrainProvider from "./brain-provider";
 import OfflineRegistration from "./offline-registration";
 
