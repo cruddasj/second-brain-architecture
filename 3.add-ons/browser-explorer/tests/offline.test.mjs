@@ -43,8 +43,8 @@ test("device state saves snapshot and credentials together, then clears both", a
 test("service worker caches only the shell and serves every record query from the same static page", async () => {
  const listeners = {}; const stored = new Map();
  vm.runInNewContext(await readFile(new URL("../out/sw.js", import.meta.url), "utf8"), {
- URL, self: { location: new URL("https://example.test/sw.js"), clients: { claim: async () => {} }, addEventListener: (name, fn) => { listeners[name] = fn; } },
- caches: { open: async () => ({ addAll: async urls => urls.forEach(url => stored.set(url, "cached:" + url)), match: async url => stored.get(url) }), keys: async () => [], delete: async () => true },
+ URL, Request: class { constructor(url, options) { this.url = url; this.cache = options.cache; } }, self: { location: new URL("https://example.test/sw.js"), clients: { claim: async () => {} }, addEventListener: (name, fn) => { listeners[name] = fn; } },
+ caches: { open: async () => ({ addAll: async urls => urls.forEach(request => stored.set(request.url, "cached:" + request.url)), match: async url => stored.get(url) }), keys: async () => [], delete: async () => true },
  fetch: async () => "network"
  });
  await new Promise((resolve, reject) => listeners.install({ waitUntil: p => p.then(resolve, reject) }));

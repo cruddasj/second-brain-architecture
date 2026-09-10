@@ -52,6 +52,8 @@ Connect and sync downloads Markdown from one default-branch commit. Both views u
 
 Setup includes **Install app**, with browser-menu guidance when a prompt is unavailable. Windows and Android browsers can offer installation. On an iPhone or iPad, open the page in Safari, tap the Share button, then choose Add to Home Screen. Installation and offline shell caching are production-only. After the shell caches and content syncs, both views work offline, including reloads. Icons are bundled locally. A first visit needs network access.
 
+When opened as an installed app, the connection page replaces the installation section with **Update app**. This downloads a fresh application shell, activates the latest available version and reloads, preserving saved notes, connection settings and graph positions. Old shell caches for this app are removed only after a successful download; failed or offline updates leave the existing shell available. Updating the app does not refresh repository content.
+
 On mobile, localhost means the phone, not your computer. Mobile installation needs this static output served from an HTTPS address accessible to the device. The local build does not publish anything. For a URL subdirectory, set `NEXT_PUBLIC_BASE_PATH=/example` for build and preview. Routes, icons, installation scope and offline caches then use that path. Keep the value consistent between commands.
 
 Record links now use `/record/?file=<encoded repository path>#heading`, so new files do not require rebuilding the application. Old server-rendered `/records/...` bookmarks are replaced by these links. Executable links are inert, raw HTML is not executed, and attachments/images remain outside V1.
