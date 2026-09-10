@@ -6,6 +6,24 @@ import { appPath } from "../offline/paths.mjs";
 import { recordHref } from "../offline/links.mjs";
 
 const output = new URL("../out/", import.meta.url);
+test("standard install icons retain transparency while the Apple touch icon stays white", async () => {
+  const manifest = JSON.parse(await readFile(new URL("manifest.webmanifest", output), "utf8"));
+  const icons = manifest.icons.filter(icon => icon.purpose === "any");
+  assert.deepEqual(icons.map(icon => icon.sizes).sort(), ["192x192", "512x512"]);
+  for (const icon of icons) {
+    const buffer = await readFile(new URL(icon.src.slice(appPath("/").length), output));
+    const { data, info } = await sharp(buffer).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    assert.equal(`${info.width}x${info.height}`, icon.sizes);
+    for (const pixel of [0, info.width - 1, (info.height - 1) * info.width, info.width * info.height - 1]) {
+      assert.equal(data[pixel * 4 + 3], 0, "Fallback icon corners must be transparent");
+    }
+    assert.ok(data.some((value, index) => index % 4 === 3 && value === 255), "Retain opaque logo artwork");
+  }
+  const apple = await sharp(await readFile(new URL("icon-192.png", output))).raw().toBuffer({ resolveWithObject: true });
+  assert.deepEqual([...apple.data.subarray(0, 3)], [255, 255, 255]);
+  assert.equal(apple.info.channels, 3);
+});
+
 test("export is an empty shell with mount-relative navigation and installation assets", async () => {
   const manifest = JSON.parse(await readFile(new URL("manifest.webmanifest", output), "utf8"));
   assert.equal(manifest.start_url, appPath("/"));
