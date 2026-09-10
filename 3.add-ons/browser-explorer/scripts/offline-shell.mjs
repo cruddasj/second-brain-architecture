@@ -36,8 +36,23 @@ const PREFIX = ${JSON.stringify("second-brain-shell:" + storageScope + ":")};
 const CACHE = PREFIX + "${version}";
 const BASE = ${JSON.stringify(appPath("/"))};
 const ASSETS = ${JSON.stringify(urls)};
-self.addEventListener("install", event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS))));
-self.addEventListener("activate", event => event.waitUntil(Promise.all([caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith(PREFIX) && key !== CACHE).map(key => caches.delete(key)))), self.clients.claim()])));
+const removeOldShells = () => caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith(PREFIX) && key !== CACHE).map(key => caches.delete(key))));
+const downloadShell = () => caches.open(CACHE).then(cache => cache.addAll(ASSETS.map(url => new Request(url, { cache: "no-store" }))));
+self.addEventListener("install", event => event.waitUntil(downloadShell()));
+self.addEventListener("activate", event => event.waitUntil(Promise.all([removeOldShells(), self.clients.claim()])));
+let refreshInProgress;
+self.addEventListener("message", event => {
+  if (event.data?.type === "ACTIVATE_APP_UPDATE") {
+    event.waitUntil(self.skipWaiting());
+  } else if (event.data?.type === "REFRESH_APP_SHELL" && event.ports[0]) {
+    // addAll replaces this batch only after every response succeeds.
+    if (!refreshInProgress) refreshInProgress = downloadShell().then(removeOldShells).finally(() => { refreshInProgress = undefined; });
+    event.waitUntil(refreshInProgress.then(
+      () => event.ports[0].postMessage({ ok: true }),
+      () => event.ports[0].postMessage({ ok: false })
+    ));
+  }
+});
 self.addEventListener("fetch", event => {
   const url = new URL(event.request.url);
   if (event.request.method !== "GET" || url.origin !== self.location.origin || !url.pathname.startsWith(BASE) || event.request.headers?.has("authorization")) return;

@@ -3,6 +3,9 @@ import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { spawn, execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { readFile } from "node:fs/promises";
+import { createServer } from "node:http";
+import path from "node:path";
 const addon = new URL("../../../3.add-ons/browser-explorer/", import.meta.url);
 const require = createRequire(new URL("package.json", addon));
 const { chromium } = require("@playwright/test");
@@ -159,4 +162,94 @@ test("development clearly uses local Markdown and skips token setup", async t =>
   await page.goto(origin + "/record?file=README.md");
   await page.locator(".markdown-content h1").waitFor();
   assert.equal(await page.getByRole("heading", { name: "File unavailable" }).count(), 0);
+});
+
+
+test("installed shell updates preserve device data and recover from failed downloads", async t => {
+  const base = process.env.NEXT_PUBLIC_BASE_PATH || "";
+  const prefix = `second-brain-shell:${encodeURIComponent(base || "/")}:`;
+  const output = new URL("out/", addon);
+  let version = 1, failDownload = false;
+  const server = createServer(async (request, response) => {
+    try {
+      const pathname = new URL(request.url, "http://localhost").pathname;
+      if (!pathname.startsWith(base + "/")) { response.writeHead(404).end(); return; }
+      let file = pathname.slice(base.length + 1);
+      if (!file || file.endsWith("/")) file += "index.html";
+      else if (!path.extname(file)) file += "/index.html";
+      const target = new URL(file, output);
+      if (!target.href.startsWith(output.href)) { response.writeHead(404).end(); return; }
+      if (failDownload && file === "favicon.svg") { response.writeHead(503).end(); return; }
+      let body = await readFile(target);
+      if (file === "sw.js") body = Buffer.from(body.toString().replace('const CACHE = PREFIX + "', `const CACHE = PREFIX + "test-v${version}-`));
+      if (file === "connection/index.html") body = Buffer.from(body.toString().replace("</head>", `<meta name="app-update-fixture" content="${version}"></head>`));
+      const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".webmanifest": "application/manifest+json", ".svg": "image/svg+xml", ".png": "image/png", ".woff2": "font/woff2" };
+      response.writeHead(200, { "Content-Type": types[path.extname(file)] || "application/octet-stream", "Cache-Control": "no-store" });
+      response.end(body);
+    } catch { response.writeHead(404).end(); }
+  });
+  await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
+  t.after(() => new Promise(resolve => { server.close(resolve); server.closeAllConnections(); }));
+  const origin = `http://127.0.0.1:${server.address().port}${base}`;
+  const browser = await chromium.launch({ headless: true });
+  t.after(() => browser.close());
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  await context.addInitScript(() => Object.defineProperty(navigator, "standalone", { value: true }));
+  const page = await context.newPage();
+  await page.goto(origin + "/connection/");
+  await page.getByRole("heading", { name: "Update Second Brain Explorer" }).waitFor();
+  assert.equal(await page.locator('meta[name="app-update-fixture"]').getAttribute("content"), "1");
+  assert.equal(await page.getByRole("heading", { name: "Install Second Brain Explorer" }).count(), 0);
+  await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
+  const saved = { snapshot: { repository: "example/brain", branch: "main", commit: sha(1), checkedAt: "2026-09-10T00:00:00Z", files: [{ path: "README.md", content: "# Preserved note", sha: sha(2) }] }, connection: { repository: "example/brain", token: "fixture-only" } };
+  const scope = encodeURIComponent(base || "/");
+  await page.evaluate(async ({ saved, scope, prefix, origin }) => {
+    const db = await new Promise((resolve, reject) => { const request = indexedDB.open(`second-brain-offline-v1:${scope}`, 1); request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error); });
+    await new Promise((resolve, reject) => { const tx = db.transaction("state", "readwrite"); tx.objectStore("state").put(saved, "current"); tx.oncomplete = resolve; tx.onerror = reject; });
+    db.close();
+    localStorage.setItem(`second-brain-graph-positions-v1:${scope}`, JSON.stringify({ node: { x: 123, y: 456 } }));
+    const cache = await caches.open((await caches.keys()).find(key => key.startsWith(prefix)));
+    await cache.put(origin + "/favicon.svg", new Response("stale-shell"));
+    await (await caches.open(prefix + "obsolete")).put(origin + "/old.js", new Response("old"));
+    await caches.open("second-brain-shell:other-app:keep");
+  }, { saved, scope, prefix, origin });
+  await page.reload();
+  await page.getByRole("heading", { name: "Connected to example/brain" }).waitFor();
+  const state = () => page.evaluate(async scope => {
+    const db = await new Promise(resolve => { const request = indexedDB.open(`second-brain-offline-v1:${scope}`, 1); request.onsuccess = () => resolve(request.result); });
+    const value = await new Promise(resolve => { const request = db.transaction("state").objectStore("state").get("current"); request.onsuccess = () => resolve(request.result); });
+    db.close();
+    return { saved: value, layout: localStorage.getItem(`second-brain-graph-positions-v1:${scope}`) };
+  }, scope);
+  const before = await state();
+  const update = page.getByRole("button", { name: "Update app", exact: true });
+  failDownload = true;
+  await update.click();
+  await page.getByText(/The app could not be downloaded/).waitFor();
+  assert.deepEqual(await state(), before);
+  assert.ok((await page.evaluate(() => caches.keys())).includes(prefix + "obsolete"));
+  assert.equal(await page.evaluate(async origin => (await (await caches.match(origin + "/favicon.svg")).text()), origin), "stale-shell");
+  failDownload = false;
+  await Promise.all([page.waitForEvent("load"), update.click()]);
+  await page.getByRole("heading", { name: "Connected to example/brain" }).waitFor();
+  assert.deepEqual(await state(), before);
+  let keys = await page.evaluate(() => caches.keys());
+  assert.ok(!keys.includes(prefix + "obsolete"));
+  assert.ok(keys.includes("second-brain-shell:other-app:keep"));
+  assert.notEqual(await page.evaluate(async origin => (await (await caches.match(origin + "/favicon.svg")).text()), origin), "stale-shell");
+  version = 2;
+  await Promise.all([page.waitForEvent("load"), update.click()]);
+  await page.getByRole("heading", { name: "Connected to example/brain" }).waitFor();
+  assert.deepEqual(await state(), before);
+  keys = await page.evaluate(() => caches.keys());
+  assert.equal(keys.filter(key => key.startsWith(prefix)).length, 1);
+  assert.ok(keys.some(key => key.startsWith(prefix + "test-v2-")));
+  assert.equal(await page.locator('meta[name="app-update-fixture"]').getAttribute("content"), "2");
+  assert.ok(keys.includes("second-brain-shell:other-app:keep"));
+  await context.setOffline(true);
+  await update.click();
+  await page.getByText(/You're offline/).waitFor();
+  assert.deepEqual(await state(), before);
+  await page.goto(origin + "/record/?file=README.md");
+  await page.getByRole("heading", { name: /^Preserved note/ }).waitFor();
 });
