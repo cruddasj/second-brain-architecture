@@ -416,8 +416,8 @@ body:has(.brain-shell) { overflow: hidden; }
 .mobile-node-dialog .detail-content { display: block; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 20px; }
 
 @keyframes node-action-pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.25); }
+  0%, 100% { text-shadow: 0 0 4px transparent, 0 0 10px transparent; }
+  50% { text-shadow: 0 0 4px rgba(255, 255, 255, .85), 0 0 10px rgba(255, 255, 255, .55); }
 }
 @media (max-width: 680px) and (prefers-reduced-motion: no-preference) {
   .mobile-node-action i { animation: node-action-pulse .6s ease-in-out 3; }
