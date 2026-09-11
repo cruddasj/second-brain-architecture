@@ -20,11 +20,11 @@ test("shared shell exposes every destination with pathname-based active semantic
 test("responsive navigation becomes a safe-area-aware persistent application bar", async () => {
   const [css, layout] = await Promise.all([source("../app/globals.css"), source("../app/layout.tsx")]);
   assert.match(css, /--bottom-navigation-height: 64px/);
-  assert.match(css, /@media \(max-width: 900px\)[\s\S]*?\.navigation-panel, \.navigation-collapsed \.navigation-panel \{[\s\S]*?position: fixed;[\s\S]*?inset: auto 0 0;/);
-  assert.match(css, /height: calc\(var\(--bottom-navigation-height\) \+ env\(safe-area-inset-bottom\)\)/);
+  assert.match(css, /@media \(max-width: 900px\)[\s\S]*?\.navigation-panel, \.navigation-collapsed \.navigation-panel \{[\s\S]*?position: relative;[\s\S]*?grid-row: 2;/);
+  assert.match(css, /padding: 0 12px env\(safe-area-inset-bottom\)/);
   assert.match(css, /grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
   assert.match(css, /\.navigation-icon-pair \{ grid-template-columns: repeat\(2, auto\); gap: 2px;/);
-  assert.match(css, /padding: 10px 10px calc\(10px \+ var\(--bottom-navigation-height\) \+ env\(safe-area-inset-bottom\)\)/);
+  assert.match(css, /grid-template-rows: minmax\(0, 1fr\) auto/);
   assert.match(css, /@media \(max-width: 519px\)[\s\S]*?clip-path: inset\(50%\)/);
   assert.match(css, /\.application-menu a\[aria-current="page"\] \{ box-shadow: inset 0 -3px var\(--primary\); \}/);
   assert.match(layout, /viewportFit: "cover"/);
