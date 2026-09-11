@@ -109,6 +109,28 @@ test("installed shell syncs a remote fixture into graph and reader, refreshes at
   assert.equal(await information.isVisible(), false);
   await page.getByRole("button", { name: "Focus on neighbours", exact: true }).waitFor();
 
+  // Navigate through the real bottom menu, including changing available phone
+  // height between documents. The content and menu must share one boundary.
+  for (const height of [780, 700, 844]) {
+    await page.setViewportSize({ width: 360, height });
+    for (const name of ["Markdown reader", "Repository sync", "Knowledge graph"]) {
+      await page.getByRole("navigation", { name: "Explorer destinations" }).getByRole("link", { name, exact: true }).click();
+      await page.locator(".workspace-pane > *").first().waitFor();
+      await page.waitForTimeout(250);
+      const bounds = await page.evaluate(() => {
+        const menu = document.querySelector(".navigation-panel").getBoundingClientRect();
+        const pane = document.querySelector(".workspace-pane").getBoundingClientRect();
+        const content = document.querySelector(".workspace-pane > *").getBoundingClientRect();
+        return { menuTop: menu.top, menuBottom: menu.bottom, paneBottom: pane.bottom, contentBottom: content.bottom, viewportHeight: innerHeight, scrollHeight: document.documentElement.scrollHeight };
+      });
+      assert.ok(bounds.contentBottom <= bounds.menuTop, `${name}: content clears the bottom menu`);
+      assert.ok(Math.abs(bounds.paneBottom - bounds.menuTop) <= 1, `${name}: pane ends at the menu`);
+      assert.ok(Math.abs(bounds.menuBottom - bounds.viewportHeight) <= 1, `${name}: menu stays at the viewport bottom`);
+      assert.ok(bounds.scrollHeight <= bounds.viewportHeight, `${name}: no outer page scrolling`);
+    }
+  }
+  await page.setViewportSize({ width: 1280, height: 844 });
+
   await page.goto(origin + "/connection");
   revision = 2;
   await page.getByRole("button", { name: "Refresh content" }).click();
