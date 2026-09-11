@@ -344,6 +344,7 @@ body:has(.brain-shell) { overflow: hidden; }
     background: var(--surface-2);
     box-shadow: 0 -3px 12px color-mix(in srgb, var(--shadow) 45%, transparent);
   }
+  .navigation-icon-pair { width: auto; font-size: 1em; }
   .navigation-header, .navigation-collapsed .navigation-header { display: none; }
   .navigation-content, .navigation-collapsed .navigation-content { display: block; height: var(--bottom-navigation-height); }
   .application-menu, .navigation-collapsed .application-menu { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); height: 100%; gap: 4px; padding: 4px 0; }
@@ -413,3 +414,11 @@ body:has(.brain-shell) { overflow: hidden; }
 .mobile-dialog-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex: none; padding: 8px 12px 8px 20px; border-bottom: 1px solid var(--line-soft); font-weight: 700; }
 .mobile-dialog-header button { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 8px; background: transparent; color: var(--text); cursor: pointer; }
 .mobile-node-dialog .detail-content { display: block; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 20px; }
+
+@keyframes node-action-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.25); }
+}
+@media (max-width: 680px) and (prefers-reduced-motion: no-preference) {
+  .mobile-node-action i { animation: node-action-pulse .6s ease-in-out 3; }
+}
