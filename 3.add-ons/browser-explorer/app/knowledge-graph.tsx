@@ -187,13 +187,51 @@ export default function KnowledgeGraph({ graph, loading = false }: { graph: Grap
       localStorage.setItem(storageKey, JSON.stringify(positions));
       if (simulation) { simulation.pin(event.target.position("x"), event.target.position("y")); released = true; saveSimulation(); if (!frame) stopDrag(); }
     });
+    // Mobile browsers can discard canvas textures while backgrounded. Recreate
+    // the renderer, rather than redrawing from potentially empty texture caches.
+    const container = containerRef.current;
+    let restoreFrame = 0;
+    let needsRestore = document.hidden;
+    const restoreRenderer = () => {
+      if (document.hidden || !needsRestore || restoreFrame) return;
+      restoreFrame = requestAnimationFrame(() => {
+        restoreFrame = 0;
+        if (document.hidden || cy.destroyed()) return;
+        needsRestore = false;
+        stopDrag();
+        const zoom = cy.zoom(), pan = { ...cy.pan() };
+        cy.mount(container);
+        cy.viewport({ zoom, pan });
+        cy.resize();
+        cy.forceRender();
+      });
+    };
+    const background = () => {
+      needsRestore = true;
+      cancelAnimationFrame(restoreFrame);
+      restoreFrame = 0;
+      stopDrag();
+    };
+    const visibilityChanged = () => { if (document.hidden) background(); else restoreRenderer(); };
+    const pageShown = (event: PageTransitionEvent) => { if (event.persisted) needsRestore = true; restoreRenderer(); };
+    const contextRestored = () => { needsRestore = true; restoreRenderer(); };
+    document.addEventListener("visibilitychange", visibilityChanged);
+    window.addEventListener("pagehide", background);
+    window.addEventListener("pageshow", pageShown);
+    container.addEventListener("contextrestored", contextRestored, true);
     const suspend = () => { if (document.hidden || motion.matches) stopDrag(); };
     document.addEventListener("visibilitychange", suspend);
     motion.addEventListener("change", suspend);
     const resizeObserver = new ResizeObserver(() => cy.resize());
     resizeObserver.observe(containerRef.current);
     cyRef.current = cy;
-    return () => { stopDrag(); stopDragRef.current = () => {}; document.removeEventListener("visibilitychange", suspend); motion.removeEventListener("change", suspend); resizeObserver.disconnect(); cyRef.current = null; cy.destroy(); };
+    return () => {
+      cancelAnimationFrame(restoreFrame);
+      document.removeEventListener("visibilitychange", visibilityChanged);
+      window.removeEventListener("pagehide", background);
+      window.removeEventListener("pageshow", pageShown);
+      container.removeEventListener("contextrestored", contextRestored, true);
+      stopDrag(); stopDragRef.current = () => {}; document.removeEventListener("visibilitychange", suspend); motion.removeEventListener("change", suspend); resizeObserver.disconnect(); cyRef.current = null; cy.destroy(); };
   }, [selectNode]);
 
   useEffect(() => {
