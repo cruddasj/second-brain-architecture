@@ -37,6 +37,13 @@ export default function KnowledgeGraph({ graph, loading = false }: { graph: Grap
   const hasInitialFitRef = useRef(false);
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [automaticMobileDetails, setAutomaticMobileDetails] = useState(false);
+  const [selectionVersion, setSelectionVersion] = useState(0);
+  const selectNode = useCallback((id: string) => {
+    setSelectedId(id);
+    setDetailOpen(true);
+    setSelectionVersion(version => version + 1);
+  }, []);
   const [collection, setCollection] = useState("all");
   const [localOnly, setLocalOnly] = useState(false);
   const [detailOpen, setDetailOpen] = useState(true);
@@ -123,7 +130,7 @@ export default function KnowledgeGraph({ graph, loading = false }: { graph: Grap
         { selector: ".focus-hidden", style: { opacity: 0, events: "no" } },
       ] as unknown as cytoscape.StylesheetJson,
     });
-    cy.on("tap", "node", (event) => { setSelectedId(event.target.id()); setDetailOpen(true); });
+    cy.on("tap", "node", (event) => selectNode(event.target.id()));
     cy.on("mouseover", "node", (event) => { hoveredIdRef.current = event.target.id(); containerRef.current?.classList.add("node-hover"); });
     cy.on("mouseout", "node", () => { hoveredIdRef.current = null; containerRef.current?.classList.remove("node-hover"); });
     let simulation: ReturnType<typeof createDragPhysics> | null = null;
@@ -187,7 +194,7 @@ export default function KnowledgeGraph({ graph, loading = false }: { graph: Grap
     resizeObserver.observe(containerRef.current);
     cyRef.current = cy;
     return () => { stopDrag(); stopDragRef.current = () => {}; document.removeEventListener("visibilitychange", suspend); motion.removeEventListener("change", suspend); resizeObserver.disconnect(); cyRef.current = null; cy.destroy(); };
-  }, []);
+  }, [selectNode]);
 
   useEffect(() => {
     const cy = cyRef.current; if (!cy) return;
@@ -256,9 +263,13 @@ export default function KnowledgeGraph({ graph, loading = false }: { graph: Grap
   useEffect(() => {
     if (!selected) mobileDialogRef.current?.close();
   }, [selected]);
-  function showMobileDetails() {
-    if (selected) mobileDialogRef.current?.showModal();
-  }
+  // Closing the dialog keeps the mode enabled; only the information toggle
+  // disables it. A new selection (including the same node) opens fresh details.
+  useEffect(() => {
+    if (automaticMobileDetails && selectedId && window.matchMedia("(max-width: 680px)").matches) {
+      mobileDialogRef.current?.showModal();
+    }
+  }, [automaticMobileDetails, selectedId, selectionVersion]);
   function zoomBy(delta: number) { const cy = cyRef.current; if (!cy) return; cy.zoom({ level: Math.max(minZoom, Math.min(maxZoom, cy.zoom() * Math.exp(delta))), renderedPosition: { x: cy.width() / 2, y: cy.height() / 2 } }); }
   function fitGraph() { const cy = cyRef.current; if (cy?.nodes(":visible").length) cy.fit(cy.nodes(":visible"), fitPadding); }
   function keyboardMove(node: NodeSingular, key: string, large: boolean) { const delta = large ? 20 : 5; const point = node.position(); persistPosition(node.id(), { x: point.x + (key === "ArrowLeft" ? -delta : key === "ArrowRight" ? delta : 0), y: point.y + (key === "ArrowUp" ? -delta : key === "ArrowDown" ? delta : 0) }); }
@@ -269,11 +280,11 @@ export default function KnowledgeGraph({ graph, loading = false }: { graph: Grap
     <div className="graph-stage-wrap"><div className="graph-stage">
       <div className="graph-controls"><select aria-label="Filter by collection" value={collection} onChange={(event) => setCollection(event.target.value)}><option value="all">All collections</option>{collections.map(({ value, label }) => <option key={value} value={value}>{label}</option>)}</select><label><span className="sr-only">Search all records</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search records and concepts" />{query && <button type="button" className="search-clear" onClick={() => setQuery("")} aria-label="Clear search" title="Clear search"><span className="search-clear-icon" aria-hidden="true" /></button>}</label></div>
       <div className="graph-actions"><button onClick={() => zoomBy(.15)} aria-label="Zoom in"><i className="fa-solid fa-plus" aria-hidden="true" /></button><button onClick={() => zoomBy(-.15)} aria-label="Zoom out"><i className="fa-solid fa-minus" aria-hidden="true" /></button><button onClick={fitGraph} aria-label="Fit graph" title="Fit graph"><i className="fa-solid fa-compress" aria-hidden="true" /></button><button onClick={arrangeGraph} aria-label="Arrange graph" title="Arrange graph"><i className="fa-solid fa-wand-magic-sparkles" aria-hidden="true" /></button>{selected && <>
-        <button className="mobile-node-action" type="button" onClick={showMobileDetails} aria-label="Node information" title="Node information" aria-haspopup="dialog" aria-controls="mobile-node-information"><i className="fa-solid fa-circle-info" aria-hidden="true" /></button>
-        <button className="mobile-node-action" type="button" onClick={() => setLocalOnly(value => !value)} aria-label={localOnly ? "Show full graph" : "Focus on neighbours"} title={localOnly ? "Show full graph" : "Focus on neighbours"} aria-pressed={localOnly}><i className="fa-solid fa-share-nodes" aria-hidden="true" /></button>
+        <button className="mobile-node-action" type="button" onClick={() => setAutomaticMobileDetails(value => !value)} aria-pressed={automaticMobileDetails} aria-label="Node information" title={automaticMobileDetails ? "Turn off automatic node information" : "Turn on automatic node information"} aria-haspopup="dialog" aria-controls="mobile-node-information"><i key={selectionVersion} className="fa-solid fa-circle-info" aria-hidden="true" /></button>
+        <button className="mobile-node-action" type="button" onClick={() => setLocalOnly(value => !value)} aria-label={localOnly ? "Show full graph" : "Focus on neighbours"} title={localOnly ? "Show full graph" : "Focus on neighbours"} aria-pressed={localOnly}><i key={selectionVersion} className="fa-solid fa-share-nodes" aria-hidden="true" /></button>
       </>}</div>
       <div ref={containerRef} className="cytoscape-graph" role="img" aria-label={`Knowledge graph with ${visibleIds.size} visible nodes`} />
-      <div className="graph-keyboard-nodes" aria-label="Keyboard-accessible graph nodes">{graph.nodes.filter((node) => interactiveIds.has(node.id)).map((node) => <button key={node.id} aria-label={`${node.title}. ${node.themeIds.length ? `Themes: ${node.themeIds.map((id) => themeNames.get(id)).join(", ")}` : "No linked theme"}. Use arrow keys to move.`} aria-pressed={node.id === selectedId} onFocus={() => setKeyboardFocusId(node.id)} onBlur={() => setKeyboardFocusId(null)} onClick={() => setSelectedId(node.id)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setSelectedId(node.id); } else if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) { event.preventDefault(); const cyNode = cyRef.current?.getElementById(node.id); if (cyNode?.isNode()) keyboardMove(cyNode, event.key, event.shiftKey); } }}>{node.title}</button>)}</div>
+      <div className="graph-keyboard-nodes" aria-label="Keyboard-accessible graph nodes">{graph.nodes.filter((node) => interactiveIds.has(node.id)).map((node) => <button key={node.id} aria-label={`${node.title}. ${node.themeIds.length ? `Themes: ${node.themeIds.map((id) => themeNames.get(id)).join(", ")}` : "No linked theme"}. Use arrow keys to move.`} aria-pressed={node.id === selectedId} onFocus={() => setKeyboardFocusId(node.id)} onBlur={() => setKeyboardFocusId(null)} onClick={() => selectNode(node.id)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); selectNode(node.id); } else if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) { event.preventDefault(); const cyNode = cyRef.current?.getElementById(node.id); if (cyNode?.isNode()) keyboardMove(cyNode, event.key, event.shiftKey); } }}>{node.title}</button>)}</div>
       {loading && <div className="graph-zero"><strong>Mapping your records…</strong></div>}{!loading && !visibleIds.size && <div className="graph-zero"><strong>No matching records</strong><span>Try a different search or collection.</span></div>}
       <details className="graph-legend" ref={initializeLegend}>
         <summary>Legend</summary>
