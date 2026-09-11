@@ -96,6 +96,47 @@ test("installed shell syncs a remote fixture into graph and reader, refreshes at
   const fullGraph = page.getByRole("button", { name: "Show full graph", exact: true });
   assert.equal(await fullGraph.getAttribute("aria-pressed"), "true");
   await fullGraph.click();
+  await page.waitForTimeout(800); // Let the initial animated arrangement finish before saving viewport state.
+  await page.getByRole("textbox", { name: "Search all records" }).fill("Remote-only");
+  // Simulate lost canvas pixels across repeated background/foreground cycles.
+  // Keep a reference to the original core: recovery must preserve that model.
+  await page.evaluate(() => {
+    window.testGraph = document.querySelector(".cytoscape-graph")._cyreg.cy;
+    window.testGraph.zoom(window.testGraph.zoom() * .9);
+    window.testGraph.panBy({ x: 5, y: 5 });
+  });
+  const graphState = () => page.evaluate(() => ({
+    zoom: window.testGraph.zoom(), pan: window.testGraph.pan(),
+    nodes: window.testGraph.nodes().map(node => ({ id: node.id(), position: node.position(), classes: node.classes(), display: node.style("display") })),
+    edges: window.testGraph.edges().map(edge => edge.id()),
+  }));
+  await page.waitForTimeout(100); // Apply the search filter before checking its preservation.
+  const beforeResume = await graphState();
+  for (const trigger of ["visibility", "visibility", "pageshow", "contextrestored"]) {
+    await page.evaluate(trigger => {
+      const container = document.querySelector(".cytoscape-graph");
+      window.previousCanvas = container.querySelector("canvas");
+      container.querySelectorAll("canvas").forEach(canvas => { canvas.width = canvas.width; });
+      if (trigger === "visibility") {
+        Object.defineProperty(document, "hidden", { configurable: true, value: true });
+        document.dispatchEvent(new Event("visibilitychange"));
+        Object.defineProperty(document, "hidden", { configurable: true, value: false });
+        document.dispatchEvent(new Event("visibilitychange"));
+        delete document.hidden;
+      } else if (trigger === "pageshow") {
+        window.dispatchEvent(new PageTransitionEvent("pagehide", { persisted: true }));
+        window.dispatchEvent(new PageTransitionEvent("pageshow", { persisted: true }));
+      } else window.previousCanvas.dispatchEvent(new Event("contextrestored"));
+    }, trigger);
+    await page.waitForFunction(() => !window.previousCanvas.isConnected);
+    await page.waitForFunction(() => [...document.querySelectorAll(".cytoscape-graph canvas")].some(canvas => {
+      const pixels = canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height).data;
+      return pixels.some((value, index) => index % 4 === 3 && value > 0);
+    }));
+    assert.deepEqual(await graphState(), beforeResume, `${trigger}: recovery preserves graph state and viewport`);
+    assert.equal(await information.getAttribute("aria-pressed"), "false");
+  }
+  await page.getByRole("textbox", { name: "Search all records" }).fill("");
   await information.click();
   const dialog = page.getByRole("dialog", { name: "Node information" });
   await dialog.waitFor();
