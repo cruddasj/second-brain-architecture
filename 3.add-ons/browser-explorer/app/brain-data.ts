@@ -1,4 +1,4 @@
-import type { GraphData } from "./knowledge-graph";
+import type { GraphData } from "./graph-types";
 
 export type MarkdownFile = {
   path: string;

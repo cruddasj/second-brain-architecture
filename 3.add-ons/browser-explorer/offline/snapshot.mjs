@@ -192,12 +192,20 @@ export function buildGraph(entries) {
   return { nodes, edges, themes: themes.map(({ id, title }) => ({ id, title })) };
 }
 
+// Both local and downloaded indexes use normalized repository-relative paths.
+export function markdownFileEntry({ path, content }) {
+  const parsed = parseMarkdown(content);
+  const filename = path.split("/").pop();
+  const title = String(parsed.metadata.title || parsed.body.match(/^#\s+(.+)$/m)?.[1]?.trim() || filename.replace(/\.md$/, ""));
+  return { path, title, filename, folders: path.split("/").slice(0, -1) };
+}
+
 export function buildBrainData(entries) {
-  const files = entries.map(({path, content}) => {
-    const parsed = parseMarkdown(content);
-    const filename = path.split("/").pop();
-    const title = String(parsed.metadata.title || parsed.body.match(/^#\s+(.+)$/m)?.[1]?.trim() || filename.replace(/\.md$/, ""));
-    return {path, title, filename, folders: path.split("/").slice(0, -1)};
-  }).sort((a, b) => a.path.localeCompare(b.path));
-  return {schemaVersion: 5, source: "repository snapshot (read-only)", graph: buildGraph(entries), markdown: {files}};
+  const files = entries.map(markdownFileEntry).sort((a, b) => a.path.localeCompare(b.path));
+  return {
+    schemaVersion: 5,
+    source: "repository snapshot (read-only)",
+    graph: buildGraph(entries),
+    markdown: { files },
+  };
 }

@@ -1,4 +1,4 @@
-import { buildGraph, parseMarkdown } from "../offline/snapshot.mjs";
+import { buildGraph, markdownFileEntry } from "../offline/snapshot.mjs";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -48,10 +48,7 @@ async function loadMarkdownIndex() {
     const realPath = await fs.realpath(candidate);
     if (!realPath.startsWith(`${repositoryRoot}${path.sep}`)) continue;
     const content = await fs.readFile(realPath, "utf8");
-    const parsed = parseMarkdown(content);
-    const filename = path.posix.basename(relativePath);
-    const title = String(parsed.metadata.title || parsed.body.match(/^#\s+(.+)$/m)?.[1]?.trim() || filename.replace(/\.md$/, ""));
-    files.push({ path: relativePath, title, filename, folders: relativePath.split("/").slice(0, -1), content });
+    files.push({ ...markdownFileEntry({ path: relativePath, content }), content });
   }
   return { files };
 }
