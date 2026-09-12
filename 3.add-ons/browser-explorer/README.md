@@ -60,6 +60,16 @@ Record links now use `/record/?file=<encoded repository path>#heading`, so new f
 
 Run `npm test` for the build and reader regression suite. Adapter-specific browser tests live with the optional adapter.
 
+## Code organisation
+
+- `app/knowledge-graph.tsx` owns graph controls, selection and detail panels. `app/use-graph-renderer.ts` owns the Cytoscape instance, layout, drag simulation, visibility and renderer recovery; effect order and cleanup keep those operations coordinated.
+- `app/graph-types.ts`, `app/graph-presentation.ts` and `app/graph-positions.ts` define the graph data contract, visual configuration and existing browser position storage format. Graph types are also re-exported from the component for compatibility.
+- `app/markdown-parser.ts` provides pure block parsing and heading anchors for the reader and graph. `app/records/[...path]/markdown-content.tsx` renders those blocks and shares state/event metadata-card rendering. Its existing parser exports remain available.
+- `offline/snapshot.mjs` owns snapshot interpretation and Markdown index entries, shared with the local builder. The local graph's filesystem discovery and the reader's tracked-file index intentionally use different file sets.
+- `app/brain-provider.tsx` coordinates retrieval, indexing and atomic snapshot persistence for every page.
+
+The tests cover rendered Markdown, graph element generation, position storage and snapshot indexing, alongside shell and style checks. The optional adapter's browser suite exercises sync, offline reload, mobile details and canvas recovery. Run it after building when changing these lifecycles; automatic layout and device resume also deserve browser checks.
+
 ## Screenshots
 
 The web browser add-on allows you to visualise the contents of your second brain using a knowledge graph, powered by Cytoscape.js.
