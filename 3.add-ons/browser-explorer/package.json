@@ -21,19 +21,19 @@
     "lint": "eslint . --ignore-pattern .next"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^6.7.2",
-    "cytoscape": "^3.34.2",
+    "@fortawesome/fontawesome-free": "^7.3.1",
+    "cytoscape": "^3.34.3",
     "next": "16.3.4",
-    "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "4.3.3",
-    "@types/node": "26.4.1",
-    "@types/react": "19.2.18",
-    "@types/react-dom": "19.2.5",
-    "eslint": "10.9.1",
+    "@types/node": "26.5.1",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "eslint": "10.10.0",
     "eslint-config-next": "16.3.4",
     "fake-indexeddb": "^6.2.5",
     "sharp": "^0.35.4",
