@@ -2,6 +2,48 @@
 
 A provider-neutral, optional Next.js explorer for reading committed Markdown and visualising Core records. Cytoscape.js supplies the knowledge graph while the shared application menu also provides a repository-wide Markdown reader. The interface reads generated JSON and repository files and never writes to them.
 
+## Use the hosted app
+
+[Open the hosted Second Brain Explorer (external site)](https://cruddasj.github.io/second-brain-architecture/)
+to use the explorer without running a local server. This public app address is an
+optional entry point; the explorer remains independently usable locally.
+
+The hosted app starts without your notes. On **Connection**, choose the repository
+you want to browse and follow the read-only access instructions. Your browser
+downloads and reads the selected Markdown directly from your repository service
+to display it. Notes and access tokens are not sent to a separate application
+server or added to the public hosted site. Downloaded notes stay in that browser;
+remembering the access token on the device is optional.
+
+The app does not encrypt its browser storage. Hosting still supplies the code
+that runs in your browser, so use a deployment and device you trust. If you prefer
+to run your own copy for privacy or control, follow [Local use](#local-use) or
+[Run with Docker](#run-with-docker) below.
+
+### Install on mobile or desktop
+
+The hosted version is an installable web app. Open **Connection** and choose
+**Install app** to add it to your home screen or desktop app launcher, where your
+browser supports installation.
+
+- **Android:** choose **Install app**, or use the browser's installation menu.
+- **iPhone or iPad:** open the site in Safari, tap **Share**, then **Add to Home Screen**.
+- **Desktop:** choose **Install app**, or use your browser's address-bar or menu
+  installation option. If installation is unavailable, use it in a browser tab.
+
+The first visit and repository sync need network access. After the application
+shell is cached and notes are downloaded, the installed app can browse that saved
+copy offline.
+
+### Update the installed app
+
+Open the installed app, go to **Connection**, and choose **Update app** under
+**App updates**. It downloads the latest hosted application and reloads while
+preserving saved notes, connection settings and graph positions. Updating the app
+does not refresh repository content; use the connection page's refresh action
+separately to download newer notes. An update needs network access; a failed or
+offline update leaves the existing saved copy available.
+
 ## Prerequisites
 
 Install these before running the website locally:

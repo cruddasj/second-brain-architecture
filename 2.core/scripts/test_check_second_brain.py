@@ -1,8 +1,29 @@
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 import check_second_brain as check
+
+
+class PublicLaunchLinkTests(unittest.TestCase):
+    def test_only_exact_launch_link_in_explorer_readme_is_exempt(self):
+        link = ("[Open the hosted Second Brain Explorer (external site)]"
+                "(https://cruddasj.github.io/second-brain-architecture/)")
+        with tempfile.TemporaryDirectory() as directory:
+            addons = Path(directory)
+            readme = addons / "browser-explorer/README.md"
+            readme.parent.mkdir()
+            with patch.object(check, "ADDONS", addons):
+                readme.write_text(link, encoding="utf-8")
+                self.assertFalse(check.text_has_portability_marker(check.portability_scan_text(readme), "github"))
+                for content in (link + "\nUse GitHub hosting", link + "\n" + link,
+                                link.replace("architecture/)", "architecture/other)")):
+                    readme.write_text(content, encoding="utf-8")
+                    self.assertTrue(check.text_has_portability_marker(check.portability_scan_text(readme), "github"))
+                other = addons / "browser-explorer/other.md"
+                other.write_text(link, encoding="utf-8")
+                self.assertTrue(check.text_has_portability_marker(check.portability_scan_text(other), "github"))
 
 
 class RepositoryConfigTests(unittest.TestCase):

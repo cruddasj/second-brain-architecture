@@ -661,12 +661,25 @@ def check_portable_layers(
                 or path.suffix.lower() not in PORTABILITY_SCAN_SUFFIXES
             ):
                 continue
-            text = path.read_text(encoding="utf-8", errors="ignore").lower()
+            text = portability_scan_text(path)
             for marker in markers:
                 if text_has_portability_marker(text, marker):
                     errors.append(
                         f"Provider-specific marker '{marker}' in {label} file: {relative}"
                     )
+
+
+def portability_scan_text(path: Path) -> str:
+    text = path.read_text(encoding="utf-8", errors="ignore")
+    # One public launch link is permitted in the explorer's human-facing README.
+    # This does not exempt provider-specific instructions or any other file/link.
+    if path == ADDONS / "browser-explorer/README.md":
+        text = text.replace(
+            "[Open the hosted Second Brain Explorer (external site)]"
+            "(https://cruddasj.github.io/second-brain-architecture/)",
+            "", 1,
+        )
+    return text.lower()
 
 
 def check_skill_catalogue(errors: list[str]) -> None:
