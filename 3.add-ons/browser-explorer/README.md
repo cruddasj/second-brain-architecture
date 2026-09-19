@@ -35,9 +35,59 @@ npm run dev
 
 The data builder writes schema version 5 of `public/brain-data.json`. Its `graph` property retains the curated Core-only graph semantics; its `markdown.files` index lists every committed repository `.md` file with a title, filename, normalized repository-relative path, and folder segments. Generated, dependency, and VCS directories are excluded. Graph connections represent only explicit Markdown links and collection membership. Theme membership is exposed only when a record and a Core theme contain reciprocal Markdown links, so the visualisation does not infer or invent relationships.
 
+## Run with Docker
+
+Install Docker with Compose support and start its engine (use Linux containers).
+The container supplies Node.js, npm, Python and Git, so you do not need to install
+those tools locally for this route. The first build needs internet access to
+download the base image and dependencies.
+
+Run the following commands from the **repository root**, where
+[`docker-compose.yml`](../../docker-compose.yml) lives. If your terminal is in
+`3.add-ons/browser-explorer/`, run `cd ../..` first.
+
+Build and start the explorer:
+
+```bash
+docker compose up --build explorer
+```
+
+Once the server is ready, open [http://localhost:3000](http://localhost:3000).
+The terminal shows server logs; keep it open while browsing. The published port
+is restricted to this computer. This runs the local development explorer, using
+the repository snapshot and skipping connection setup. Installable-app and
+offline-shell testing use the production workflow in the next section.
+
+To run the Core validator and explorer data check, use another terminal at the
+repository root:
+
+```bash
+docker compose run --build --rm checks
+```
+
+The checks container exits when finished and returns a nonzero exit code if a
+check fails. Neither service mounts or modifies your host repository files.
+
+The [Dockerfile](Dockerfile) copies a snapshot of the working tree into the image
+and creates a disposable Git index without host history. This can include
+uncommitted Markdown. After editing repository content or application code, stop
+the explorer with Ctrl+C and rerun `docker compose up --build explorer` to refresh
+the snapshot; host edits do not appear automatically.
+
+Stop the explorer with Ctrl+C, then remove the service containers and network:
+
+```bash
+docker compose down
+```
+
+Images and build caches remain on the machine. The [build exclusions](Dockerfile.dockerignore)
+omit credentials, generated data and unsupported raw sources, but permitted text
+can still contain private knowledge. Keep images and caches private and never
+publish an image built from a personal second brain.
+
 ## Installable app and connection testing
 
-From this same directory, stop development and run:
+Stop the development server, then run these commands from `3.add-ons/browser-explorer/`:
 
 ```bash
 npm run build
