@@ -29,9 +29,9 @@ The public repository contains the architecture and scaffold. Your private repos
 
 A second brain built with this architecture can support many kinds of long-term knowledge and AI-assisted work. For example:
 
-* **Personal knowledge and decisions** — Build a second brain that remembers important facts, decisions and reasoning, making your knowledge easy to find and use later.
-* **Projects and personal goals** — Track projects, goals, progress and next actions, giving AI the context to help you stay organised and move things forward.
-* **Shared memory across AI providers** — Give different AI assistants access to the same knowledge base, allowing them to share context and work from the same durable knowledge without locking it to a single provider.
+* **Personal knowledge and decisions** - Build a second brain that remembers important facts, decisions and reasoning, making your knowledge easy to find and use later.
+* **Projects and personal goals** - Track projects, goals, progress and next actions, giving AI the context to help you stay organised and move things forward.
+* **Shared memory across AI providers** - Give different AI assistants access to the same knowledge base, allowing them to share context and work from the same durable knowledge without locking it to a single provider.
 
 ## What this is not
 
