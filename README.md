@@ -551,9 +551,13 @@ This is a local development snapshot, not a production deployment. Rebuild after
 edits. Files are copied into the image with a disposable Git index so the reader
 works without host Git history. Host files are not mounted or modified. The snapshot
 includes non-ignored working-tree files, including uncommitted Markdown. The
-[build exclusions](.dockerignore) omit credentials, caches and unsupported raw
+[build exclusions](3.add-ons/browser-explorer/Dockerfile.dockerignore) omit credentials, caches and unsupported raw
 sources, but allowed text may still be sensitive. Keep images and build caches
 private; never publish an image made from a personal second brain.
+
+The ignore file sits beside the Dockerfile and uses Docker's
+[Dockerfile-specific naming](https://docs.docker.com/build/concepts/context/#filename-and-location).
+Its patterns remain relative to the repository-root build context used by Compose.
 
 Report vulnerabilities using the [security policy](SECURITY.md).
 

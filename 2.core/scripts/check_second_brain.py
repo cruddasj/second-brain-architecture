@@ -79,7 +79,6 @@ ALLOWED_TOP_LEVEL = {
     "setup.py",
     ".pre-commit-config.yaml",
     "docker-compose.yml",
-    ".dockerignore",
     "SECURITY.md",
     ".git",
     ".github",
