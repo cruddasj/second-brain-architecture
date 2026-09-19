@@ -543,7 +543,7 @@ docker compose down
 ```
 
 Open `http://localhost:3000`. The checks service exits nonzero on validation failure.
-The [Dockerfile](Dockerfile) supplies Node.js 24, Python 3 and Git, installs locked
+The [Dockerfile](3.add-ons/browser-explorer/Dockerfile) supplies Node.js 24, Python 3 and Git, installs locked
 npm dependencies and runs as a non-root user. The [Compose configuration](docker-compose.yml)
 binds the explorer to loopback only, following Docker's [port publishing guidance](https://docs.docker.com/get-started/docker-concepts/running-containers/publishing-ports/).
 
