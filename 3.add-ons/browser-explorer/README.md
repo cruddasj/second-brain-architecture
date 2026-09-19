@@ -2,6 +2,48 @@
 
 A provider-neutral, optional Next.js explorer for reading committed Markdown and visualising Core records. Cytoscape.js supplies the knowledge graph while the shared application menu also provides a repository-wide Markdown reader. The interface reads generated JSON and repository files and never writes to them.
 
+## Use the hosted app
+
+[Open the hosted Second Brain Explorer (external site)](https://cruddasj.github.io/second-brain-architecture/)
+to use the explorer without running a local server. This public app address is an
+optional entry point; the explorer remains independently usable locally.
+
+The hosted app starts without your notes. On **Connection**, choose the repository
+you want to browse and follow the read-only access instructions. Your browser
+downloads and reads the selected Markdown directly from your repository service
+to display it. Notes and access tokens are not sent to a separate application
+server or added to the public hosted site. Downloaded notes stay in that browser;
+remembering the access token on the device is optional.
+
+The app does not encrypt its browser storage. Hosting still supplies the code
+that runs in your browser, so use a deployment and device you trust. If you prefer
+to run your own copy for privacy or control, follow [Local use](#local-use) or
+[Run with Docker](#run-with-docker) below.
+
+### Install on mobile or desktop
+
+The hosted version is an installable web app. Open **Connection** and choose
+**Install app** to add it to your home screen or desktop app launcher, where your
+browser supports installation.
+
+- **Android:** choose **Install app**, or use the browser's installation menu.
+- **iPhone or iPad:** open the site in Safari, tap **Share**, then **Add to Home Screen**.
+- **Desktop:** choose **Install app**, or use your browser's address-bar or menu
+  installation option. If installation is unavailable, use it in a browser tab.
+
+The first visit and repository sync need network access. After the application
+shell is cached and notes are downloaded, the installed app can browse that saved
+copy offline.
+
+### Update the installed app
+
+Open the installed app, go to **Connection**, and choose **Update app** under
+**App updates**. It downloads the latest hosted application and reloads while
+preserving saved notes, connection settings and graph positions. Updating the app
+does not refresh repository content; use the connection page's refresh action
+separately to download newer notes. An update needs network access; a failed or
+offline update leaves the existing saved copy available.
+
 ## Prerequisites
 
 Install these before running the website locally:
@@ -35,9 +77,59 @@ npm run dev
 
 The data builder writes schema version 5 of `public/brain-data.json`. Its `graph` property retains the curated Core-only graph semantics; its `markdown.files` index lists every committed repository `.md` file with a title, filename, normalized repository-relative path, and folder segments. Generated, dependency, and VCS directories are excluded. Graph connections represent only explicit Markdown links and collection membership. Theme membership is exposed only when a record and a Core theme contain reciprocal Markdown links, so the visualisation does not infer or invent relationships.
 
+## Run with Docker
+
+Install Docker with Compose support and start its engine (use Linux containers).
+The container supplies Node.js, npm, Python and Git, so you do not need to install
+those tools locally for this route. The first build needs internet access to
+download the base image and dependencies.
+
+Run the following commands from the **repository root**, where
+[`docker-compose.yml`](../../docker-compose.yml) lives. If your terminal is in
+`3.add-ons/browser-explorer/`, run `cd ../..` first.
+
+Build and start the explorer:
+
+```bash
+docker compose up --build explorer
+```
+
+Once the server is ready, open [http://localhost:3000](http://localhost:3000).
+The terminal shows server logs; keep it open while browsing. The published port
+is restricted to this computer. This runs the local development explorer, using
+the repository snapshot and skipping connection setup. Installable-app and
+offline-shell testing use the production workflow in the next section.
+
+To run the Core validator and explorer data check, use another terminal at the
+repository root:
+
+```bash
+docker compose run --build --rm checks
+```
+
+The checks container exits when finished and returns a nonzero exit code if a
+check fails. Neither service mounts or modifies your host repository files.
+
+The [Dockerfile](Dockerfile) copies a snapshot of the working tree into the image
+and creates a disposable Git index without host history. This can include
+uncommitted Markdown. After editing repository content or application code, stop
+the explorer with Ctrl+C and rerun `docker compose up --build explorer` to refresh
+the snapshot; host edits do not appear automatically.
+
+Stop the explorer with Ctrl+C, then remove the service containers and network:
+
+```bash
+docker compose down
+```
+
+Images and build caches remain on the machine. The [build exclusions](Dockerfile.dockerignore)
+omit credentials, generated data and unsupported raw sources, but permitted text
+can still contain private knowledge. Keep images and caches private and never
+publish an image built from a personal second brain.
+
 ## Installable app and connection testing
 
-From this same directory, stop development and run:
+Stop the development server, then run these commands from `3.add-ons/browser-explorer/`:
 
 ```bash
 npm run build

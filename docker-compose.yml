@@ -1,0 +1,13 @@
+services:
+  explorer:
+    build:
+      context: .
+      dockerfile: 3.add-ons/browser-explorer/Dockerfile
+    ports:
+      - "127.0.0.1:3000:3000"
+  checks:
+    build:
+      context: .
+      dockerfile: 3.add-ons/browser-explorer/Dockerfile
+    profiles: [checks]
+    command: ["sh", "-c", "python 2.core/scripts/check_second_brain.py && npm --prefix 3.add-ons/browser-explorer run brain:check"]

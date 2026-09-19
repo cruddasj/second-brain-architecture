@@ -37,6 +37,8 @@ yarn-error.log*
 .DS_Store
 
 # Raw source policy: only .txt, .rtf and .md files may be tracked
+# Deny by default, including PDF, Office documents, images and nested files.
+# This does not untrack existing files or prevent an explicit git add --force.
 2.core/sources/raw/**
 !2.core/sources/raw/**/
 !2.core/sources/raw/**/*.[tT][xX][tT]
