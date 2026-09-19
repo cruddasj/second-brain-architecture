@@ -4,7 +4,7 @@
 
 Report security problems privately, especially content execution in the browser
 explorer, credential exposure, unsafe source handling or validation bypasses.
-Use **Security → Report a vulnerability** on the upstream repository when that
+Use **Security -> Report a vulnerability** on the upstream repository when that
 option is available. If it is unavailable, open an issue asking only for a private
 reporting channel; do not include exploit details or sensitive data. No private
 reporting address or response-time commitment is implied by this scaffold.
