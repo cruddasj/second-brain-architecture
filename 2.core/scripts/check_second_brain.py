@@ -75,6 +75,13 @@ ARCHITECTURE_REQUIRED_DIRS = (
     "3.add-ons",
 )
 ALLOWED_TOP_LEVEL = {
+    # Optional, provider-neutral development and security entry points.
+    "setup.py",
+    ".pre-commit-config.yaml",
+    "Dockerfile",
+    "docker-compose.yml",
+    ".dockerignore",
+    "SECURITY.md",
     ".git",
     ".github",
     ".gitignore",
@@ -87,6 +94,8 @@ ALLOWED_TOP_LEVEL = {
     "3.add-ons",
 }
 IGNORED_TOP_LEVEL = {
+    "__pycache__",
+    ".venv",
     ".next",
     ".sites-runtime",
     "dist",

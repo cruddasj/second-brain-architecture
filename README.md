@@ -135,6 +135,22 @@ Removing an Add-on must not invalidate Core.
 
 ## Get started
 
+For guided setup, first create and clone a **private** repository from this scaffold,
+or extract an archive into a new directory, then run `python setup.py`.
+
+The script prompts for `OWNER/REPOSITORY` and the canonical branch, initialises Git
+for an archive and updates placeholders in Plugin instructions, including Plugin
+`AGENTS.md` files when applicable. Root and Core agent pointers remain generic.
+It adds `origin` only if absent, refuses a conflicting remote or dirty checkout,
+and never creates a hosted repository, verifies visibility, changes an existing
+branch, commits, pushes or stores credentials.
+
+Dependency and hook installation is offered by default. It requires Python with
+pip, Git, and Node.js 22.13.0 or later with npm. Use a Python virtual environment
+if your system restricts pip installation. You can decline installation and follow
+the manual steps below. If installation fails after configuration, inspect the diff
+and finish installation manually; do not discard your configuration to retry.
+
 ### 1. Create your private repository
 
 Create a **private repository** from this architecture before adding personal knowledge.
@@ -236,6 +252,9 @@ The skill routes to the repository's `AGENTS.md` files and task-specific contrac
 ### 5. Add your first useful knowledge
 
 Do not try to populate an entire second brain at once.
+
+The [fictional task-service evaluation](2.core/examples/README.md) demonstrates how
+complete source, note, project and decision records link together.
 
 Start with a subject where durable knowledge would already be useful, such as:
 
@@ -495,6 +514,48 @@ npm --prefix 3.add-ons/browser-explorer test
 ```
 
 Routine authorised saves follow [`2.core/system/source-control-policy.md`](2.core/system/source-control-policy.md).
+
+### Automatic commit checks
+
+Activate the supplied [pre-commit configuration](.pre-commit-config.yaml) in each
+clone; Git does not install hooks automatically:
+
+```bash
+npm --prefix 3.add-ons/browser-explorer ci
+python -m pip install pre-commit
+python -m pre_commit install
+python -m pre_commit run --all-files
+```
+
+Both repository-wide checks run before commits regardless of the changed files.
+They require `python`, `node` and `npm` on PATH. The `brain:check` command also runs
+the Python validator and regenerates ignored explorer data. Hooks can be bypassed
+and do not replace review or CI. See the [pre-commit documentation](https://pre-commit.com/).
+
+### Containers
+
+With Docker Engine and Compose available, run from the repository root:
+
+```bash
+docker compose up --build explorer
+docker compose run --build --rm checks
+docker compose down
+```
+
+Open `http://localhost:3000`. The checks service exits nonzero on validation failure.
+The [Dockerfile](Dockerfile) supplies Node.js 24, Python 3 and Git, installs locked
+npm dependencies and runs as a non-root user. The [Compose configuration](docker-compose.yml)
+binds the explorer to loopback only, following Docker's [port publishing guidance](https://docs.docker.com/get-started/docker-concepts/running-containers/publishing-ports/).
+
+This is a local development snapshot, not a production deployment. Rebuild after
+edits. Files are copied into the image with a disposable Git index so the reader
+works without host Git history. Host files are not mounted or modified. The snapshot
+includes non-ignored working-tree files, including uncommitted Markdown. The
+[build exclusions](.dockerignore) omit credentials, caches and unsupported raw
+sources, but allowed text may still be sensitive. Keep images and build caches
+private; never publish an image made from a personal second brain.
+
+Report vulnerabilities using the [security policy](SECURITY.md).
 
 The current hosting configuration is recorded in [`1.plugins/github/repository.md`](1.plugins/github/repository.md).
 

@@ -15,6 +15,7 @@ For AI agentic use, read [AGENTS.md](AGENTS.md), then the shared [operating cont
 | `themes/` | Navigation across related records |
 | `sources/` | Raw evidence and derived source notes |
 | `templates/` | Standard text-file shapes |
+| [examples/](examples/README.md) | Fictional linked walkthroughs, separate from live knowledge |
 | `system/` | Governance, validation and activity history |
 | `docs/` | Design rationale and research |
 

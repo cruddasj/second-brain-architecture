@@ -33,6 +33,8 @@ Add records only when the user explicitly authorises them. Each saved page must 
 
 ## System guide
 
+- [Worked examples](examples/README.md): fictional source-to-decision walkthroughs, not saved personal knowledge.
+
 - [Core overview](README.md): what Core contains and where to start.
 - [Design research](docs/research.md): the provider-neutral ideas behind the architecture.
 - [Plugins](../1.plugins/README.md): optional provider and external-system integrations.

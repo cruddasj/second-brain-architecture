@@ -1,0 +1,15 @@
+repos:
+  - repo: local
+    hooks:
+      - id: core-check
+        name: Validate Core
+        entry: python 2.core/scripts/check_second_brain.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: brain-check
+        name: Validate explorer data
+        entry: npm --prefix 3.add-ons/browser-explorer run brain:check
+        language: system
+        pass_filenames: false
+        always_run: true
