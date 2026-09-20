@@ -23,7 +23,9 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "22"
-      - name: Validate knowledge base
+      - name: Install Core validation dependencies
+        run: python -m pip install -r 2.core/scripts/requirements.txt
+      - name: Check knowledge base
         run: python 2.core/scripts/check_second_brain.py
       - name: Test deterministic freshness scanner
         run: python -m unittest discover -s 2.core/scripts -p 'test_*.py'
@@ -35,5 +37,6 @@ jobs:
           fi
       - name: Validate browser data generation
         run: |
+          npm --prefix 3.add-ons/browser-explorer ci --no-audit --no-fund
           node 3.add-ons/browser-explorer/scripts/build-brain-data.mjs
           node --test 3.add-ons/browser-explorer/tests/brain-data.test.mjs

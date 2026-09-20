@@ -53,6 +53,18 @@ class RetrievalTests(unittest.TestCase):
         self.assertEqual(result['matches'][0]['path'], PROJECT)
         self.assertEqual(read_record(index, RECORD_ID)['record'], PROJECT)
 
+    def test_wikilink_expansion_and_ambiguity(self):
+        text = (self.repo / PROJECT).read_text(encoding='utf-8')
+        write(self.repo, PROJECT, text.replace('[supplier agreement](supplier-agreement.md#delivery-conditions)',
+                                              '[[Supplier agreement#Delivery conditions|Evidence]]'))
+        commit(self.repo)
+        result = read_record(build_index(self.repo, 'main'), PROJECT, expand=True)
+        self.assertTrue(any(block['path'] == SUPPLIER for block in result['blocks']))
+        write(self.repo, '2.core/knowledge/other/supplier-agreement.md', '# Supplier agreement\n')
+        commit(self.repo)
+        result = read_record(build_index(self.repo, 'main'), PROJECT, expand=True)
+        self.assertTrue(any('Ambiguous wikilink' in warning for warning in result['warnings']))
+
     def test_context_keeps_qualifications_and_lists_history(self):
         index = build_index(self.repo, 'main')
         result = read_record(index, PROJECT, 'next-milestone')

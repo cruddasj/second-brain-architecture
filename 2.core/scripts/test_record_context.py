@@ -12,7 +12,7 @@ import record_text
 class RecordTextTests(unittest.TestCase):
     def test_heading_anchors_ignore_examples_and_disambiguate_duplicates(self):
         text = '# Record\n## Delivery conditions\n## Delivery conditions\n```\n## Hidden\n```\n~~~\n## Also hidden\n~~~\n<a id="stable"></a>\n'
-        self.assertEqual(record_text.anchors(text), {'record', 'delivery-conditions', 'delivery-conditions-1', 'stable'})
+        self.assertEqual(record_text.anchors(text), {'record', 'delivery-conditions', 'delivery-conditions-2', 'stable'})
 
     def test_reference_links_and_code_examples(self):
         text = '[Terms][t]\n[t]: terms.md#limits\n`[ignored](secret.md)`\n```\n[Example](missing.md)\n```\n'

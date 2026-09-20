@@ -36,9 +36,10 @@ async function markdownFiles(directory) {
   return results.sort();
 }
 
-async function loadGraph() {
+async function loadGraph(indexEntries) {
   const files = (await Promise.all(["memory", "knowledge", "sources/notes", "themes"].map((root) => markdownFiles(path.join(repositoryRoot, "2.core", root))))).flat();
-  return buildGraph(await Promise.all(files.map(async (file) => ({ path: path.relative(repositoryRoot, file).split(path.sep).join("/"), content: await fs.readFile(file, "utf8") }))));
+  const entries = await Promise.all(files.map(async (file) => ({ path: path.relative(repositoryRoot, file).split(path.sep).join("/"), content: await fs.readFile(file, "utf8") })));
+  return buildGraph(entries, [...indexEntries, ...entries]);
 }
 
 async function loadMarkdownIndex() {
@@ -53,11 +54,12 @@ async function loadMarkdownIndex() {
   return { files };
 }
 
+const markdown = await loadMarkdownIndex();
 const output = {
   schemaVersion: 5,
   source: "committed repository Markdown plus Core-only graph records (read-only; no dashboard flag required)",
-  graph: await loadGraph(),
-  markdown: await loadMarkdownIndex(),
+  graph: await loadGraph(markdown.files),
+  markdown,
 };
 output.snapshot = { version: 1, repositoryId: 0, repository: "Local checkout", branch: "local", commit: "", checkedAt: new Date().toISOString(), downloadedAt: new Date().toISOString(), files: output.markdown.files.map(({ path, content }) => ({ path, content, sha: "" })) };
 output.markdown.files = output.markdown.files.map(({ content, ...file }) => file);

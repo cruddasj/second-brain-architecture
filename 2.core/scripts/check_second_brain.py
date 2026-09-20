@@ -4,12 +4,16 @@
 from __future__ import annotations
 
 import json
+import argparse
 import re
 import sys
 from pathlib import Path
 from urllib.parse import unquote
+from urllib.parse import quote
+import posixpath
 
 import record_text
+from frontmatter import validate_frontmatter
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -78,7 +82,6 @@ ALLOWED_TOP_LEVEL = {
     # Optional, provider-neutral development and security entry points.
     "setup.py",
     ".pre-commit-config.yaml",
-    "docker-compose.yml",
     "SECURITY.md",
     ".git",
     ".github",
@@ -165,8 +168,27 @@ def is_raw_source(path: Path) -> bool:
     return True
 
 
-def local_links(path: Path) -> list[str]:
-    return [target[0] for destination in record_text.links(path.read_text(encoding="utf-8"))
+def make_link_index(markdown_files):
+    return record_text.LinkIndex({p.relative_to(ROOT).as_posix(): p.read_text(encoding='utf-8') for p in markdown_files})
+
+
+def link_destinations(text, path, index, definition_source=None):
+    current = path.relative_to(ROOT).as_posix()
+    for destination in record_text.links(text, definition_source):
+        if destination.startswith('[['):
+            try:
+                target, fragment = index.resolve(current, destination)
+            except ValueError:
+                continue  # Full-file validation reports unresolved/ambiguous wikilinks.
+            relative = posixpath.relpath(target, posixpath.dirname(current))
+            yield quote(relative, safe='/') + ('#' + quote(fragment) if fragment else '')
+        else:
+            yield destination
+
+
+def local_links(path: Path, index=None) -> list[str]:
+    index = index or make_link_index(tracked_markdown())
+    return [target[0] for destination in link_destinations(path.read_text(encoding="utf-8"), path, index)
             if (target := record_text.local_target(destination)) and target[0]]
 
 
@@ -174,6 +196,7 @@ def check_record_links(errors: list[str], markdown_files: list[Path]) -> None:
     """Check precise record links, identity uniqueness and direct backlinks."""
     identities: dict[str, Path] = {}
     texts = {p.resolve(): p.read_text(encoding="utf-8") for p in markdown_files}
+    index = make_link_index(markdown_files)
     knowledge = (CORE / "knowledge").resolve()
     memory = (CORE / "memory").resolve()
     source_notes = (CORE / "sources/notes").resolve()
@@ -191,7 +214,7 @@ def check_record_links(errors: list[str], markdown_files: list[Path]) -> None:
                 errors.append(f"Duplicate record_id: {path.relative_to(ROOT)} and {identities[record_id].relative_to(ROOT)}")
             else:
                 identities[record_id] = path
-        for destination in record_text.links(text):
+        for destination in link_destinations(text, path, index):
             target = record_text.local_target(destination)
             if not target:
                 continue
@@ -203,7 +226,7 @@ def check_record_links(errors: list[str], markdown_files: list[Path]) -> None:
             continue
         related = [s for s in record_text.sections(text) if s['title'] == 'Related records']
         for section in related:
-            for destination in record_text.links(section['text'], text):
+            for destination in link_destinations(section['text'], path, index, text):
                 target = record_text.local_target(destination)
                 resolved = (path.parent / target[0]).resolve() if target and target[0] else path
                 if not target or not authoritative(resolved) or resolved == path:
@@ -214,7 +237,7 @@ def check_record_links(errors: list[str], markdown_files: list[Path]) -> None:
                 backlinks = set()
                 for other in record_text.sections(texts[resolved]):
                     if other['title'] == 'Related records':
-                        for link in record_text.links(other['text'], texts[resolved]):
+                        for link in link_destinations(other['text'], resolved, index, texts[resolved]):
                             back = record_text.local_target(link)
                             if back and back[0]:
                                 backlinks.add((resolved.parent / back[0]).resolve())
@@ -222,8 +245,8 @@ def check_record_links(errors: list[str], markdown_files: list[Path]) -> None:
                     errors.append(f"Related records link is not reciprocal: {path.relative_to(ROOT)} -> {destination}")
 
 
-def resolved_local_links(path: Path) -> set[Path]:
-    return {(path.parent / target).resolve() for target in local_links(path)}
+def resolved_local_links(path: Path, index=None) -> set[Path]:
+    return {(path.parent / target).resolve() for target in local_links(path, index)}
 
 
 def check_theme_link_reciprocity(
@@ -231,6 +254,7 @@ def check_theme_link_reciprocity(
 ) -> None:
     theme_root = (CORE / "themes").resolve()
     knowledge_root = (CORE / "knowledge").resolve()
+    index = make_link_index(markdown_files)
 
     for path in markdown_files:
         source = path.resolve()
@@ -241,14 +265,14 @@ def check_theme_link_reciprocity(
         else:
             continue
 
-        for target in resolved_local_links(path):
+        for target in resolved_local_links(path, index):
             if (
                 not target.is_file()
                 or not target.is_relative_to(counterpart_root)
                 or target == theme_root / "index.md"
             ):
                 continue
-            if source not in resolved_local_links(target):
+            if source not in resolved_local_links(target, index):
                 errors.append(
                     "Theme link is not reciprocal: "
                     f"{path.relative_to(ROOT)} -> {target.relative_to(ROOT)}"
@@ -755,7 +779,42 @@ def check_legacy_capability_paths(errors: list[str]) -> None:
             )
 
 
+def frontmatter_types(path):
+    if path.is_relative_to(CORE / 'knowledge'):
+        return {'knowledge', 'decision'}
+    if path.is_relative_to(CORE / 'sources/notes'):
+        return {'source-note'}
+    if path.is_relative_to(CORE / 'memory'):
+        return {'memory'}
+    if path.is_relative_to(CORE / 'themes'):
+        return {'index'} if path.name == 'index.md' else {'theme'}
+    if path.is_relative_to(CORE / 'examples') and path.read_text(encoding='utf-8').startswith(('---\n', '---\r\n')):
+        return {'knowledge', 'decision', 'source-note'}
+    return None
+
+
+def orphaned_notes(markdown_files, index):
+    # Navigation/index pages, system material, raw sources and teaching examples
+    # cannot disguise an isolated live note merely by listing it.
+    roots = ('knowledge', 'sources/notes', 'memory', 'themes')
+    nodes = {p.resolve(): p for p in markdown_files
+             if p.name != 'index.md'
+             and any(p.is_relative_to(CORE / root) for root in roots)}
+    connected = set()
+    for source in nodes:
+        for target in resolved_local_links(source, index):
+            if target in nodes and target != source:
+                connected.update((source, target))
+    # Themes are connectors, not notes that require an orphan warning themselves.
+    return sorted(nodes[p] for p in nodes.keys() - connected
+                  if not p.is_relative_to((CORE / 'themes').resolve())
+                  and p != (CORE / 'memory/core.md').resolve())
+
+
 def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--strict-orphans', action='store_true', help='Fail on isolated live notes (warnings by default)')
+    args = parser.parse_args()
     errors: list[str] = []
     state_locations: dict[str, list[Path]] = {}
     event_locations: dict[str, list[Path]] = {}
@@ -797,12 +856,23 @@ def main() -> int:
     check_legacy_capability_paths(errors)
 
     markdown_files = tracked_markdown()
+    link_index = make_link_index(markdown_files)
     check_theme_link_reciprocity(errors, markdown_files)
     check_record_links(errors, markdown_files)
     index_text = INDEX.read_text(encoding="utf-8") if INDEX.exists() else ""
 
     for path in markdown_files:
         relative = path.relative_to(ROOT)
+        text = path.read_text(encoding='utf-8')
+        allowed_types = frontmatter_types(path)
+        if allowed_types:
+            errors.extend(f'Frontmatter {relative}: {issue}' for issue in validate_frontmatter(text, allowed_types))
+        for destination in record_text.links(text):
+            if destination.startswith('[['):
+                try:
+                    link_index.resolve(relative.as_posix(), destination)
+                except ValueError as error:
+                    errors.append(f'{error}: {relative} -> {destination}')
 
         if path.is_relative_to(CORE / "knowledge") or path.is_relative_to(CORE / "sources/notes"):
             if not has_frontmatter(path):
@@ -861,7 +931,7 @@ def main() -> int:
                                 f"Event '{entry_id}' missing {field} at {relative}:{line_number}"
                             )
 
-        for target in local_links(path):
+        for target in local_links(path, link_index):
             resolved = (path.parent / target).resolve()
             try:
                 resolved.relative_to(ROOT.resolve())
@@ -898,6 +968,14 @@ def main() -> int:
             for pattern in SECRET_PATTERNS:
                 if pattern.search(text):
                     errors.append(f"Possible secret in {path.relative_to(ROOT)}")
+
+    orphans = orphaned_notes(markdown_files, link_index)
+    for path in orphans:
+        message = f'Orphaned note (no links to or from another live record): {path.relative_to(ROOT)}'
+        if args.strict_orphans:
+            errors.append(message)
+        else:
+            print(f'Warning: {message}')
 
     if errors:
         print("Second-brain check failed:")

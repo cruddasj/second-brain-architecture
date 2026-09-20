@@ -55,6 +55,9 @@ Install these before running the website locally:
 
 Python 3 is also required if you run `npm run brain:check`, because that validation command runs the Core repository checker. It is not required simply to start the demo website.
 
+For Python validation, install the shared dependencies from the repository root
+with `python -m pip install -r 2.core/scripts/requirements.txt` (or run `python setup.py`).
+
 You can confirm the main command-line prerequisites with:
 
 ```bash
@@ -79,14 +82,18 @@ The data builder writes schema version 5 of `public/brain-data.json`. Its `graph
 
 ## Run with Docker
 
+If migrating from the earlier root Compose file, run `docker compose -p second-brain-architecture -f docker-compose.yml down`
+from this add-on directory once to remove the old project's containers before
+starting the new project. The new default Compose project name is `browser-explorer`.
+
 Install Docker with Compose support and start its engine (use Linux containers).
 The container supplies Node.js, npm, Python and Git, so you do not need to install
 those tools locally for this route. The first build needs internet access to
 download the base image and dependencies.
 
-Run the following commands from the **repository root**, where
-[`docker-compose.yml`](../../docker-compose.yml) lives. If your terminal is in
-`3.add-ons/browser-explorer/`, run `cd ../..` first.
+Run the following commands from **`3.add-ons/browser-explorer/`**, where
+[`docker-compose.yml`](docker-compose.yml) lives. Its build context remains the
+repository root so the container can read Core and run the validation scripts.
 
 Build and start the explorer:
 
@@ -101,7 +108,7 @@ the repository snapshot and skipping connection setup. Installable-app and
 offline-shell testing use the production workflow in the next section.
 
 To run the Core validator and explorer data check, use another terminal at the
-repository root:
+same add-on directory:
 
 ```bash
 docker compose run --build --rm checks
@@ -151,6 +158,19 @@ On mobile, localhost means the phone, not your computer. Mobile installation nee
 Record links now use `/record/?file=<encoded repository path>#heading`, so new files do not require rebuilding the application. Old server-rendered `/records/...` bookmarks are replaced by these links. Executable links are inert, raw HTML is not executed, and attachments/images remain outside V1.
 
 Run `npm test` for the build and reader regression suite. Adapter-specific browser tests live with the optional adapter.
+
+## Record links and frontmatter
+
+The reader and knowledge graph support `[[Note Name]]`, `[[Note Name|label]]`,
+`[[Note Name#Heading]]`, explicit Markdown paths and ordinary `[label](path.md)`
+links. Names may match a filename, title or YAML alias; ambiguous names stay
+non-clickable until replaced with an explicit path. Code examples do not create
+links. The shared [Core record policy](../../2.core/system/record-structure-policy.md)
+defines resolution, strict frontmatter fields and orphan warnings.
+
+`npm run brain:check` validates YAML with the Core schema and reports isolated
+notes. To reject orphans too, run `python ../../2.core/scripts/check_second_brain.py --strict-orphans`
+from this directory. These checks never rewrite notes or infer relationships.
 
 ## Code organisation
 

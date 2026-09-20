@@ -25,7 +25,7 @@ If the relationship is unclear, do not infer it. Ask when the answer would mater
 
 ## Reciprocal link rule
 
-Represent every approved direct relationship with two relative Markdown links:
+Represent every approved direct relationship with two resolvable links (relative Markdown links or wikilinks as defined in the [record structure policy](record-structure-policy.md#wikilinks)):
 
 - each authoritative record links to the other under `## Related records`; and
 - both links are added, updated or removed in the same transaction.

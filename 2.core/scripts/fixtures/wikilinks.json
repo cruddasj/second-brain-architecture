@@ -1,0 +1,35 @@
+{
+  "current": "2.core/knowledge/projects/start.md",
+  "records": {
+    "2.core/knowledge/projects/start.md": "---\ntitle: Start\n---\n# Start\n## Local section\n",
+    "2.core/knowledge/projects/plan.md": "---\ntitle: Release Plan\naliases:\n  - Shipping\n  - 'Delivery, plan'\n---\n# Release Plan\n## Delivery conditions\n## Repeated\n## Repeated\n## Café & costs\n## Stable {#fixed}\n",
+    "2.core/knowledge/one/duplicate.md": "# First duplicate\n",
+    "2.core/knowledge/two/duplicate.md": "# Second duplicate\n"
+  },
+  "cases": [
+    {"link": "[[Release Plan]]", "path": "2.core/knowledge/projects/plan.md", "heading": ""},
+    {"link": "[[Shipping|Launch details]]", "path": "2.core/knowledge/projects/plan.md", "heading": ""},
+    {"link": "[[Delivery, plan]]", "path": "2.core/knowledge/projects/plan.md", "heading": ""},
+    {"link": "[[plan.md#Delivery conditions]]", "path": "2.core/knowledge/projects/plan.md", "heading": "delivery-conditions"},
+    {"link": "[[plan#repeated-2]]", "path": "2.core/knowledge/projects/plan.md", "heading": "repeated-2"},
+    {"link": "[[plan#Café & costs]]", "path": "2.core/knowledge/projects/plan.md", "heading": "cafe-costs"},
+    {"link": "[[plan#fixed]]", "path": "2.core/knowledge/projects/plan.md", "heading": "fixed"},
+    {"link": "[[#Local section]]", "path": "2.core/knowledge/projects/start.md", "heading": "local-section"},
+    {"link": "[[./plan]]", "path": "2.core/knowledge/projects/plan.md", "heading": ""},
+    {"link": "[[2.core/knowledge/one/duplicate]]", "path": "2.core/knowledge/one/duplicate.md", "heading": ""},
+    {"link": "[[/2.core/knowledge/two/duplicate.md]]", "path": "2.core/knowledge/two/duplicate.md", "heading": ""},
+    {"link": "[[../one/duplicate]]", "path": "2.core/knowledge/one/duplicate.md", "heading": ""},
+    {"link": "[[First duplicate]]", "path": "2.core/knowledge/one/duplicate.md", "heading": ""},
+    {"link": "[[Release%20Plan]]", "path": "2.core/knowledge/projects/plan.md", "heading": ""},
+    {"link": "[[duplicate]]", "path": null},
+    {"link": "[[missing]]", "path": null},
+    {"link": "[[plan#absent]]", "path": null},
+    {"link": "[[plan#Repeated]]", "path": null},
+    {"link": "[[javascript:alert(1)]]", "path": null},
+    {"link": "[[//example.invalid/path]]", "path": null},
+    {"link": "[[../../../../outside]]", "path": null},
+    {"link": "[[plan%ZZ]]", "path": null},
+    {"link": "[[plan\\path]]", "path": null},
+    {"link": "[[ ]]", "path": null}
+  ]
+}

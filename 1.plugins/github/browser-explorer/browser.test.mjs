@@ -26,7 +26,7 @@ test("installed shell syncs a remote fixture into graph and reader, refreshes at
   const entries = () => [
     { path: "2.core/CONTRACT.md", content: "# Contract", sha: sha(10) },
     { path: "2.core/index.md", content: "# Index", sha: sha(11) },
-    { path: "2.core/knowledge/remote-only.md", content: `# Remote-only fixture\n\n## Description\n\nRemote revision ${revision}\n\n## Links\n\n[Index](../index.md)\n\n[Unsafe](javascript:alert)\n`, sha: sha(20 + revision) },
+    { path: "2.core/knowledge/remote-only.md", content: `# Remote-only fixture\n\n## Description\n\nRemote revision ${revision}\n\n## Links\n\n[Index](../index.md)\n\n[[Index|Open index via wiki]]\n\n[[Remote-only fixture#Description|Jump to description]]\n\n[[Missing note]]\n\n[Unsafe](javascript:alert)\n`, sha: sha(20 + revision) },
   ];
   await context.route("https://api.github.com/**", async route => {
     calls++;
@@ -79,6 +79,13 @@ test("installed shell syncs a remote fixture into graph and reader, refreshes at
   await page.getByRole("link", { name: /Remote-only fixture/ }).click();
   await page.getByText("Remote revision 1", { exact: true }).waitFor();
   assert.equal(await page.getByText("Unsafe", { exact: true }).getAttribute("href"), null);
+  assert.equal(await page.getByText("Missing note", { exact: true }).getAttribute("href"), null);
+  await page.getByRole("link", { name: "Jump to description", exact: true }).click();
+  await page.waitForURL(/#description$/);
+  await page.getByRole("link", { name: "Open index via wiki", exact: true }).click();
+  await page.locator('.markdown-content h1').filter({ hasText: 'Index' }).waitFor();
+  await page.goBack();
+  await page.getByText("Remote revision 1", { exact: true }).waitFor();
   await page.goto(origin + "/");
   await page.getByRole("button", { name: /Remote-only fixture/ }).waitFor();
   await page.setViewportSize({ width: 390, height: 844 });

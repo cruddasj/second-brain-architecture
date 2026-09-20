@@ -1,4 +1,5 @@
 // Pure snapshot interpretation shared by the local builder and on-device reader.
+import { metadata, markdownLinks, createWikilinkIndex } from "./markdown-links.mjs";
 export function resolveRecordLink(current, href) {
   if (/^[a-z][a-z0-9+.-]*:|^\/\//i.test(href) || href.includes("\\")) return null;
   try {
@@ -14,34 +15,14 @@ export function resolveRecordLink(current, href) {
   } catch { return null; }
 }
 
-function parseValue(value) {
-  const trimmed = value.trim();
-  if (trimmed === "true") return true;
-  if (trimmed === "false") return false;
-  if (trimmed === "null") return null;
-  if (/^\[.*\]$/.test(trimmed)) {
-    return trimmed
-      .slice(1, -1)
-      .split(",")
-      .map((item) => item.trim().replace(/^['"]|['"]$/g, ""))
-      .filter(Boolean);
-  }
-  return trimmed.replace(/^['"]|['"]$/g, "");
-}
-
 export function parseMarkdown(content) {
   const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/);
-  const metadata = {};
+  const fields = metadata(content);
   let body = content;
   if (match) {
-    for (const line of match[1].split(/\r?\n/)) {
-      const separator = line.indexOf(":");
-      if (separator === -1) continue;
-      metadata[line.slice(0, separator).trim()] = parseValue(line.slice(separator + 1));
-    }
     body = content.slice(match[0].length);
   }
-  return { metadata, body };
+  return { metadata: fields, body };
 }
 
 function section(body, title) {
@@ -103,7 +84,9 @@ function currentStatePreview(body) {
   };
 }
 
-export function buildGraph(entries) {
+export function buildGraph(entries, linkEntries = entries) {
+  const resolveWiki = createWikilinkIndex(linkEntries);
+  const resolveLink = (current, link) => link.startsWith("[[") ? resolveWiki(current, link)?.path : resolveRecordLink(current, link);
   const contents = new Map(entries.map(({ path, content }) => [path, content]));
   const discoveredFiles = [...contents.keys()].filter((file) => recordRoots.some((root) => file.startsWith("2.core/" + root + "/"))).sort();
   const collectionIndexPaths = new Map(discoveredFiles
@@ -127,7 +110,7 @@ export function buildGraph(entries) {
     const headings = [...parsed.body.matchAll(/^##\s+(.+)$/gm)].map((match) => match[1].trim());
     const stateCount = (parsed.body.match(/\[state:[^\]]+\]/g) || []).length;
     const eventCount = (parsed.body.match(/\[event:[^\]]+\]/g) || []).length;
-    const links = [...content.matchAll(/\[[^\]]+\]\(([^)#?]+\.md)(?:#[^)]*)?\)/g)].map((match) => match[1]);
+    const links = markdownLinks(content);
     const preview = currentStatePreview(parsed.body);
     const record = {
       id,
@@ -150,7 +133,7 @@ export function buildGraph(entries) {
   const resolvedLinks = new Map(records.map((record) => [record.id, new Set()]));
   for (const record of records) {
     for (const link of record.links) {
-      const target = byPath.get(resolveRecordLink(record.file, link));
+      const target = byPath.get(resolveLink(record.file, link));
       if (target && target.id !== record.id) resolvedLinks.get(record.id).add(target.id);
     }
   }
@@ -184,9 +167,8 @@ export function buildGraph(entries) {
   ];
   const edges = records.map((record) => ({ source: `collection:${record.collection}`, target: record.id, kind: "collection" }));
   for (const record of records) {
-    for (const link of record.links) {
-      const target = byPath.get(resolveRecordLink(record.file, link));
-      if (target && target.id !== record.id) edges.push({ source: record.id, target: target.id, kind: "reference" });
+    for (const target of resolvedLinks.get(record.id)) {
+      edges.push({ source: record.id, target, kind: "reference" });
     }
   }
   return { nodes, edges, themes: themes.map(({ id, title }) => ({ id, title })) };

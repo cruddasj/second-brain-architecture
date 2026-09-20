@@ -6,7 +6,6 @@ import argparse
 import hashlib
 import json
 import os
-import posixpath
 from pathlib import Path, PurePosixPath
 import re
 import subprocess
@@ -140,14 +139,18 @@ def read_record(index: dict, name: str, section: str | None = None, max_chars: i
                for p in parts if p not in selected]
     references, warnings = [], list(index['warnings'])
     seen = {path}
+    link_index = record_text.LinkIndex({name: item['text'] for name, item in index['records'].items()})
     for destination in record_text.links(''.join(p['text'] for p in selected), record['text']):
-        target = record_text.local_target(destination)
+        try:
+            target = link_index.resolve(path, destination)
+        except ValueError as error:
+            references.append({'link': destination, 'status': str(error)})
+            warnings.append(f'{error}: {destination}')
+            continue
         if target is None:
             references.append({'link': destination, 'status': 'external; not retrieved'})
             continue
-        filename, fragment = target
-        # Normalise with POSIX semantics independently of the local OS.
-        linked = posixpath.normpath(posixpath.join(posixpath.dirname(path), filename)) if filename else path
+        linked, fragment = target
         if linked not in index['records']:
             references.append({'link': destination, 'path': linked, 'status': 'outside indexed records or unresolved'})
             continue

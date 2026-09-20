@@ -1,7 +1,8 @@
 "use client";
 import { appPath } from "../../offline/paths.mjs";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { createWikilinkIndex } from "../../offline/markdown-links.mjs";
 import ApplicationShell from "../application-shell";
 import { useBrain } from "../brain-provider";
 import MarkdownContent, { headingOutline } from "../records/[...path]/markdown-content";
@@ -10,6 +11,7 @@ import { readerLink } from "../../offline/links.mjs";
 
 export default function RecordPage() {
   const { snapshot, loading } = useBrain();
+  const resolveWiki = useMemo(() => createWikilinkIndex(snapshot?.files || []), [snapshot]);
   const [relativePath, setPath] = useState("");
   useEffect(() => { setPath(new URLSearchParams(window.location.search).get("file") || ""); }, []);
   const markdown = snapshot?.files.find(file => file.path === relativePath)?.content;
@@ -22,7 +24,7 @@ export default function RecordPage() {
   return <ApplicationShell><main className="record-shell"><div className="record-layout">
     <article className="markdown-card" id="record-content">
       <div className="record-context"><span className="record-path">{relativePath}</span></div>
-      {loading ? <p role="status">Loading saved content…</p> : markdown === undefined ? <><h2>File unavailable</h2><p>This file is not in the current snapshot. It may have been deleted or renamed.</p><a href={appPath("/markdown/")}>Browse Markdown files</a></> : <MarkdownContent markdown={markdown} resolveLink={href => readerLink(relativePath, href)} />}
+      {loading ? <p role="status">Loading saved content…</p> : markdown === undefined ? <><h2>File unavailable</h2><p>This file is not in the current snapshot. It may have been deleted or renamed.</p><a href={appPath("/markdown/")}>Browse Markdown files</a></> : <MarkdownContent markdown={markdown} resolveLink={href => readerLink(relativePath, href, resolveWiki)} />}
     </article>
     {sections.length > 1 && <TableOfContents headings={sections} />}
   </div></main></ApplicationShell>;
