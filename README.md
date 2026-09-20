@@ -507,11 +507,16 @@ On systems where Python 3 is exposed as `python3`, use that command instead.
 Run the checks from the repository root:
 
 ```bash
+python -m pip install -r 2.core/scripts/requirements.txt
 python 2.core/scripts/check_second_brain.py
 npm --prefix 3.add-ons/browser-explorer ci
 npm --prefix 3.add-ons/browser-explorer run brain:check
 npm --prefix 3.add-ons/browser-explorer test
 ```
+
+The validator enforces the [record frontmatter schema](2.core/system/record-structure-policy.md#validated-frontmatter),
+resolves Markdown links and wikilinks, and warns about isolated notes. Add
+`--strict-orphans` to the Python command to treat orphan warnings as errors.
 
 Routine authorised saves follow [`2.core/system/source-control-policy.md`](2.core/system/source-control-policy.md).
 
@@ -522,7 +527,7 @@ clone; Git does not install hooks automatically:
 
 ```bash
 npm --prefix 3.add-ons/browser-explorer ci
-python -m pip install pre-commit
+python -m pip install -r 2.core/scripts/requirements.txt pre-commit
 python -m pre_commit install
 python -m pre_commit run --all-files
 ```
@@ -534,7 +539,7 @@ and do not replace review or CI. See the [pre-commit documentation](https://pre-
 
 ### Containers
 
-With Docker Engine and Compose available, run from the repository root:
+With Docker Engine and Compose available, run from `3.add-ons/browser-explorer/`:
 
 ```bash
 docker compose up --build explorer
@@ -544,7 +549,7 @@ docker compose down
 
 Open `http://localhost:3000`. The checks service exits nonzero on validation failure.
 The [Dockerfile](3.add-ons/browser-explorer/Dockerfile) supplies Node.js 24, Python 3 and Git, installs locked
-npm dependencies and runs as a non-root user. The [Compose configuration](docker-compose.yml)
+npm dependencies and runs as a non-root user. The [Compose configuration](3.add-ons/browser-explorer/docker-compose.yml)
 binds the explorer to loopback only, following Docker's [port publishing guidance](https://docs.docker.com/get-started/docker-concepts/running-containers/publishing-ports/).
 
 This is a local development snapshot, not a production deployment. Rebuild after

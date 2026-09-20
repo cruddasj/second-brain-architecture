@@ -1,3 +1,5 @@
+export { parseWikilink } from "../offline/markdown-links.mjs";
+
 export type Heading = {
   type: "heading";
   level: number;
@@ -25,12 +27,14 @@ function stripFrontmatter(markdown: string) {
 
 function stripHtmlComments(markdown: string) {
   let hidden = false;
-  let fenced = false;
+  let fenced: string | null = null;
   return markdown
     .split(/\r?\n/)
     .map((line) => {
-      if (!hidden && /^\s*```/.test(line)) {
-        fenced = !fenced;
+      const fence = line.match(/^ {0,3}(`{3,}|~{3,})/);
+      if (!hidden && fence) {
+        if (!fenced) fenced = fence[1];
+        else if (fence[1][0] === fenced[0] && fence[1].length >= fenced.length && !line.trim().slice(fence[1].length).trim()) fenced = null;
         return line;
       }
       if (fenced) return line;
@@ -60,7 +64,7 @@ function cells(line: string) {
   return line
     .trim()
     .replace(/^\||\|$/g, "")
-    .split("|")
+    .split(/\|(?![^\[]*\]\])/)
     .map((cell) => cell.trim());
 }
 
@@ -106,6 +110,7 @@ function parseList(
 
 export function headingText(text: string) {
   return text
+    .replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (_, target, label) => label || target)
     .replace(/!?\[([^\]]+)\]\([^)]+\)/g, "$1")
     .replace(/[`*_~]/g, "")
     .trim();
@@ -149,16 +154,26 @@ export function parseMarkdown(markdown: string): Block[] {
       continue;
     }
 
-    const fence = line.match(/^```(.*)$/);
+    if (/^( {4}|\t)/.test(line)) {
+      const code: string[] = [];
+      while (i < lines.length && /^( {4}|\t)/.test(lines[i])) {
+        code.push(lines[i++].replace(/^( {4}|\t)/, ""));
+      }
+      blocks.push({ type: "code", language: "", text: code.join("\n") });
+      continue;
+    }
+
+    const fence = line.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
     if (fence) {
       const code: string[] = [];
       i++;
-      while (i < lines.length && !lines[i].startsWith("```"))
+      const closing = new RegExp(`^ {0,3}${fence[1][0]}{${fence[1].length},}\\s*$`);
+      while (i < lines.length && !closing.test(lines[i]))
         code.push(lines[i++]);
       i++;
       blocks.push({
         type: "code",
-        language: fence[1].trim(),
+        language: fence[2].trim(),
         text: code.join("\n"),
       });
       continue;
@@ -218,7 +233,7 @@ export function parseMarkdown(markdown: string): Block[] {
     while (
       i < lines.length &&
       lines[i].trim() &&
-      !/^(#{1,6})\s|^```|^>|^\s*(?:(?:\d+)\.|[-*+])\s+/.test(lines[i])
+      !/^(#{1,6})\s|^ {0,3}(?:`{3,}|~{3,})|^( {4}|\t)|^>|^\s*(?:(?:\d+)\.|[-*+])\s+/.test(lines[i])
     ) {
       paragraph.push(lines[i++].trim());
     }

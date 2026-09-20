@@ -71,7 +71,7 @@ The [index](index.md) lists the detailed policies. The repository README is huma
 
 ### Shared Core interfaces
 
-`2.core/scripts/record_text.py` is a stable, provider-neutral read-only interface for Markdown record conventions used by Core validators and optional Add-ons. Its public functions are `visible_lines`, `metadata`, `headings`, `anchors`, `sections`, `links` and `local_target`. Keep this path and these function meanings compatible; a breaking change requires updating its documented consumers and validation in the same transaction. The module parses the repository's limited record conventions and is not a general Markdown renderer.
+`2.core/scripts/record_text.py` is a stable, provider-neutral read-only interface for Markdown record conventions used by Core validators and optional Add-ons. Its public functions are `visible_lines`, `metadata`, `headings`, `anchors`, `sections`, `links` and `local_target`, plus `LinkIndex.resolve` for snapshot-aware wikilinks. `links` preserves wikilinks as `[[target]]` tokens; use `LinkIndex` rather than `local_target` to resolve them. Keep this path and these function meanings compatible; a breaking change requires updating its documented consumers and validation in the same transaction. The module parses the repository's limited record conventions and is not a general Markdown renderer. Metadata uses the safe YAML reader in `scripts/frontmatter.py`; install `scripts/requirements.txt` for Python tooling.
 
 ## Behaviour ownership and integration design
 

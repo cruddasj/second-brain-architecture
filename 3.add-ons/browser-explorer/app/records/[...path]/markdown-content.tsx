@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import {
   headingText,
+  parseWikilink,
   parseMarkdown,
   type List,
   type ListItem,
@@ -38,11 +39,17 @@ const metadataFormats = {
 
 function renderInline(text: string, resolveLink: ResolveLink): ReactNode[] {
   const pattern =
-    /(\[[^\]]+\]\([^)]+\)|`[^`]+`|\*\*[^*]+\*\*|__[^_]+__|(?<!\*)\*[^*]+\*(?!\*)|(?<!_)_[^_]+_(?!_))/g;
+    /(`+[^`]*`+|(?<![!\\])\[\[[^\]\n]+\]\]|\[[^\]]+\]\([^)]+\)|\*\*[^*]+\*\*|__[^_]+__|(?<!\*)\*[^*]+\*(?!\*)|(?<!_)_[^_]+_(?!_))/g;
   return text
     .split(pattern)
     .filter(Boolean)
     .map((part, index) => {
+      const wiki = parseWikilink(part);
+      if (wiki) {
+        const href = resolveLink(part);
+        return href ? <a key={index} href={href} rel="noreferrer">{wiki.label}</a>
+          : <span key={index} title="Unresolved or ambiguous note link">{wiki.label}</span>;
+      }
       const link = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
       if (link)
         return (

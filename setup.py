@@ -74,7 +74,8 @@ def main():
         configure(repository, branch)
         if install:
             run("npm", "--prefix", "3.add-ons/browser-explorer", "ci")
-            subprocess.run([sys.executable, "-m", "pip", "install", "pre-commit"], check=True)
+            subprocess.run([sys.executable, "-m", "pip", "install", "-r",
+                            str(ROOT / "2.core/scripts/requirements.txt"), "pre-commit"], check=True)
             subprocess.run([sys.executable, "-m", "pre_commit", "install"], cwd=ROOT, check=True)
         print("Setup complete. Review the diff and run the README checks before committing.")
         print("No commit or push was made. Existing branches and hosted settings were not changed.")

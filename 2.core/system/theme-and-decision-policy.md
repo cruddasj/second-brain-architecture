@@ -33,7 +33,7 @@ Do not silently create a theme, broaden an existing theme or use a theme to reso
 
 ## Reciprocal content-link rule
 
-Every approved thematic association must be represented by two relative Markdown links:
+Every approved thematic association must be represented by two resolvable links (relative Markdown links or wikilinks as defined in the [record structure policy](record-structure-policy.md#wikilinks)):
 
 - the authoritative knowledge page links to the theme under a `## Themes` section; and
 - the theme page links back to the authoritative record under `## Records` or another clearly named record section.

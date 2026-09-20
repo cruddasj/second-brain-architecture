@@ -5,7 +5,12 @@ export function recordHref(path, heading = "") {
   return appPath(`/record/?file=${encodeURIComponent(path)}${heading ? "#" + encodeURIComponent(heading) : ""}`);
 }
 
-export function readerLink(current, href) {
+/** @param {(current: string, token: string) => ({path: string, heading: string} | null)} [resolveWiki] */
+export function readerLink(current, href, resolveWiki = () => null) {
+  if (href.startsWith("[[")) {
+    const target = resolveWiki(current, href);
+    return target ? recordHref(target.path, target.heading) : undefined;
+  }
   if (/[\u0000-\u001f\\]/.test(href) || href.startsWith("//")) return undefined;
   if (/^https?:\/\//i.test(href) || /^mailto:/i.test(href)) return href;
   if (/^[a-z][a-z0-9+.-]*:/i.test(href)) return undefined;

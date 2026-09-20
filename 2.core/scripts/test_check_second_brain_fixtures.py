@@ -55,7 +55,7 @@ class ValidatorFixture:
             self.write("2.core/" + path)
         self.write("2.core/docs/research.md")
         self.write("2.core/index.md", "# Index\n")
-        self.write("2.core/memory/core.md", "# Core memory\n\n## Current state\n")
+        self.write("2.core/memory/core.md", "---\ntitle: Core memory\ntype: memory\nupdated: 2026-01-01\n---\n# Core memory\n\n## Current state\n")
         self.write("2.core/system/directory.md")
         self.write("2.core/system/operating-rules.md")
         self.write("2.core/system/freshness-policy.md")
@@ -76,7 +76,7 @@ class ValidatorFixture:
         )
         self.write(
             "2.core/themes/index.md",
-            "---\ntitle: Themes\ntype: index\n---\n\n# Themes\n",
+            "---\ntitle: Themes\ntype: index\nupdated: 2026-01-01\n---\n\n# Themes\n",
         )
         self.write("2.core/templates/decision-record.md")
         self.write(
@@ -85,6 +85,7 @@ class ValidatorFixture:
         )
         self.write("2.core/scripts/audit_freshness.py")
         self.write("2.core/scripts/record_text.py", Path(check.record_text.__file__).read_text(encoding="utf-8"))
+        self.write("2.core/scripts/frontmatter.py", (Path(check.__file__).parent / 'frontmatter.py').read_text(encoding='utf-8'))
         self.write("2.core/scripts/test_audit_freshness.py")
         self.write("2.core/scripts/test_check_second_brain.py")
 
@@ -116,7 +117,7 @@ class ValidatorFixture:
     ) -> Path:
         if frontmatter:
             content = (
-                f"---\ntitle: {name}\ntype: knowledge\n---\n\n"
+                f"---\ntitle: {name}\ntype: knowledge\nupdated: 2026-01-01\n---\n\n"
                 f"# {name}\n\n{body}\n"
             )
         else:
@@ -130,9 +131,9 @@ class ValidatorFixture:
         )
         return path
 
-    def run(self) -> subprocess.CompletedProcess[str]:
+    def run(self, *args) -> subprocess.CompletedProcess[str]:
         return subprocess.run(
-            [sys.executable, str(self.core / "scripts/check_second_brain.py")],
+            [sys.executable, str(self.core / "scripts/check_second_brain.py"), *args],
             cwd=self.root,
             capture_output=True,
             text=True,
@@ -156,6 +157,21 @@ class ValidatorRepositoryFixtureTests(unittest.TestCase):
         result = fixture.run()
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("Second-brain check passed", result.stdout)
+
+    def test_orphan_warning_and_optional_failure(self):
+        fixture = self.with_fixture()
+        fixture.add_knowledge('isolated', '## Current state\n\n## Event log\n')
+        result = fixture.run()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn('Warning: Orphaned note', result.stdout)
+        self.assertEqual(fixture.run('--strict-orphans').returncode, 1)
+
+    def test_bad_yaml_and_missing_wikilinks_fail(self):
+        fixture = self.with_fixture()
+        path = fixture.add_knowledge('example', '## Current state\n\n## Event log\n[[Missing]]')
+        self.assert_failure_contains(fixture, 'Unresolved wikilink')
+        path.write_text(path.read_text().replace('title: example', 'title: 42'))
+        self.assert_failure_contains(fixture, 'title: Input should be a valid string')
 
     def test_broken_link_is_rejected(self):
         fixture = self.with_fixture()

@@ -1,6 +1,6 @@
 # Knowledge retrieval
 
-An optional Python 3 tool for finding and reading saved knowledge from a specified Git revision. It returns readable Markdown by default and JSON with `--json`. It uses no model, embedding service or external dependency. Core remains readable without it.
+An optional Python 3 tool for finding and reading saved knowledge from a specified Git revision. It returns readable Markdown by default and JSON with `--json`. It uses no model or embedding service. Install the shared Core dependencies with `python -m pip install -r 2.core/scripts/requirements.txt` from the repository root. Core remains readable without it.
 
 ## Choose a snapshot
 
