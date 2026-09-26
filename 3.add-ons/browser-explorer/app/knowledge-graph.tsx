@@ -6,6 +6,10 @@ import { headingDefinition, uniqueHeadingId } from "./markdown-parser";
 import type { GraphData } from "./graph-types";
 import { themePalette } from "./graph-presentation";
 import { useGraphRenderer } from "./use-graph-renderer";
+import { useContentMatches, type ContentSearch } from "./content-search";
+import { matchesGraphNode } from "./search-filters";
+
+const emptySearch: ContentSearch = { snapshot: null, status: "ready", search: async () => [] };
 
 export type { GraphNode, GraphEdge, GraphData } from "./graph-types";
 
@@ -22,15 +26,18 @@ function readableDate(value?: string) {
 export default function KnowledgeGraph({
   graph,
   loading = false,
+  contentSearch = emptySearch,
 }: {
   graph: GraphData;
   loading?: boolean;
+  contentSearch?: ContentSearch;
 }) {
   const mobileDialogRef = useRef<HTMLDialogElement>(null);
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [automaticMobileDetails, setAutomaticMobileDetails] = useState(false);
   const [selectionVersion, setSelectionVersion] = useState(0);
+  const [detailOpen, setDetailOpen] = useState(true);
   const selectNode = useCallback((id: string) => {
     setSelectedId(id);
     setDetailOpen(true);
@@ -38,7 +45,6 @@ export default function KnowledgeGraph({
   }, []);
   const [collection, setCollection] = useState("all");
   const [localOnly, setLocalOnly] = useState(false);
-  const [detailOpen, setDetailOpen] = useState(true);
   const initializeLegend = useCallback((legend: HTMLDetailsElement | null) => {
     if (legend) legend.open = !window.matchMedia("(max-width: 680px)").matches;
   }, []);
@@ -94,21 +100,18 @@ export default function KnowledgeGraph({
     });
   }, [selected]);
   const term = query.trim().toLowerCase();
+  const contentMatches = useContentMatches(query, contentSearch);
   const visibleIds = useMemo(
     () =>
       new Set(
         graph.nodes
           .filter(
             (node) =>
-              (collection === "all" || node.collection === collection) &&
-              (!term ||
-                `${node.title} ${node.excerpt} ${node.headings.join(" ")}`
-                  .toLowerCase()
-                  .includes(term)),
+              matchesGraphNode(node, term, collection, contentMatches.paths),
           )
           .map((node) => node.id),
       ),
-    [collection, graph.nodes, term],
+    [collection, graph.nodes, term, contentMatches.paths],
   );
   const interactiveIds = useMemo(
     () =>
@@ -278,9 +281,10 @@ export default function KnowledgeGraph({
             <label>
               <span className="sr-only">Search all records</span>
               <input
+                enterKeyHint="search"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search records and concepts"
+                placeholder="Title, path, or content"
               />
               {query && (
                 <button
@@ -404,7 +408,12 @@ export default function KnowledgeGraph({
               <strong>Mapping your records…</strong>
             </div>
           )}
-          {!loading && !visibleIds.size && (
+          {!loading && contentMatches.pending && (
+            <div className={visibleIds.size ? "sr-only" : "graph-zero"} role="status">
+              <strong>{contentSearch.status === "indexing" ? "Indexing file content…" : "Searching file content…"}</strong>
+            </div>
+          )}
+          {!loading && !contentMatches.pending && !visibleIds.size && (
             <div className="graph-zero">
               <strong>No matching records</strong>
               <span>Try a different search or collection.</span>

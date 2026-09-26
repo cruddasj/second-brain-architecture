@@ -157,7 +157,16 @@ On mobile, localhost means the phone, not your computer. Mobile installation nee
 
 Record links now use `/record/?file=<encoded repository path>#heading`, so new files do not require rebuilding the application. Old server-rendered `/records/...` bookmarks are replaced by these links. Executable links are inert, raw HTML is not executed, and attachments/images remain outside V1.
 
-Run `npm test` for the build and reader regression suite. Adapter-specific browser tests live with the optional adapter.
+After installing npm dependencies, run `npx playwright install chromium` once
+before `npm test`, which includes browser search coverage alongside the build and
+reader regression suite. On Linux, use `npx playwright install --with-deps chromium`
+to install the browser's system dependencies too. Repeat after upgrading Playwright.
+Adapter-specific browser tests live with the optional adapter.
+
+Run `npm run lint` for the explorer's ESLint checks. The development dependencies
+use the TypeScript 6 compatibility API for lint plugins and retain TypeScript 7
+as the `tsc` command through npm aliases. The ESLint compatibility utility adapts
+older plugin rule APIs to ESLint 10 without disabling their checks.
 
 ## Record links and frontmatter
 
@@ -174,11 +183,30 @@ from this directory. These checks never rewrite notes or infer relationships.
 
 ## Code organisation
 
+Both existing search controls check file content as well as titles and paths.
+Content matching ignores case and accents, supports word prefixes (for example,
+`dog` matches `dogs`), and requires all query words to occur in a file. Words can
+occur in different parts of the file; quotes do not request an exact phrase.
+Markdown formatting is removed while code, link labels and image alt text remain
+searchable. Existing title and path substring matching is preserved. The graph
+continues to show only its curated records and respects the collection filter;
+the Markdown reader searches every file in its snapshot.
+
+A shared Web Worker builds and queries an in-memory FlexSearch index, with a
+150 ms search debounce. Production mode saves a versioned index in the same
+browser IndexedDB database as the snapshot; refresh indexes changed files and
+removes deleted files, using file hashes to reuse unchanged entries. Cache or
+worker failures fall back to rebuilding or scanning the saved Markdown. Disconnect
+clears the cached index with the saved snapshot. Development mode indexes local
+content in memory only. Search requires no server or extra repository downloads,
+and the worker is bundled into the existing offline application shell.
+
 - `app/knowledge-graph.tsx` owns graph controls, selection and detail panels. `app/use-graph-renderer.ts` owns the Cytoscape instance, layout, drag simulation, visibility and renderer recovery; effect order and cleanup keep those operations coordinated.
 - `app/graph-types.ts`, `app/graph-presentation.ts` and `app/graph-positions.ts` define the graph data contract, visual configuration and existing browser position storage format. Graph types are also re-exported from the component for compatibility.
 - `app/markdown-parser.ts` provides pure block parsing and heading anchors for the reader and graph. `app/records/[...path]/markdown-content.tsx` renders those blocks and shares state/event metadata-card rendering. Its existing parser exports remain available.
 - `offline/snapshot.mjs` owns snapshot interpretation and Markdown index entries, shared with the local builder. The local graph's filesystem discovery and the reader's tracked-file index intentionally use different file sets.
 - `app/brain-provider.tsx` coordinates retrieval, indexing and atomic snapshot persistence for every page.
+- `app/content-search.ts` coordinates the shared search worker and ignores superseded queries. `offline/search-index.mjs` owns content tokenisation, incremental indexing and export/import; `app/search-filters.ts` combines its file matches with existing view filters.
 
 The tests cover rendered Markdown, graph element generation, position storage and snapshot indexing, alongside shell and style checks. The optional adapter's browser suite exercises sync, offline reload, mobile details and canvas recovery. Run it after building when changing these lifecycles; automatic layout and device resume also deserve browser checks.
 

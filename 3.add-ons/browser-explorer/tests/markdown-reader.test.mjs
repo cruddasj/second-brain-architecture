@@ -32,8 +32,9 @@ test("responsive navigation becomes a safe-area-aware persistent application bar
 
 test("reader search is case-insensitive across filename, title, and path and links encoded segments", async () => {
   const reader = await source("../app/markdown/page.tsx");
-  assert.match(reader, /\[file\.filename, file\.title, file\.path\]/);
-  assert.match(reader, /toLocaleLowerCase\(\)/);
+  const filters = await source("../app/search-filters.ts");
+  assert.match(filters, /\[file\.filename, file\.title, file\.path\]/);
+  assert.match(filters, /toLocaleLowerCase\(\)/);
   assert.match(reader, /recordHref\(file.path\)/);
   assert.match(reader, /Search Markdown files/);
   assert.match(reader, /<details open=/);

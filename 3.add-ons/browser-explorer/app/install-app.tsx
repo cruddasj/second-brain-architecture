@@ -1,18 +1,30 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { localMode } from "./brain-provider";
 import { updateApp } from "../offline/update-app";
 type InstallPrompt = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: string }> };
+
+function standaloneStatus() {
+  return window.matchMedia("(display-mode: standalone)").matches || Boolean((navigator as Navigator & { standalone?: boolean }).standalone);
+}
+function subscribeStandalone(listener: () => void) {
+  const media = window.matchMedia("(display-mode: standalone)");
+  media.addEventListener("change", listener);
+  return () => media.removeEventListener("change", listener);
+}
+const serverStandaloneStatus = () => null;
+
 export default function InstallApp({ disabled = false, onUpdatingChange }: { disabled?: boolean; onUpdatingChange?: (updating: boolean) => void }) {
   const [prompt, setPrompt] = useState<InstallPrompt | null>(null);
-  const [installed, setInstalled] = useState<boolean | null>(null);
+  const standalone = useSyncExternalStore(subscribeStandalone, standaloneStatus, serverStandaloneStatus);
+  const [installationComplete, setInstallationComplete] = useState(false);
+  const installed = installationComplete || standalone;
   const [status, setStatus] = useState("");
   const [updating, setUpdating] = useState(false);
   const updateLock = useRef(false);
   useEffect(() => {
     const capture = (event: Event) => { event.preventDefault(); setPrompt(event as InstallPrompt); };
-    const complete = () => { setInstalled(true); setPrompt(null); setStatus(""); };
-    setInstalled(window.matchMedia("(display-mode: standalone)").matches || Boolean((navigator as Navigator & { standalone?: boolean }).standalone));
+    const complete = () => { setInstallationComplete(true); setPrompt(null); setStatus(""); };
     window.addEventListener("beforeinstallprompt", capture);
     window.addEventListener("appinstalled", complete);
     return () => { window.removeEventListener("beforeinstallprompt", capture); window.removeEventListener("appinstalled", complete); };
@@ -46,7 +58,7 @@ export default function InstallApp({ disabled = false, onUpdatingChange }: { dis
       <p>Add the app to your device so you can open your second brain from your home screen or app launcher.</p>
       <button type="button" onClick={async () => { if (prompt) { await prompt.prompt(); await prompt.userChoice; setPrompt(null); } else setStatus("If no installation prompt appears, open your browser's menu and look for Install app or Add to Home Screen. On an iPhone or iPad, use Safari and follow the instructions below."); }}>Install app</button>
       <div className="mobile-install-help" aria-label="Mobile installation instructions">
-        <p><strong>Android</strong><span>Tap the Install app button above. If it doesn't appear, open your browser menu and choose Install app.</span></p>
+        <p><strong>Android</strong><span>Tap the Install app button above. If it doesn&apos;t appear, open your browser menu and choose Install app.</span></p>
         <p><strong>iPhone or iPad</strong><span>Open this page in Safari. Tap the Share button, then choose Add to Home Screen.</span></p>
       </div>
       {status && <p role="status">{status}</p>}

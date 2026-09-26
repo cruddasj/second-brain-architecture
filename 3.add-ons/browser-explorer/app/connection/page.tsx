@@ -1,5 +1,5 @@
 "use client";
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useState } from "react";
 import { setup, tokenSetupURL } from "repository-adapter";
 import ApplicationShell from "../application-shell";
 import { localMode, useBrain } from "../brain-provider";
@@ -9,11 +9,19 @@ export default function ConnectionPage() {
   const { connection, snapshot, loading, busy, message, sync, disconnect } = useBrain();
   const [updatingApp, setUpdatingApp] = useState(false);
   const controlsBusy = busy || updatingApp;
-  const [repository, setRepository] = useState("");
-  const [token, setToken] = useState("");
+  const [previousConnection, setPreviousConnection] = useState(connection);
+  const [repository, setRepository] = useState(connection?.repository || "");
+  const [token, setToken] = useState(connection?.token || "");
   const [showToken, setShowToken] = useState(false);
-  const [remember, setRemember] = useState(false);
-  useEffect(() => { setRepository(connection?.repository || ""); setToken(connection?.token || ""); setRemember(Boolean(connection?.token)); setShowToken(false); }, [connection]);
+  const [remember, setRemember] = useState(Boolean(connection?.token));
+  // Reset the editable fields only when the saved connection changes.
+  if (connection !== previousConnection) {
+    setPreviousConnection(connection);
+    setRepository(connection?.repository || "");
+    setToken(connection?.token || "");
+    setRemember(Boolean(connection?.token));
+    setShowToken(false);
+  }
   async function submit(event: FormEvent) { event.preventDefault(); await sync(repository, token, remember); }
   return <ApplicationShell><section className="reader-workspace connection-page" aria-labelledby="connection-title">
     <header className="reader-header"><p className="eyebrow">Connect your notes</p><h2 id="connection-title">{snapshot ? "Your connection" : "Connect your second brain"}</h2>
@@ -32,7 +40,7 @@ export default function ConnectionPage() {
           </section>
           <section className="setup-step" aria-labelledby="remember-step"><div className="setup-step-heading"><span aria-hidden="true">3</span><div><p>Finally</p><h3 id="remember-step">Remember on this device?</h3></div></div><p>Save the token on this device if you want quicker updates later. Leave this off on a shared or public device.</p>
           <div><button className="connection-token-toggle" type="button" aria-pressed={remember} aria-describedby="token-device-guidance" onClick={() => setRemember(value => !value)} disabled={controlsBusy}>Remember token on this device</button><p id="token-device-guidance" className="connection-token-guidance">Only on a trusted, private device.</p></div>
-          <p>You won't need the token just to read notes you've already downloaded.</p></section>
+          <p>You won&apos;t need the token just to read notes you&apos;ve already downloaded.</p></section>
           <div className="connection-actions"><button type="submit" disabled={loading || controlsBusy}>{busy ? "Syncing…" : snapshot ? "Refresh content" : "Connect and sync"}</button>
             {snapshot && <button type="button" disabled={controlsBusy} onClick={() => { if (window.confirm("Remove the saved connection, token and downloaded Markdown from this browser?")) void disconnect(); }}>Disconnect and clear device copy</button>}
           </div>

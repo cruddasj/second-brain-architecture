@@ -8,6 +8,7 @@ import { readState, saveState } from "../offline/storage.mjs";
 import type { Snapshot, Connection } from "../offline/types";
 import type { BrainData } from "./brain-data";
 import { brainDataPath } from "./data-source";
+import { useContentSearchIndex, type ContentSearch } from "./content-search";
 
 const emptyBrainData: BrainData = {
   schemaVersion: 5,
@@ -27,6 +28,7 @@ type BrainContextValue = SavedBrainState & {
   loading: boolean;
   busy: boolean;
   message: string;
+  contentSearch: ContentSearch;
   sync: (repository: string, token: string, remember: boolean) => Promise<void>;
   disconnect: () => Promise<void>;
 };
@@ -46,6 +48,7 @@ export default function BrainProvider({ children }: { children: ReactNode }) {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const lock = useRef(false);
+  const contentSearch = useContentSearchIndex(state.snapshot, !localMode);
 
   useEffect(() => {
     let active = true;
@@ -134,7 +137,7 @@ export default function BrainProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <BrainContext.Provider value={{ ...state, data, loading, busy, message, sync, disconnect }}>
+    <BrainContext.Provider value={{ ...state, data, loading, busy, message, contentSearch, sync, disconnect }}>
       {children}
     </BrainContext.Provider>
   );

@@ -1,7 +1,7 @@
 "use client";
 import { appPath } from "../../offline/paths.mjs";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useSyncExternalStore } from "react";
 import { createWikilinkIndex } from "../../offline/markdown-links.mjs";
 import ApplicationShell from "../application-shell";
 import { useBrain } from "../brain-provider";
@@ -9,11 +9,19 @@ import MarkdownContent, { headingOutline } from "../records/[...path]/markdown-c
 import TableOfContents from "../records/[...path]/table-of-contents";
 import { readerLink } from "../../offline/links.mjs";
 
+function recordPath() {
+  return new URLSearchParams(window.location.search).get("file") || "";
+}
+function subscribeRecordPath(listener: () => void) {
+  window.addEventListener("popstate", listener);
+  return () => window.removeEventListener("popstate", listener);
+}
+const serverRecordPath = () => "";
+
 export default function RecordPage() {
   const { snapshot, loading } = useBrain();
   const resolveWiki = useMemo(() => createWikilinkIndex(snapshot?.files || []), [snapshot]);
-  const [relativePath, setPath] = useState("");
-  useEffect(() => { setPath(new URLSearchParams(window.location.search).get("file") || ""); }, []);
+  const relativePath = useSyncExternalStore(subscribeRecordPath, recordPath, serverRecordPath);
   const markdown = snapshot?.files.find(file => file.path === relativePath)?.content;
   const sections = markdown === undefined ? [] : headingOutline(markdown).filter(heading => heading.level > 1);
   useEffect(() => {

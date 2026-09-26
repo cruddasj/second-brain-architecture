@@ -5,13 +5,12 @@ import ApplicationShell from "../application-shell";
 import type { MarkdownFile } from "../brain-data";
 import { useBrain } from "../brain-provider";
 import { recordHref } from "../../offline/links.mjs";
+import { useContentMatches } from "../content-search";
+import { matchesMarkdownFile } from "../search-filters";
+
+export { matchesMarkdownFile } from "../search-filters";
 
 type Folder = { name: string; path: string; folders: Folder[]; files: MarkdownFile[] };
-
-export function matchesMarkdownFile(file: MarkdownFile, query: string) {
-  const needle = query.trim().toLocaleLowerCase();
-  return !needle || [file.filename, file.title, file.path].some((value) => value.toLocaleLowerCase().includes(needle));
-}
 
 export function buildFolderTree(files: MarkdownFile[]): Folder {
   const root: Folder = { name: "", path: "", folders: [], files: [] };
@@ -41,19 +40,21 @@ function FolderNode({ folder, searching }: { folder: Folder; searching: boolean 
 }
 
 export default function MarkdownPage() {
-  const { data, loading, message } = useBrain();
+  const { data, loading, message, contentSearch } = useBrain();
   const files = data.markdown.files;
   const [query, setQuery] = useState("");
   const status = loading ? "loading" : message && !files.length ? "error" : "ready";
-  const matches = useMemo(() => files.filter((file) => matchesMarkdownFile(file, query)), [files, query]);
+  const contentMatches = useContentMatches(query, contentSearch);
+  const matches = useMemo(() => files.filter((file) => matchesMarkdownFile(file, query, contentMatches.paths)), [files, query, contentMatches.paths]);
   const tree = useMemo(() => buildFolderTree(matches), [matches]);
   return <ApplicationShell><section className="reader-workspace" aria-labelledby="reader-title">
     <header className="reader-header"><p className="eyebrow">Repository library</p><h2 id="reader-title">Markdown reader</h2><p>Browse committed Markdown files without changing repository content.</p>
-      <label className="reader-search"><span>Search Markdown files</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Filename, title, or path" /></label>
+      <label className="reader-search"><span>Search Markdown files</span><input type="search" enterKeyHint="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Filename, title, path, or content" /></label>
+      {contentMatches.pending && <p role="status">{contentSearch.status === "indexing" ? "Indexing file content…" : "Searching file content…"}</p>}
     </header>
     {status === "loading" && <div className="reader-state" role="status">Loading Markdown files…</div>}
     {status === "error" && <div className="reader-state error-state" role="alert"><h3>Markdown index unavailable</h3><p>Rebuild the browser data, then refresh this page.</p></div>}
-    {status === "ready" && matches.length === 0 && <div className="reader-state"><h3>No Markdown files found</h3><p>Try a different filename, title, or path.</p></div>}
+    {status === "ready" && !contentMatches.pending && matches.length === 0 && <div className="reader-state"><h3>No Markdown files found</h3><p>Try a different filename, title, path, or content.</p></div>}
     {status === "ready" && matches.length > 0 && <nav className="folder-tree" aria-label="Markdown files"><ul>
       {tree.folders.map((folder) => <FolderNode key={folder.path} folder={folder} searching={Boolean(query.trim())} />)}
       {tree.files.map((file) => <FileNode key={file.path} file={file} />)}
