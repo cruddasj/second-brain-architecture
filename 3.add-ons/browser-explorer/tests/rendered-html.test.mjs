@@ -500,7 +500,9 @@ test("record pages render styled Markdown with graph navigation", async () => {
   );
   assert.doesNotMatch(page, /Back to knowledge graph/);
   assert.match(page, /ApplicationShell/);
-  assert.match(page, /MarkdownContent/);
+  assert.match(page, /RecordSearch/);
+  const search = await readFile(new URL("../app/record/record-search.tsx", import.meta.url), "utf8");
+  assert.match(search, /MarkdownContent/);
   assert.match(renderer, /type: "heading"/);
   assert.match(renderer, /type: "table"/);
   assert.match(css, /\.markdown-content h1/);
