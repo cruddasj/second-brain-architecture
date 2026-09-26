@@ -29,11 +29,11 @@ jobs:
           cache-dependency-path: 3.add-ons/browser-explorer/package-lock.json
       - run: npm ci --no-audit --no-fund
         working-directory: 3.add-ons/browser-explorer
+      - run: npx playwright install --with-deps chromium
+        working-directory: 3.add-ons/browser-explorer
       - run: npm test
         working-directory: 3.add-ons/browser-explorer
       - run: node --test 1.plugins/github/browser-explorer/adapter.test.mjs
-      - run: npx playwright install --with-deps chromium
-        working-directory: 3.add-ons/browser-explorer
       - run: node --test --test-name-pattern='installed shell' 1.plugins/github/browser-explorer/browser.test.mjs
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'

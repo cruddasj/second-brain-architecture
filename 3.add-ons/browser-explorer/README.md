@@ -157,7 +157,11 @@ On mobile, localhost means the phone, not your computer. Mobile installation nee
 
 Record links now use `/record/?file=<encoded repository path>#heading`, so new files do not require rebuilding the application. Old server-rendered `/records/...` bookmarks are replaced by these links. Executable links are inert, raw HTML is not executed, and attachments/images remain outside V1.
 
-Run `npm test` for the build and reader regression suite. Adapter-specific browser tests live with the optional adapter.
+After installing npm dependencies, run `npx playwright install chromium` once
+before `npm test`, which includes browser search coverage alongside the build and
+reader regression suite. On Linux, use `npx playwright install --with-deps chromium`
+to install the browser's system dependencies too. Repeat after upgrading Playwright.
+Adapter-specific browser tests live with the optional adapter.
 
 Run `npm run lint` for the explorer's ESLint checks. The development dependencies
 use the TypeScript 6 compatibility API for lint plugins and retain TypeScript 7
