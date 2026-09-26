@@ -29,8 +29,10 @@ export default function ConnectionPage() {
     </header>
     <div className="connection-content">
       {localMode ? <section className="connection-notice" role="status"><h3>Development mode - using your local content</h3><p>You started this app with <code>npm run dev</code>. The graph and reader use this checkout, including local edits, from when the development server started. No token is needed and repository sync is disabled.</p><p>Restart the development server to rebuild local content. To test token setup and installation, run <code>npm run build</code>, then <code>npm run preview</code> and open the address it prints.</p></section> : <>
-        {snapshot && <section className="connection-notice"><h3>Connected to {snapshot.repository}</h3><p>{snapshot.files.length} files · {snapshot.branch} · revision {snapshot.commit.slice(0, 7)}</p><p>Last checked: {new Date(snapshot.checkedAt).toLocaleString()}</p><p>Your saved content remains available if a refresh fails.</p></section>}
-        <form className="connection-form" onSubmit={submit} aria-busy={busy}>
+        {snapshot && <section className="connection-notice"><h3>Connected to {snapshot.repository}</h3><p>{snapshot.files.length} files · {snapshot.branch} · revision {snapshot.commit.slice(0, 7)}</p><p>Last checked: {new Date(snapshot.checkedAt).toLocaleString()}</p><p>Your saved content remains available if a refresh fails.</p>
+          <div className="connection-actions"><button type="submit" form="connection-form" disabled={loading || controlsBusy}>{busy ? "Syncing…" : "Refresh content"}</button></div>
+        </section>}
+        <form id="connection-form" className="connection-form" onSubmit={submit} aria-busy={busy}>
           <section className="setup-step" aria-labelledby="repository-step"><div className="setup-step-heading"><span aria-hidden="true">1</span><div><p>First</p><h3 id="repository-step">Choose your repository</h3></div></div><p>Enter the name of your repository, or paste its web address.</p>
           <label>{setup.label}<input value={repository} onChange={event => setRepository(event.target.value)} placeholder="owner/repository" required disabled={loading || controlsBusy || Boolean(snapshot)} autoCapitalize="none" autoCorrect="off" spellCheck={false} /></label>
           </section>
@@ -41,7 +43,7 @@ export default function ConnectionPage() {
           <section className="setup-step" aria-labelledby="remember-step"><div className="setup-step-heading"><span aria-hidden="true">3</span><div><p>Finally</p><h3 id="remember-step">Remember on this device?</h3></div></div><p>Save the token on this device if you want quicker updates later. Leave this off on a shared or public device.</p>
           <div><button className="connection-token-toggle" type="button" aria-pressed={remember} aria-describedby="token-device-guidance" onClick={() => setRemember(value => !value)} disabled={controlsBusy}>Remember token on this device</button><p id="token-device-guidance" className="connection-token-guidance">Only on a trusted, private device.</p></div>
           <p>You won&apos;t need the token just to read notes you&apos;ve already downloaded.</p></section>
-          <div className="connection-actions"><button type="submit" disabled={loading || controlsBusy}>{busy ? "Syncing…" : snapshot ? "Refresh content" : "Connect and sync"}</button>
+          <div className="connection-actions">{!snapshot && <button type="submit" disabled={loading || controlsBusy}>{busy ? "Syncing…" : "Connect and sync"}</button>}
             {snapshot && <button type="button" disabled={controlsBusy} onClick={() => { if (window.confirm("Remove the saved connection, token and downloaded Markdown from this browser?")) void disconnect(); }}>Disconnect and clear device copy</button>}
           </div>
           {message && <p className="connection-feedback" role="status" aria-live="polite">{message}</p>}
