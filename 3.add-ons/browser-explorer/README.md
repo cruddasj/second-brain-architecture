@@ -159,6 +159,11 @@ Record links now use `/record/?file=<encoded repository path>#heading`, so new f
 
 Run `npm test` for the build and reader regression suite. Adapter-specific browser tests live with the optional adapter.
 
+Run `npm run lint` for the explorer's ESLint checks. The development dependencies
+use the TypeScript 6 compatibility API for lint plugins and retain TypeScript 7
+as the `tsc` command through npm aliases. The ESLint compatibility utility adapts
+older plugin rule APIs to ESLint 10 without disabling their checks.
+
 ## Record links and frontmatter
 
 The reader and knowledge graph support `[[Note Name]]`, `[[Note Name|label]]`,

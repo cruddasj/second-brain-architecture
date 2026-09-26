@@ -277,7 +277,7 @@ export function useGraphRenderer({
       if (hasSavedPositions) cy.fit(cy.nodes(":visible"), fitPadding);
       else arrangeGraph();
     }
-  }, [arrangeGraph, graph.edges, graph.nodes, themeColours]);
+  }, [arrangeGraph, graph, themeColours]);
 
   useEffect(() => {
     const cy = cyRef.current;

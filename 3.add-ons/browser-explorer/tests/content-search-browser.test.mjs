@@ -65,7 +65,7 @@ test("existing graph and reader controls search saved bodies, refresh the cache 
   await seed(page, initial);
   await page.reload();
   await waitForCache(page, initial.files.length);
-  assert.ok(workers.length > 0, "The bundled search worker starts in the production shell");
+  await expect.poll(() => workers.length, { message: "The bundled search worker starts in the production shell" }).toBeGreaterThan(0);
   await page.evaluate(() => navigator.serviceWorker.ready.then(() => true));
 
   await page.goto(origin + "/markdown/");

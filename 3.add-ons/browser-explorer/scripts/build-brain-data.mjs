@@ -62,7 +62,7 @@ const output = {
   markdown,
 };
 output.snapshot = { version: 1, repositoryId: 0, repository: "Local checkout", branch: "local", commit: "", checkedAt: new Date().toISOString(), downloadedAt: new Date().toISOString(), files: output.markdown.files.map(({ path, content }) => ({ path, content, sha: "" })) };
-output.markdown.files = output.markdown.files.map(({ content, ...file }) => file);
+output.markdown.files = output.markdown.files.map(({ path, title, filename, folders }) => ({ path, title, filename, folders }));
 
 await fs.mkdir(path.join(addonRoot, "public"), { recursive: true });
 await fs.writeFile(path.join(addonRoot, "public", "brain-data.json"), `${JSON.stringify(output, null, 2)}\n`, "utf8");

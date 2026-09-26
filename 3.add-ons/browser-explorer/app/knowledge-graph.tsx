@@ -37,6 +37,7 @@ export default function KnowledgeGraph({
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [automaticMobileDetails, setAutomaticMobileDetails] = useState(false);
   const [selectionVersion, setSelectionVersion] = useState(0);
+  const [detailOpen, setDetailOpen] = useState(true);
   const selectNode = useCallback((id: string) => {
     setSelectedId(id);
     setDetailOpen(true);
@@ -44,7 +45,6 @@ export default function KnowledgeGraph({
   }, []);
   const [collection, setCollection] = useState("all");
   const [localOnly, setLocalOnly] = useState(false);
-  const [detailOpen, setDetailOpen] = useState(true);
   const initializeLegend = useCallback((legend: HTMLDetailsElement | null) => {
     if (legend) legend.open = !window.matchMedia("(max-width: 680px)").matches;
   }, []);

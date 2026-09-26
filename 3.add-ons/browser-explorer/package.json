@@ -30,18 +30,20 @@
     "yaml": "^2.9.1"
   },
   "devDependencies": {
+    "@eslint/compat": "2.1.1",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "4.3.3",
     "@types/node": "26.6.1",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
+    "@typescript/native": "npm:typescript@7.0.2",
     "eslint": "10.10.0",
     "eslint-config-next": "16.3.5",
     "fake-indexeddb": "^6.2.5",
     "sharp": "^0.35.4",
     "tailwindcss": "4.3.3",
     "tsx": "^4.23.13",
-    "typescript": "7.0.2"
+    "typescript": "npm:@typescript/typescript6@6.0.2"
   },
   "type": "module",
   "displayName": "Second Brain Explorer"
