@@ -195,6 +195,16 @@ searchable. Existing title and path substring matching is preserved. The graph
 continues to show only its curated records and respects the collection filter;
 the Markdown reader searches every file in its snapshot.
 
+Opened Markdown files also have a sticky in-file search bar. It finds literal
+text and phrases in the rendered content, ignoring case, accents and repeated
+whitespace, including phrases that span inline formatting. All occurrences are
+highlighted, with a stronger highlight for the current match. Previous/next
+buttons and Enter/Shift+Enter move through matches with wraparound; the counter
+reports the current position or no matches. Clearing the query removes highlights,
+and opening a different file resets the search. Code and tables are included;
+hidden comments, link destinations and heading permalink controls are excluded.
+Older browsers without text-range highlighting highlight matching blocks instead.
+
 A shared Web Worker builds and queries an in-memory FlexSearch prefix index and
 a fuzzy token index that checks candidates sharing single-deletion keys, with a
 150 ms search debounce. Production mode saves a versioned index in the same
