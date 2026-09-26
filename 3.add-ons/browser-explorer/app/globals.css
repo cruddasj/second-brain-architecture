@@ -271,7 +271,7 @@ body:has(.brain-shell) { overflow: hidden; }
 .setup-privacy p { margin-top: 16px; }
 .connection-form label { display: grid; gap: 8px; font-size: 14px; }
 .connection-form input { width: 100%; border: 1px solid var(--line-soft); border-radius: 8px; background: var(--surface-2); padding: 12px; }
-.connection-form button { width: fit-content; border: 0; border-radius: 8px; background: var(--primary-container); color: var(--on-primary-container); padding: 12px 18px; cursor: pointer; }
+.connection-form button, .connection-notice button { width: fit-content; border: 0; border-radius: 8px; background: var(--primary-container); color: var(--on-primary-container); padding: 12px 18px; cursor: pointer; }
 .connection-form .connection-token-toggle { border: 1px solid var(--primary); background: transparent; color: var(--primary); }
 .connection-form .connection-token-toggle[aria-pressed="true"] { background: var(--primary-container); color: var(--on-primary-container); }
 .connection-token-toggle:hover:not(:disabled) { box-shadow: 0 0 0 1px var(--primary); }
@@ -289,6 +289,7 @@ body:has(.brain-shell) { overflow: hidden; }
 .connection-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 .connection-notice { padding: 20px; border: 1px solid var(--line-soft); border-radius: 8px; background: var(--surface-2); margin-bottom: 24px; }
 .connection-notice h3 { margin-top: 0; }
+.connection-notice .connection-actions { margin-top: 20px; }
 .connection-page p { line-height: 1.65; color: var(--muted); }
 .connection-page p + p { margin-top: 16px; }
 .connection-content > p { margin-bottom: 24px; }
@@ -391,7 +392,7 @@ body:has(.brain-shell) { overflow: hidden; }
   .connection-page { overflow-wrap: anywhere; }
   .connection-form { gap: 14px; }
   .connection-form input { min-width: 0; min-height: 48px; font-size: 16px; scroll-margin-block: 24px; }
-  .connection-form button, .install-section button { min-height: 48px; font-size: 16px; }
+  .connection-form button, .connection-notice button, .install-section button { min-height: 48px; font-size: 16px; }
   .connection-actions { flex-direction: column; }
   .connection-actions button, .connection-form .connection-token-toggle, .install-section button { width: 100%; }
   .connection-token-help { padding: 12px; }
