@@ -185,18 +185,23 @@ from this directory. These checks never rewrite notes or infer relationships.
 
 Both existing search controls check file content as well as titles and paths.
 Content matching ignores case and accents, supports word prefixes (for example,
-`dog` matches `dogs`), and requires all query words to occur in a file. Words can
+`dog` matches `dogs`), and tolerates one missing, extra, replaced or adjacent
+swapped character in whole words of at least three characters (`dgo` matches
+`dog`). Shorter words use prefix matching only. All query words must match
+in the same file, including queries that mix prefixes and typos. Words can
 occur in different parts of the file; quotes do not request an exact phrase.
 Markdown formatting is removed while code, link labels and image alt text remain
 searchable. Existing title and path substring matching is preserved. The graph
 continues to show only its curated records and respects the collection filter;
 the Markdown reader searches every file in its snapshot.
 
-A shared Web Worker builds and queries an in-memory FlexSearch index, with a
+A shared Web Worker builds and queries an in-memory FlexSearch prefix index and
+a fuzzy token index that checks candidates sharing single-deletion keys, with a
 150 ms search debounce. Production mode saves a versioned index in the same
 browser IndexedDB database as the snapshot; refresh indexes changed files and
 removes deleted files, using file hashes to reuse unchanged entries. Cache or
-worker failures fall back to rebuilding or scanning the saved Markdown. Disconnect
+worker failures fall back to rebuilding or scanning the saved Markdown with the
+same matching rules. Older index formats rebuild automatically. Disconnect
 clears the cached index with the saved snapshot. Development mode indexes local
 content in memory only. Search requires no server or extra repository downloads,
 and the worker is bundled into the existing offline application shell.

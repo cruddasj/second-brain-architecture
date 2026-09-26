@@ -70,12 +70,12 @@ test("existing graph and reader controls search saved bodies, refresh the cache 
 
   await page.goto(origin + "/markdown/");
   const readerSearch = page.getByRole("searchbox", { name: "Search Markdown files" });
-  for (const query of ["DOG", "gold cafe", "unique code", "retained"]) {
+  for (const query of ["DOG", "dgo", "dag", "dgog", "gold cafe", "gold cfaes", "glden cafee", "unique cdoe", "retained"]) {
     await readerSearch.fill(query);
     await expect(page.getByRole("link", { name: /Sample record/ })).toBeVisible();
     await expect(page.getByText(/Searching file content|Indexing file content/)).toHaveCount(0);
   }
-  await readerSearch.fill("sharedword");
+  await readerSearch.fill("sharedwrod");
   await expect(page.locator(".markdown-file-link")).toHaveCount(105);
   await readerSearch.fill("test.md");
   await expect(page.getByRole("link", { name: /Sample record/ })).toBeVisible();
@@ -86,7 +86,7 @@ test("existing graph and reader controls search saved bodies, refresh the cache 
   const graphSearch = page.getByLabel("Search all records");
   for (const width of [1280, 390]) {
     await page.setViewportSize({ width, height: 844 });
-    await graphSearch.fill("dog");
+    await graphSearch.fill("dgo");
     await expect(page.locator(".graph-keyboard-nodes button")).toHaveText(["Sample record"]);
     await expect(page.getByText("No matching records")).toHaveCount(0);
     await page.getByLabel("Filter by collection", { exact: true }).selectOption("other");
@@ -110,15 +110,15 @@ test("existing graph and reader controls search saved bodies, refresh the cache 
   await waitForCache(page, changed.files.length);
   await graphSearch.fill("dog");
   await expect(page.getByText("No matching records")).toBeVisible();
-  await graphSearch.fill("replacementword");
+  await graphSearch.fill("replacementwrod");
   await expect(page.locator(".graph-keyboard-nodes button")).toHaveText(["Sample record"]);
 
   await context.setOffline(true);
   await page.reload();
-  await graphSearch.fill("replacementword");
+  await graphSearch.fill("replacementwrod");
   await expect(page.locator(".graph-keyboard-nodes button")).toHaveText(["Sample record"]);
   await page.getByRole("link", { name: "Markdown reader", exact: true }).click();
-  await readerSearch.fill("replacementword");
+  await readerSearch.fill("replacementwrod");
   await expect(page.getByRole("link", { name: /Sample record/ })).toBeVisible();
   await context.setOffline(false);
   await page.goto(origin + "/connection/");
@@ -177,6 +177,9 @@ test("existing graph and reader controls search saved bodies, refresh the cache 
   await fallbackPage.goto(origin + "/markdown/");
   await seed(fallbackPage, changed);
   await fallbackPage.reload();
-  await fallbackPage.getByRole("searchbox", { name: "Search Markdown files" }).fill("replacementword");
+  await fallbackPage.getByRole("searchbox", { name: "Search Markdown files" }).fill("replacementwrod");
   await expect(fallbackPage.getByRole("link", { name: /Sample record/ })).toBeVisible();
+  await fallbackPage.goto(origin + "/");
+  await fallbackPage.getByLabel("Search all records").fill("replacementwrod");
+  await expect(fallbackPage.locator(".graph-keyboard-nodes button")).toHaveText(["Sample record"]);
 });
