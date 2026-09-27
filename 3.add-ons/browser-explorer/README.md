@@ -204,6 +204,9 @@ reports the current position or no matches. Clearing the query removes highlight
 and opening a different file resets the search. Code and tables are included;
 hidden comments, link destinations and heading permalink controls are excluded.
 Older browsers without text-range highlighting highlight matching blocks instead.
+Search starts shown. Hide search collapses the fields and removes highlights;
+Show search restores the query and selected match and focuses the input without
+scrolling to another match. The compact toggle remains available while reading.
 
 A shared Web Worker builds and queries an in-memory FlexSearch prefix index and
 a fuzzy token index that checks candidates sharing single-deletion keys, with a

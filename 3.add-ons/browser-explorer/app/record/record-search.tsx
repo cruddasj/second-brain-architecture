@@ -19,11 +19,14 @@ export default function RecordSearch({ markdown, resolveLink, children }: {
   children: (content: ReactNode) => ReactNode;
 }) {
   const [query, setQuery] = useState("");
+  const [expanded, setExpanded] = useState(true);
+  const visible = useRef(true);
   const [result, setResult] = useState<SearchResult>({ query: "", markdown, ranges: [], active: 0 });
   const content = useRef<HTMLDivElement>(null);
   const toolbar = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLInputElement>(null);
   const statusId = useId();
+  const fieldsId = useId();
   const current = result.query === query && result.markdown === markdown;
   const count = current ? result.ranges.length : 0;
 
@@ -33,12 +36,23 @@ export default function RecordSearch({ markdown, resolveLink, children }: {
     if (!root || !bar) return;
     const timer = window.setTimeout(() => {
       const ranges = findRenderedMatches(root, query);
-      showMatchHighlights(root, ranges, 0);
+      if (visible.current) showMatchHighlights(root, ranges, 0);
       setResult({ query, markdown, ranges, active: 0 });
-      if (ranges.length) scrollToMatch(root, bar, ranges[0]);
+      if (visible.current && ranges.length) scrollToMatch(root, bar, ranges[0]);
     }, query.trim() ? 150 : 0);
     return () => { window.clearTimeout(timer); clearMatchHighlights(root); };
   }, [query, markdown]);
+
+  function toggleSearch() {
+    const show = !expanded;
+    visible.current = show;
+    setExpanded(show);
+    if (content.current) {
+      if (show && current) showMatchHighlights(content.current, result.ranges, result.active);
+      else clearMatchHighlights(content.current);
+    }
+    if (show) window.requestAnimationFrame(() => input.current?.focus({ preventScroll: true }));
+  }
 
   function move(direction: number) {
     if (!count || !content.current || !toolbar.current) return;
@@ -48,21 +62,24 @@ export default function RecordSearch({ markdown, resolveLink, children }: {
     setResult({ ...result, active });
   }
 
-  return <div className="record-search">
+  return <div className="record-search" data-search-expanded={expanded}>
     <style>{highlightStyles}</style>
     <div className="record-search-bar" role="search" aria-label="Search this Markdown file" ref={toolbar}>
-      <div className="record-search-input">
-        <input type="search" ref={input} value={query} onChange={event => setQuery(event.target.value)} aria-label="Search within this file" aria-describedby={statusId} placeholder="Search in this file" onKeyDown={event => {
-          if (event.key === "Enter") { event.preventDefault(); move(event.shiftKey ? -1 : 1); }
-          if (event.key === "Escape") { event.preventDefault(); setQuery(""); }
-        }} />
-        {query && <button type="button" className="record-search-clear" aria-label="Clear file search" onClick={() => { setQuery(""); input.current?.focus(); }}><i className="fa-solid fa-xmark" aria-hidden="true" /></button>}
+      <div className="record-search-fields" id={fieldsId} hidden={!expanded}>
+        <div className="record-search-input">
+          <input type="search" ref={input} value={query} onChange={event => setQuery(event.target.value)} aria-label="Search within this file" aria-describedby={statusId} placeholder="Search in this file" onKeyDown={event => {
+            if (event.key === "Enter") { event.preventDefault(); move(event.shiftKey ? -1 : 1); }
+            if (event.key === "Escape") { event.preventDefault(); setQuery(""); }
+          }} />
+          {query && <button type="button" className="record-search-clear" aria-label="Clear file search" onClick={() => { setQuery(""); input.current?.focus(); }}><i className="fa-solid fa-xmark" aria-hidden="true" /></button>}
+        </div>
+        <div className="record-search-controls">
+          <span className="record-search-status" id={statusId} role="status" aria-live="polite" aria-atomic="true">{!query.trim() ? "Search this file" : !current ? "Searching…" : count ? `${result.active + 1} of ${count} ${count === 1 ? "match" : "matches"}` : "No matches"}</span>
+          <button type="button" aria-label="Previous match" title="Previous match (Shift+Enter)" disabled={!count} onClick={() => move(-1)}><i className="fa-solid fa-chevron-up" aria-hidden="true" /></button>
+          <button type="button" aria-label="Next match" title="Next match (Enter)" disabled={!count} onClick={() => move(1)}><i className="fa-solid fa-chevron-down" aria-hidden="true" /></button>
+        </div>
       </div>
-      <div className="record-search-controls">
-        <span className="record-search-status" id={statusId} role="status" aria-live="polite" aria-atomic="true">{!query.trim() ? "Search this file" : !current ? "Searching…" : count ? `${result.active + 1} of ${count} ${count === 1 ? "match" : "matches"}` : "No matches"}</span>
-        <button type="button" aria-label="Previous match" title="Previous match (Shift+Enter)" disabled={!count} onClick={() => move(-1)}><i className="fa-solid fa-chevron-up" aria-hidden="true" /></button>
-        <button type="button" aria-label="Next match" title="Next match (Enter)" disabled={!count} onClick={() => move(1)}><i className="fa-solid fa-chevron-down" aria-hidden="true" /></button>
-      </div>
+      <button type="button" className="record-search-toggle" aria-expanded={expanded} aria-controls={fieldsId} onClick={toggleSearch}><i className="fa-solid fa-magnifying-glass" aria-hidden="true" /><span>{expanded ? "Hide search" : "Show search"}</span></button>
     </div>
     {children(<div ref={content}><MarkdownContent markdown={markdown} resolveLink={resolveLink} /></div>)}
   </div>;
