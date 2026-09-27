@@ -128,7 +128,11 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 .record-context { margin: 0 0 16px; text-align: left; }
 .record-path { display: block; max-width: 100%; overflow: hidden; color: var(--muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
 .record-search { --record-search-offset: 86px; }
-.record-search-bar { position: sticky; top: 0; z-index: 4; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; margin-bottom: 28px; padding: 12px; border: 1px solid var(--line-soft); border-radius: 12px; background: var(--surface-2); box-shadow: 0 4px 12px var(--shadow); }
+.record-search-bar { position: sticky; top: 0; z-index: 4; display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 12px; margin-bottom: 28px; padding: 12px; border: 1px solid var(--line-soft); border-radius: 12px; background: var(--surface-2); box-shadow: 0 4px 12px var(--shadow); }
+.record-search-fields { display: contents; }
+.record-search-bar [hidden] { display: none; }
+.record-search[data-search-expanded="false"] { --record-search-offset: 60px; }
+.record-search[data-search-expanded="false"] .record-search-bar { grid-template-columns: minmax(0, 1fr); margin-bottom: 16px; padding: 0; border: 0; background: transparent; box-shadow: none; }
 .record-search-input { position: relative; min-width: 0; }
 .record-search-input input { width: 100%; min-width: 0; min-height: 44px; padding: 10px 40px 10px 12px; border: 1px solid var(--line-soft); border-radius: 8px; background: var(--surface); color: var(--text); font-size: 16px; }
 .record-search-input input::-webkit-search-cancel-button { display: none; }
@@ -136,6 +140,7 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 .record-search-status { min-width: 112px; color: var(--muted); font-size: 13px; }
 .record-search-bar button { display: grid; place-items: center; flex: none; width: 44px; height: 44px; padding: 0; border: 1px solid var(--line-soft); border-radius: 8px; background: var(--surface); color: var(--primary); cursor: pointer; }
 .record-search-bar .record-search-clear { position: absolute; right: 0; top: 0; width: 40px; border: 0; background: transparent; }
+.record-search-bar .record-search-toggle { display: flex; gap: 8px; justify-self: end; width: auto; padding: 0 12px; font-size: 14px; white-space: nowrap; }
 .record-search-bar button:disabled { opacity: .45; cursor: default; }
 .record-search-bar :is(input, button):focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 .markdown-content [data-record-match] { outline: 1px solid var(--tertiary); outline-offset: 3px; }
@@ -379,7 +384,8 @@ body:has(.brain-shell) { overflow: hidden; }
 
 @media (max-width: 680px) {
   .record-search { --record-search-offset: 130px; }
-  .record-search-bar { grid-template-columns: minmax(0, 1fr); gap: 8px; margin-bottom: 24px; padding: 8px; }
+  .record-search-bar { grid-template-columns: minmax(0, 1fr) auto; gap: 8px; margin-bottom: 24px; padding: 8px; }
+  .record-search-input { grid-column: 1 / -1; }
   .record-search-status { flex: 1; min-width: 0; }
   .workspace-pane:has(.graph-workspace) { height: 100%; min-height: 0; overflow-y: auto; }
   .graph-controls { top: 12px; left: 12px; width: calc(100% - 80px); flex-direction: column; }
