@@ -151,6 +151,36 @@ if your system restricts pip installation. You can decline installation and foll
 the manual steps below. If installation fails after configuration, inspect the diff
 and finish installation manually; do not discard your configuration to retry.
 
+After initial setup, run the standalone, read-only health check from the repository
+root whenever you want to check this copy again:
+
+```bash
+python 2.core/scripts/healthcheck.py
+```
+
+It checks repository configuration using the same rules as Core validation, live
+Plugin configuration placeholders, effective raw-source ignore rules, tracked raw
+file formats and the Core validator result. It does not prompt, modify files or
+Git configuration, install dependencies, read credentials or contact services.
+`setup.py` remains the initial configuration command; do not rerun it for health
+checks.
+
+Output uses `PASS`, `WARN` and `FAIL`. Exit codes are `0` for all checks passing,
+`1` for any failure and `2` for warnings or unknown checks without failures. Plugin
+activation, external permissions, hosted visibility and hook enforcement remain
+unknown from repository files alone, so a configured copy can exit `2`. Missing
+validator dependencies produce a warning with the separate installation step.
+
+Placeholder checking covers `2.core/system/repository-config.json`, the Plugin
+registry and registered Plugins' `repository.md`, `config.json`,
+`source-config.json` and `project-instructions.md`. Repository placeholders in
+these live files fail. Documented angle-bracket placeholders in optional
+`project-instructions.md` templates warn until that Plugin is configured;
+`examples/`, the Plugin template and workflow expressions are not live setup
+configuration. The public scaffold intentionally has unresolved repository
+placeholders and will report failures until a private copy is configured. No
+credentials or connection settings are inspected.
+
 ### 1. Create your private repository
 
 Create a **private repository** from this architecture before adding personal knowledge.
