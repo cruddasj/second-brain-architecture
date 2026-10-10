@@ -142,6 +142,32 @@ class ValidatorFixture:
 
 
 class ValidatorRepositoryFixtureTests(unittest.TestCase):
+    TRANSACTION = "550e8400-e29b-41d4-a716-446655440000"
+
+    def transaction_record(self, transaction=None):
+        transaction = transaction or self.TRANSACTION
+        return (
+            "## Current state\n\n"
+            "- [state:synthetic-status] Ready\n"
+            "  - Effective: 2026-01-01\n"
+            "  - Last confirmed: 2026-01-01\n"
+            "  - Source: Synthetic fixture\n"
+            f"  - Transaction: {transaction}\n\n"
+            "## Event log\n\n"
+            "- [event:synthetic-start] (2026-01-01) Started\n"
+            "  - Source: Synthetic fixture\n"
+            f"  - Transaction: {transaction}\n"
+        )
+
+    def transaction_log(self, transaction=None, paths="`2.core/knowledge/synthetic.md`",
+                        commit="enclosing commit"):
+        return (
+            "## 2026-01-01 — Synthetic update\n"
+            f"- Transaction: {transaction or self.TRANSACTION}\n"
+            f"- Affected paths: {paths}\n"
+            f"- Commit: {commit}\n"
+        )
+
     def with_fixture(self):
         temp_dir = tempfile.TemporaryDirectory()
         self.addCleanup(temp_dir.cleanup)
@@ -252,6 +278,129 @@ class ValidatorRepositoryFixtureTests(unittest.TestCase):
             fixture,
             "Skill example depends on missing skill missing-skill",
         )
+
+    def test_valid_transaction_and_legacy_identifier_pass(self):
+        for transaction in (self.TRANSACTION, "2020-01-01-synthetic-save",
+                            "`2020-01-01-synthetic-save`"):
+            with self.subTest(transaction=transaction):
+                fixture = self.with_fixture()
+                fixture.add_knowledge("synthetic", self.transaction_record(transaction))
+                fixture.write("2.core/system/activity-log.md", self.transaction_log(transaction))
+                result = fixture.run()
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_missing_transaction_log_entry_fails_with_record_location(self):
+        fixture = self.with_fixture()
+        fixture.add_knowledge("synthetic", self.transaction_record())
+        # A prefix match and an identifier in prose cannot satisfy the reference.
+        fixture.write("2.core/system/activity-log.md",
+                      self.transaction_log(self.TRANSACTION + "-other") +
+                      f"\nMentioned transaction: {self.TRANSACTION}\n")
+        result = fixture.run()
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(f"Missing Activity Log entry for transaction '{self.TRANSACTION}'", result.stdout)
+        self.assertIn("2.core/knowledge/synthetic.md:", result.stdout)
+
+    def test_duplicate_log_entries_fail(self):
+        fixture = self.with_fixture()
+        fixture.add_knowledge("synthetic", self.transaction_record())
+        fixture.write("2.core/system/activity-log.md", self.transaction_log() * 2)
+        self.assert_failure_contains(fixture, "Duplicate Activity Log entries")
+
+    def test_missing_or_malformed_log_information_fails(self):
+        cases = (
+            ("- Affected paths: `2.core/knowledge/synthetic.md`\n", "", "requires one Affected paths field"),
+            ("- Affected paths: `2.core/knowledge/synthetic.md`", "- Affected paths: ", "requires one Affected paths field"),
+            ("`2.core/knowledge/synthetic.md`", "`../outside.md`", "requires one Affected paths field"),
+            ("`2.core/knowledge/synthetic.md`", "`2.core/knowledge/other.md`", "affected paths omit referenced record"),
+            ("- Commit: enclosing commit\n", "", "requires exactly one Commit: enclosing commit"),
+            ("enclosing commit", "pending", "requires exactly one Commit: enclosing commit"),
+            ("enclosing commit", "0123456789abcdef", "requires exactly one Commit: enclosing commit"),
+            ("- Commit: enclosing commit", "- Commit: enclosing commit\n- Commit: enclosing commit", "requires exactly one Commit: enclosing commit"),
+            (f"- Transaction: {self.TRANSACTION}", f"- Transaction: {self.TRANSACTION}\n- Transaction: other-id", "requires exactly one Transaction field"),
+            (f"- Transaction: {self.TRANSACTION}", f"- Transaction: {self.TRANSACTION}\n- Transaction: {self.TRANSACTION}", "requires exactly one Transaction field"),
+            ("- Affected paths: `2.core/knowledge/synthetic.md`", "- Affected paths: `2.core/knowledge/synthetic.md`\n- Paths: `2.core/knowledge/synthetic.md`", "requires one Affected paths field"),
+        )
+        for before, after, message in cases:
+            with self.subTest(message=message, after=after):
+                fixture = self.with_fixture()
+                fixture.add_knowledge("synthetic", self.transaction_record())
+                fixture.write("2.core/system/activity-log.md", self.transaction_log().replace(before, after))
+                self.assert_failure_contains(fixture, message)
+
+    def test_all_referencing_record_paths_must_be_listed(self):
+        fixture = self.with_fixture()
+        fixture.add_knowledge("synthetic", self.transaction_record())
+        fixture.write("2.core/memory/core.md",
+                      "---\ntitle: Memory\ntype: memory\nupdated: 2026-01-01\n---\n" +
+                      self.transaction_record().replace("synthetic-status", "memory-status")
+                      .replace("synthetic-start", "memory-start"))
+        fixture.write("2.core/system/activity-log.md", self.transaction_log())
+        self.assert_failure_contains(fixture, "affected paths omit referenced record 2.core/memory/core.md")
+        fixture.write("2.core/system/activity-log.md", self.transaction_log(
+            paths="`2.core/knowledge/synthetic.md`, `2.core/memory/core.md`, `2.core/knowledge/removed.md`, README.md"
+        ).replace("Affected paths:", "Paths:"))
+        result = fixture.run()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_blank_or_multiple_record_transaction_fields_fail(self):
+        for replacement in ("", "two identifiers", self.TRANSACTION + "\n  - Transaction: another-id"):
+            with self.subTest(replacement=replacement):
+                fixture = self.with_fixture()
+                fixture.add_knowledge("synthetic", self.transaction_record().replace(self.TRANSACTION, replacement))
+                self.assert_failure_contains(fixture, "requires one nonblank Transaction:")
+
+    def test_sample_locations_and_hidden_examples_do_not_require_logs(self):
+        fixture = self.with_fixture()
+        for relative in ("2.core/examples/sample.md", "2.core/templates/sample.md",
+                         "2.core/docs/sample.md", "2.core/scripts/fixtures/sample.md",
+                         "2.core/archive/sample.md", "2.core/sources/raw/sample.md",
+                         "1.plugins/sample.md", "3.add-ons/sample.md"):
+            fixture.write(relative, self.transaction_record())
+        samples = ""
+        for opening, closing in (("```markdown", "```"), ("~~~markdown", "~~~"), ("<!--", "-->")):
+            samples += opening + "\n" + self.transaction_record() + "\n" + closing + "\n"
+        fixture.add_knowledge("synthetic", samples + "\n## Current state\n\n## Event log\n")
+        fixture.write("2.core/system/activity-log.md", samples)
+        result = fixture.run()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_fenced_log_entry_cannot_satisfy_a_live_reference(self):
+        fixture = self.with_fixture()
+        fixture.add_knowledge("synthetic", self.transaction_record())
+        fixture.write("2.core/system/activity-log.md", "```markdown\n" + self.transaction_log() + "```\n")
+        self.assert_failure_contains(fixture, "Missing Activity Log entry")
+
+    def test_event_transaction_is_checked_independently(self):
+        fixture = self.with_fixture()
+        state, event = self.transaction_record().split("## Event log", 1)
+        fixture.add_knowledge("synthetic", state + "## Event log" +
+                              event.replace(self.TRANSACTION, "2020-01-01-event-only"))
+        fixture.write("2.core/system/activity-log.md", self.transaction_log())
+        self.assert_failure_contains(fixture, "Missing Activity Log entry for transaction '2020-01-01-event-only'")
+
+    def test_commit_field_cannot_be_borrowed_from_another_log_entry(self):
+        fixture = self.with_fixture()
+        fixture.add_knowledge("synthetic", self.transaction_record())
+        fixture.write("2.core/system/activity-log.md",
+                      self.transaction_log().replace("- Commit: enclosing commit\n", "") +
+                      self.transaction_log("another-id"))
+        self.assert_failure_contains(fixture, "requires exactly one Commit: enclosing commit")
+
+    def test_source_note_and_system_register_events_are_checked(self):
+        for relative in ("2.core/sources/notes/synthetic.md", "2.core/system/source-register.md"):
+            with self.subTest(relative=relative):
+                fixture = self.with_fixture()
+                body = self.transaction_record().split("## Event log", 1)[1]
+                if "/sources/notes/" in relative:
+                    body = ("---\ntitle: Synthetic\ntype: source-note\nupdated: 2026-01-01\n---\n"
+                            "- Source kind: direct\n- Original source: https://example.test/fixture\n" + body)
+                    fixture.write("2.core/index.md", "sources/notes/synthetic.md\n")
+                fixture.write(relative, body)
+                self.assert_failure_contains(fixture, "Missing Activity Log entry")
+                fixture.write("2.core/system/activity-log.md", self.transaction_log(paths=relative))
+                result = fixture.run()
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
 
 if __name__ == "__main__":
