@@ -91,8 +91,9 @@ ARCHITECTURE_REQUIRED_DIRS = (
     "3.add-ons",
 )
 ALLOWED_TOP_LEVEL = {
-    # Optional, provider-neutral development and security entry points.
+    # Optional, provider-neutral setup, development and security entry points.
     "setup.py",
+    "SETUP.md",
     ".pre-commit-config.yaml",
     "SECURITY.md",
     ".git",

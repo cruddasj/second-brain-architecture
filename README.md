@@ -1,5 +1,23 @@
 # Second brain architecture
 
+## Contents
+
+* [Overview](#overview)
+* [What this is](#what-this-is)
+* [What you can use it for](#what-you-can-use-it-for)
+* [What this is not](#what-this-is-not)
+* [Why portable memory matters](#why-portable-memory-matters)
+* [Architecture](#architecture)
+* [Get started](#get-started)
+* [Working with knowledge](#working-with-knowledge)
+* [Using source material](#using-source-material)
+* [Maintenance](#maintenance)
+* [Explore your second brain](#explore-your-second-brain)
+* [Repository layout](#repository-layout)
+* [Licence](#licence)
+
+## Overview
+
 A reference architecture and working scaffold for creating a portable, AI-assisted second brain, using Git and Markdown as the durable system of record.
 
 It is designed to let knowledge accumulate over time without making that knowledge dependent on a particular AI provider, model, application or storage host.
@@ -48,27 +66,6 @@ A second brain built with this architecture can support many kinds of long-term 
 > A second brain can accumulate personal, financial, professional and other sensitive information. Use a private repository and restrict access to yourself and integrations you explicitly authorise.
 >
 > Protect local clones, backups and synchronised copies in the same way. Never commit passwords, API keys or other credentials, even to a private repository.
-
-## Contents
-
-* [What you can use it for](#what-you-can-use-it-for)
-* [Why portable memory matters](#why-portable-memory-matters)
-* [Architecture](#architecture)
-* [Get started](#get-started)
-
-  * [1. Create your private repository](#1-create-your-private-repository)
-  * [2. Configure storage](#2-configure-storage)
-  * [3. Connect an AI provider or external system](#3-connect-an-ai-provider-or-external-system)
-  * [4. Install the second-brain skill](#4-install-the-second-brain-skill)
-  * [5. Add your first useful knowledge](#5-add-your-first-useful-knowledge)
-  * [6. Define explicit save phrases](#6-define-explicit-save-phrases)
-* [Working with knowledge](#working-with-knowledge)
-* [Using source material](#using-source-material)
-* [Recurring maintenance](#recurring-maintenance)
-* [Explore your second brain](#explore-your-second-brain)
-* [Repository layout](#repository-layout)
-* [Local checks](#local-checks)
-* [Licence](#licence)
 
 ## Why portable memory matters
 
@@ -135,224 +132,7 @@ Removing an Add-on must not invalidate Core.
 
 ## Get started
 
-For guided setup, first create and clone a **private** repository from this scaffold,
-or extract an archive into a new directory, then run `python setup.py`.
-
-The script prompts for `OWNER/REPOSITORY` and the canonical branch, initialises Git
-for an archive and updates placeholders in Plugin instructions, including Plugin
-`AGENTS.md` files when applicable. Root and Core agent pointers remain generic.
-It adds `origin` only if absent, refuses a conflicting remote or dirty checkout,
-and never creates a hosted repository, verifies visibility, changes an existing
-branch, commits, pushes or stores credentials.
-
-Dependency and hook installation is offered by default. It requires Python with
-pip, Git, and Node.js 22.13.0 or later with npm. Use a Python virtual environment
-if your system restricts pip installation. You can decline installation and follow
-the manual steps below. If installation fails after configuration, inspect the diff
-and finish installation manually; do not discard your configuration to retry.
-
-After initial setup, run the Core validator’s read-only health checks from the
-repository root whenever you want to check this copy again:
-
-```bash
-python 2.core/scripts/check_second_brain.py --healthcheck
-```
-
-The original `python 2.core/scripts/healthcheck.py` command remains a thin
-compatibility wrapper for the same checks. Without `--healthcheck`, the Core
-validator retains its existing validation behavior; `--strict-orphans` also works
-with health checks.
-
-It checks repository configuration using the same rules as Core validation, live
-Plugin configuration placeholders, effective raw-source ignore rules, tracked raw
-file formats and the Core validator result. It does not prompt, modify files or
-Git configuration, install dependencies, read credentials or contact services.
-`setup.py` remains the initial configuration command; do not rerun it for health
-checks.
-
-Output uses `PASS`, `WARN` and `FAIL`. Exit codes are `0` for all checks passing,
-`1` for any failure and `2` for warnings or unknown checks without failures. Plugin
-activation, external permissions, hosted visibility and hook enforcement remain
-unknown from repository files alone, so a configured copy can exit `2`. Missing
-validator dependencies produce a warning with the separate installation step.
-
-Placeholder checking covers `2.core/system/repository-config.json`, the Plugin
-registry and registered Plugins' `repository.md`, `config.json`,
-`source-config.json` and `project-instructions.md`. Repository placeholders in
-these live files fail. Documented angle-bracket placeholders in optional
-`project-instructions.md` templates warn until that Plugin is configured;
-`examples/`, the Plugin template and workflow expressions are not live setup
-configuration. The public scaffold intentionally has unresolved repository
-placeholders and will report failures until a private copy is configured. No
-credentials or connection settings are inspected.
-
-### 1. Create your private repository
-
-Create a **private repository** from this architecture before adding personal knowledge.
-
-The public release deliberately uses:
-
-```text
-https://github.com/OWNER/REPOSITORY
-OWNER/REPOSITORY
-```
-
-where an integration needs to identify the canonical repository.
-
-Replace these placeholders with the details of your private repository.
-
-At minimum, review:
-
-* [`1.plugins/github/repository.md`](1.plugins/github/repository.md); and
-* any provider Plugin you intend to use.
-
-Your private repository becomes the canonical home of the second brain you create using this architecture.
-
-### 2. Configure storage
-
-Choose the default branch that will hold canonical knowledge and confirm that the repository is private.
-
-Give integrations only the access they require. Keep credentials in the provider's secret store or connection settings rather than in the repository.
-
-The supplied implementation uses GitHub, but Core itself is not GitHub-specific.
-
-GitHub-specific behaviour belongs in the GitHub Plugin and can be replaced by another storage integration without changing Core.
-
-### 3. Connect an AI provider or external system
-
-The Plugin framework defines how provider-specific and system-specific integrations should connect to Core.
-
-Implementations belong under:
-
-```text
-1.plugins/<provider-or-system>/
-```
-
-A minimal Plugin might contain:
-
-```text
-1.plugins/<provider-or-system>/
-├── README.md
-├── AGENTS.md
-├── project-instructions.md
-└── scheduled-jobs/
-```
-
-The exact structure can vary according to the capabilities of the system being integrated.
-
-Plugins should map those capabilities onto shared Core workflows rather than copying or redefining Core rules.
-
-Useful starting points are:
-
-* [`AGENTS.md`](AGENTS.md)
-* [`1.plugins/CONTRACT.md`](1.plugins/CONTRACT.md)
-* [`2.core/CONTRACT.md`](2.core/CONTRACT.md)
-
-An AI coding agent with repository access can create much of a provider-specific Plugin for you. For example:
-
-```text
-Create a Plugin that allows you to work with this second-brain repository.
-
-Read AGENTS.md, 1.plugins/CONTRACT.md and 2.core/CONTRACT.md before making
-changes.
-
-Create the provider-specific integration under 1.plugins/<provider>/ and map
-this provider's repository and tool capabilities to the shared Core workflows.
-
-Keep provider-specific behaviour inside the Plugin and validate the repository
-when finished.
-```
-
-The exact implementation will differ between providers and systems. That is intentional.
-
-The Plugin architecture defines the boundary and contract. Individual Plugins implement it.
-
-### 4. Install the second-brain skill
-
-The repository includes the provider-neutral [`work-with-second-brain-architecture`](3.add-ons/skills/catalogue/work-with-second-brain-architecture/) skill.
-
-It helps an AI agent understand:
-
-* the three architecture layers;
-* where different types of information belong;
-* how durable knowledge should be saved and linked;
-* how Plugins should interact with Core;
-* privacy and source-handling rules; and
-* which checks are required before changes are persisted.
-
-Install it using your AI tool's normal skill mechanism.
-
-The skill routes to the repository's `AGENTS.md` files and task-specific contract sections. It does not copy or replace their operating rules. Bundling the source does not install or adopt it for an instance; record those steps only when they actually happen.
-
-### 5. Add your first useful knowledge
-
-Do not try to populate an entire second brain at once.
-
-The [fictional task-service evaluation](2.core/examples/README.md) demonstrates how
-complete source, note, project and decision records link together.
-
-Start with a subject where durable knowledge would already be useful, such as:
-
-* a current project;
-* a subject you are researching;
-* a long-term interest; or
-* a decision you expect to revisit.
-
-For a continuing project, use the [project-page template](2.core/templates/project-page.md) and store it under:
-
-```text
-2.core/knowledge/projects/<project-name>.md
-```
-
-For example:
-
-```text
-Create a project called <name> in my second brain.
-
-Use the appropriate Core template and record only confirmed information.
-
-Link it to existing records where the relationship is clear, update navigation
-where required, validate the repository and persist the authorised changes.
-```
-
-Another useful approach is to ask an AI system to interview you:
-
-```text
-Interview me about <topic or project> so that we can build useful durable
-knowledge about it in my second brain.
-
-Ask me one question at a time. Explore important facts, decisions, constraints,
-events and unresolved questions.
-
-Do not assume information I have not confirmed.
-
-When we have enough useful material, ask for permission to save my confirmed
-answers using the normal Core workflows.
-```
-
-### 6. Define explicit save phrases
-
-It is useful to distinguish normal AI conversation from an explicit request to create durable knowledge.
-
-For example:
-
-```text
-Remember <information>
-```
-
-could mean:
-
-> Treat the information that follows as an explicit request to save it to my canonical second-brain repository using the normal Core save workflow.
-
-Other explicit phrases might include:
-
-* `Update my project ...`
-* `Record this decision ...`
-* `Save this source note ...`
-
-Configure these as explicit instructions rather than loose keyword matches.
-
-The phrase grants permission to perform the save. It does not bypass Core's rules for routing, source handling, validation or persistence.
+Follow [`SETUP.md`](SETUP.md) to create and configure your private second brain. The guide covers guided and manual setup, storage, Plugins, the agent skill, first knowledge and explicit save phrases, and can be used by both people and AI agents.
 
 ## Working with knowledge
 
@@ -437,7 +217,9 @@ Maintain provenance to the source where practical, do not copy raw documents
 into durable knowledge, and validate authorised repository changes.
 ```
 
-## Recurring maintenance
+## Maintenance
+
+### Recurring maintenance
 
 Core includes provider-neutral task definitions for maintaining a second brain over time.
 
@@ -472,72 +254,46 @@ to make repository changes.
 
 A report-only task must remain report-only even if the integration running it has write access.
 
-## Explore your second brain
+### Health checks
 
-For AI-assisted lookup, the optional [knowledge retrieval tool](3.add-ons/knowledge-retrieval/README.md) searches a verified Git revision and returns readable context with source links. It reuses unchanged records in a private disposable cache and reports omitted history or unresolved evidence. It does not replace ordinary Markdown navigation.
-
-Core can always be browsed directly as Markdown through [`2.core/index.md`](2.core/index.md).
-
-The optional [`Browser explorer`](3.add-ons/browser-explorer/README.md) provides a visual knowledge graph and Markdown reader.
-
-Run it locally from the repository root with:
+After initial setup, run the Core validator’s read-only health checks from the
+repository root whenever you want to check this copy again:
 
 ```bash
-npm --prefix 3.add-ons/browser-explorer ci
-npm --prefix 3.add-ons/browser-explorer run brain:check
-npm --prefix 3.add-ons/browser-explorer run dev
+python 2.core/scripts/check_second_brain.py --healthcheck
 ```
 
-The graph visualises explicit links between records while the Markdown files remain the canonical source of truth.
+The original `python 2.core/scripts/healthcheck.py` command remains a thin
+compatibility wrapper for the same checks. Without `--healthcheck`, the Core
+validator retains its existing validation behaviour; `--strict-orphans` also works
+with health checks.
 
-## Repository layout
+It checks repository configuration using the same rules as Core validation, live
+Plugin configuration placeholders, effective raw-source ignore rules, tracked raw
+file formats and the Core validator result. It does not prompt, modify files or
+Git configuration, install dependencies, read credentials or contact services.
+`setup.py` remains the initial configuration command; do not rerun it for health
+checks.
 
-```text
-.
-├── 1.plugins/
-├── 2.core/
-├── 3.add-ons/
-├── assets/
-├── .github/
-├── AGENTS.md
-└── README.md
-```
+Output uses `PASS`, `WARN` and `FAIL`. Exit codes are `0` for all checks passing,
+`1` for any failure and `2` for warnings or unknown checks without failures. Plugin
+activation, external permissions, hosted visibility and hook enforcement remain
+unknown from repository files alone, so a configured copy can exit `2`. Missing
+validator dependencies produce a warning with the separate installation step.
 
-The three numbered directories are the architecture layers.
+Placeholder checking covers `2.core/system/repository-config.json`, the Plugin
+registry and registered Plugins' `repository.md`, `config.json`,
+`source-config.json` and `project-instructions.md`. Repository placeholders in
+these live files fail. Documented angle-bracket placeholders in optional
+`project-instructions.md` templates warn until that Plugin is configured;
+`examples/`, the Plugin template and workflow expressions are not live setup
+configuration. The public scaffold intentionally has unresolved repository
+placeholders and will report failures until a private copy is configured. No
+credentials or connection settings are inspected.
 
-The `assets/` directory contains shared repository assets such as architecture diagrams and images.
+### Local checks
 
-The `.github/` directory is an activation shim belonging to the GitHub integration, not a fourth architecture layer.
-
-For further detail:
-
-* [`1.plugins/README.md`](1.plugins/README.md) explains the Plugin architecture and integration layer;
-* [`2.core/README.md`](2.core/README.md) explains the portable Core used by a second brain built from this architecture;
-* [`3.add-ons/README.md`](3.add-ons/README.md) explains optional extensions;
-* [`2.core/CONTRACT.md`](2.core/CONTRACT.md) defines Core's operating contract; and
-* [`AGENTS.md`](AGENTS.md) is the entry point for AI agents.
-
-## Local checks
-
-The full local check set uses the Core Python validator and the Browser explorer Node.js toolchain.
-
-Prerequisites:
-
-* **Python 3**
-* **Node.js 22.13.0 or later**
-* **npm**
-* **Git**
-
-Confirm they are available with:
-
-```bash
-python --version
-node --version
-npm --version
-git --version
-```
-
-On systems where Python 3 is exposed as `python3`, use that command instead.
+The full local check set uses the Core Python validator and the Browser explorer Node.js toolchain. See the [setup prerequisites](SETUP.md#prerequisites).
 
 Run the checks from the repository root:
 
@@ -572,7 +328,27 @@ They require `python`, `node` and `npm` on PATH. The `brain:check` command also 
 the Python validator and regenerates ignored explorer data. Hooks can be bypassed
 and do not replace review or CI. See the [pre-commit documentation](https://pre-commit.com/).
 
-### Containers
+## Explore your second brain
+
+For AI-assisted lookup, the optional [knowledge retrieval tool](3.add-ons/knowledge-retrieval/README.md) searches a verified Git revision and returns readable context with source links. It reuses unchanged records in a private disposable cache and reports omitted history or unresolved evidence. It does not replace ordinary Markdown navigation.
+
+Core can always be browsed directly as Markdown through [`2.core/index.md`](2.core/index.md).
+
+The optional [`Browser explorer`](3.add-ons/browser-explorer/README.md) provides a visual knowledge graph and Markdown reader.
+
+The graph visualises explicit links between records while the Markdown files remain the canonical source of truth. Containers are available for the Browser explorer website layer; Core remains ordinary Markdown.
+
+### Run the Browser explorer locally
+
+Use the [setup prerequisites](SETUP.md#prerequisites), then run from the repository root:
+
+```bash
+npm --prefix 3.add-ons/browser-explorer ci
+npm --prefix 3.add-ons/browser-explorer run brain:check
+npm --prefix 3.add-ons/browser-explorer run dev
+```
+
+### Run the Browser explorer in a container
 
 With Docker Engine and Compose available, run from `3.add-ons/browser-explorer/`:
 
@@ -598,6 +374,34 @@ private; never publish an image made from a personal second brain.
 The ignore file sits beside the Dockerfile and uses Docker's
 [Dockerfile-specific naming](https://docs.docker.com/build/concepts/context/#filename-and-location).
 Its patterns remain relative to the repository-root build context used by Compose.
+
+## Repository layout
+
+```text
+.
+├── 1.plugins/
+├── 2.core/
+├── 3.add-ons/
+├── assets/
+├── .github/
+├── AGENTS.md
+├── SETUP.md
+└── README.md
+```
+
+The three numbered directories are the architecture layers.
+
+The `assets/` directory contains shared repository assets such as architecture diagrams and images.
+
+The `.github/` directory is an activation shim belonging to the GitHub integration, not a fourth architecture layer.
+
+For further detail:
+
+* [`1.plugins/README.md`](1.plugins/README.md) explains the Plugin architecture and integration layer;
+* [`2.core/README.md`](2.core/README.md) explains the portable Core used by a second brain built from this architecture;
+* [`3.add-ons/README.md`](3.add-ons/README.md) explains optional extensions;
+* [`2.core/CONTRACT.md`](2.core/CONTRACT.md) defines Core's operating contract; and
+* [`AGENTS.md`](AGENTS.md) is the entry point for AI agents.
 
 Report vulnerabilities using the [security policy](SECURITY.md).
 
