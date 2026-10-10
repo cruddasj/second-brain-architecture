@@ -227,8 +227,9 @@ The GitHub Plugin supplies an instance-owned
 [baseline record](1.plugins/github/architecture-sync.json), documented in its
 [provider-owned state](1.plugins/github/README.md#provider-owned-state).
 
-The public scaffold leaves the baseline unset. Record the originating public
-revision during [initial setup](SETUP.md#1-create-your-private-repository), then
+The public baseline is maintained by the hosting Plugin after merged pull
+requests. Establish the originating public revision during
+[initial setup](SETUP.md#1-create-your-private-repository), then
 use it to compare later upstream changes with your private customisations.
 Synchronisation requires explicit authority and preserves instance-owned content;
 it is not an automatic replacement of the private repository.

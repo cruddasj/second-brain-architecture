@@ -79,9 +79,27 @@ Its fields are:
   full upstream commit ID reconciled under the Core procedure. For initial
   setup, use the exact public revision copied.
 
-The public scaffold names its public architecture source and leaves the commit
-unset. Preserve each instance's populated record during later syncs; never copy
-the scaffold's `null` over an established baseline. The record contains no
+The public scaffold names its public architecture source. In
+`cruddasj/second-brain-architecture`, the
+[root workflow](../../.github/workflows/architecture-sync.yml) invokes the
+[baseline updater](scripts/update-architecture-sync.cjs) after a pull request is
+merged into `main`, recording its full `merge_commit_sha` in a separate bot
+commit. This is the public distribution revision, not proof of a private sync.
+The bot commit cannot contain its own SHA. A copy made at that bot commit may
+retain the recorded preceding merge as its architecture baseline; for other
+revisions, use the exact revision copied as described in setup.
+
+The workflow is restricted to that exact public repository and uses only code
+from `main`, including for merged fork pull requests. It skips closed unmerged
+PRs, repeated events and older merges, retries file-update conflicts, and changes
+only the baseline file. It uses `GITHUB_TOKEN` with job-scoped `contents: write`;
+no extra secret is required. Bot writes do not trigger another workflow run.
+Repository rules must permit this bot update to `main`; permission or protection
+failures appear in the Actions run and leave the baseline unchanged. This
+workflow does not bypass repository rules or reconcile private instances.
+
+Preserve each private instance's record during later syncs; never copy the
+public record over an established instance baseline. The record contains no
 private repository location, credentials or automatic access grant.
 
 For authorised upstream reads, resolve these values with GitHub repository,

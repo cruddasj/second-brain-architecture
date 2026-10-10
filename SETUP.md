@@ -87,8 +87,13 @@ and populate [architecture-sync.json](1.plugins/github/architecture-sync.json).
 Use the full upstream commit ID; the initial private commit is not that baseline.
 For an archive, record the public revision used to produce the archive.
 
-The public scaffold leaves the commit unset. If an existing copy's origin cannot
-be established, keep it unset and use the Core procedure's
+The public record is maintained after merged pull requests as described in the
+Plugin's [baseline field definitions](1.plugins/github/README.md#provider-owned-state).
+Retain it only when it identifies the revision copied or its baseline-only bot
+commit; otherwise replace it with the exact copied public revision. The public
+workflow is disabled by its repository guard in private copies and forks.
+If an existing copy's origin cannot be established, use `null` and the Core
+procedure's
 [unknown-baseline reconciliation](2.core/system/source-control-policy.md#architecture-synchronisation).
 This is a manual setup record; `setup.py` does not initialise it automatically.
 

@@ -45,8 +45,9 @@ The selected hosting Plugin owns the upstream location and instance baseline
 record. The baseline identifies the full upstream commit whose architecture
 changes have been incorporated or explicitly reconciled. It is not the private
 commit that performed the sync, and it does not mean the instance is identical
-to upstream. The public distribution supplies an unset baseline; each private
-instance maintains its own value.
+to upstream. The public distribution may supply an unset baseline or a recorded
+public revision through its hosting Plugin. Establish the originating revision
+for each private copy; each private instance maintains its own value.
 
 1. **Establish the baseline and target.** Read the Plugin's baseline record and
    resolve both the recorded upstream revision and the intended target to
