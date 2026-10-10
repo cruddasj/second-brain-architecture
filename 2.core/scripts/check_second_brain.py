@@ -4,6 +4,11 @@
 from __future__ import annotations
 
 import json
+import contextlib
+import io
+import os
+import shutil
+import subprocess
 import argparse
 import re
 import sys
@@ -12,13 +17,15 @@ from urllib.parse import unquote
 from urllib.parse import quote
 import posixpath
 
-import record_text
-from repository_validation import (
-    ALLOWED_RAW_SOURCE_SUFFIXES, CATEGORY_PATTERN, THEME_PAGE_PATTERN,
-    PLUGIN_PATH_PATTERN, UUID4_PATTERN,
-    parse_repository_config, parse_plugin_registry, plugin_readme_errors,
-)
-from frontmatter import validate_frontmatter
+# Both commands are read-only, including Python import caches.
+sys.dont_write_bytecode = True
+VALIDATOR_IMPORT_ERROR = None
+try:
+    import record_text
+    from frontmatter import validate_frontmatter
+except ImportError as error:
+    # Health checks still report local setup when record dependencies are absent.
+    VALIDATOR_IMPORT_ERROR = error
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -117,6 +124,14 @@ EXCLUDED_PARTS = {
     "outputs",
     "out",
 }
+ALLOWED_RAW_SOURCE_SUFFIXES = {".txt", ".rtf", ".md"}
+CATEGORY_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]*$")
+THEME_PAGE_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]*\.md$")
+PLUGIN_PATH_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]*$")
+UUID4_PATTERN = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+)
+
 LINK_PATTERN = re.compile(r"(?<!!)\[[^]]+\]\(([^)]+)\)")
 ENTRY_PATTERN = re.compile(r"^- \[(state|event):([a-z0-9][a-z0-9-]*)\](.*)$")
 DATE_PATTERN = re.compile(r"\b\d{4}-\d{2}-\d{2}\b")
@@ -316,6 +331,86 @@ def tracked_markdown() -> list[Path]:
         and not is_raw_source(path)
     )
 
+
+def parse_repository_config(
+    data: object, errors: list[str]
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    if not isinstance(data, dict):
+        errors.append("Repository config must be a JSON object")
+        return (), ()
+
+    categories = data.get("knowledge_categories")
+    themes = data.get("required_theme_pages")
+
+    if not isinstance(categories, list) or any(
+        not isinstance(value, str) or not CATEGORY_PATTERN.fullmatch(value)
+        for value in categories
+    ):
+        errors.append(
+            "Repository config field 'knowledge_categories' must be an array of kebab-case names"
+        )
+        parsed_categories: tuple[str, ...] = ()
+    else:
+        parsed_categories = tuple(categories)
+        if len(set(parsed_categories)) != len(parsed_categories):
+            errors.append("Repository config field 'knowledge_categories' has duplicates")
+
+    if not isinstance(themes, list) or any(
+        not isinstance(value, str) or not THEME_PAGE_PATTERN.fullmatch(value)
+        for value in themes
+    ):
+        errors.append(
+            "Repository config field 'required_theme_pages' must be an array of kebab-case Markdown filenames"
+        )
+        parsed_themes: tuple[str, ...] = ()
+    else:
+        parsed_themes = tuple(themes)
+        if len(set(parsed_themes)) != len(parsed_themes):
+            errors.append("Repository config field 'required_theme_pages' has duplicates")
+
+    return parsed_categories, parsed_themes
+
+
+def parse_plugin_registry(data: object, errors: list[str]) -> dict[str, str]:
+    if not isinstance(data, dict):
+        errors.append("Plugin registry must be a JSON object")
+        return {}
+
+    entries = data.get("plugins")
+    if not isinstance(entries, list):
+        errors.append("Plugin registry field 'plugins' must be an array")
+        return {}
+
+    parsed: dict[str, str] = {}
+    paths: set[str] = set()
+    for entry in entries:
+        if not isinstance(entry, dict):
+            errors.append("Each Plugin registry entry must be a JSON object")
+            continue
+
+        plugin_id = entry.get("id")
+        path = entry.get("path")
+        if not isinstance(plugin_id, str) or not UUID4_PATTERN.fullmatch(plugin_id):
+            errors.append(f"Plugin registry ID must be a lowercase UUIDv4: {plugin_id!r}")
+            continue
+        if not isinstance(path, str) or not PLUGIN_PATH_PATTERN.fullmatch(path):
+            errors.append(f"Plugin registry path must be one Plugin directory name: {path!r}")
+            continue
+        if plugin_id in parsed:
+            errors.append(f"Duplicate Plugin registry ID: {plugin_id}")
+            continue
+        if path in paths:
+            errors.append(f"Duplicate Plugin registry path: {path}")
+            continue
+        parsed[plugin_id] = path
+        paths.add(path)
+
+    return parsed
+
+
+def plugin_readme_errors(text: str, plugin_id: str, path: str) -> list[str]:
+    """Check the registered identity declaration without reading adapter files."""
+    return [] if plugin_id in text else [f"Plugin README does not declare registered ID: {path}"]
 
 def load_repository_config(errors: list[str]) -> tuple[tuple[str, ...], tuple[str, ...]]:
     if not REPOSITORY_CONFIG.is_file():
@@ -733,10 +828,173 @@ def orphaned_notes(markdown_files, index):
                   and p != (CORE / 'memory/core.md').resolve())
 
 
-def main() -> int:
+PLACEHOLDER = re.compile(r"OWNER/REPOSITORY|<[^<>\n]+>")
+
+
+class Healthcheck:
+    def __init__(self, root: Path, strict_orphans: bool = False):
+        self.root = root
+        self.strict_orphans = strict_orphans
+        self.results: list[tuple[str, str, str]] = []
+
+    def report(self, status, check, message):
+        self.results.append((status, check, message))
+        print(f"[{status}] {check}: {message}")
+
+    def read(self, relative):
+        path = self.root / relative
+        # Do not follow configuration links into credential stores or other trees.
+        if any(p.is_symlink() for p in (path, *path.parents)):
+            raise ValueError(f"{relative}: symbolic links are not inspected")
+        return path.read_text(encoding="utf-8")
+
+    def configuration(self, relative, parser):
+        try:
+            text = self.read(relative)
+            errors = []
+            value = parser(json.loads(text), errors)
+            if PLACEHOLDER.search(text):
+                errors.append(f"{relative}: replace unresolved setup placeholders")
+            for error in errors:
+                self.report("FAIL", relative, error)
+            if not errors:
+                self.report("PASS", relative, "structure and required values are valid")
+            return value
+        except (OSError, ValueError) as error:
+            self.report("FAIL", relative, f"restore or correct configuration ({error})")
+            return None
+
+    def plugins(self, registry):
+        if registry is None:
+            return
+        for name in sorted(registry.values()):
+            relative = f"1.plugins/{name}"
+            try:
+                text = self.read(f"{relative}/README.md")
+                plugin_id = next(key for key, value in registry.items() if value == name)
+                errors = plugin_readme_errors(text, plugin_id, name)
+                for error in errors:
+                    self.report("FAIL", relative, error)
+                if not errors:
+                    self.report("PASS", relative, "registered adapter files are present")
+                for filename in ("repository.md", "config.json", "source-config.json"):
+                    if (self.root / relative / filename).exists() or (self.root / relative / filename).is_symlink():
+                        config = self.read(f"{relative}/{filename}")
+                        # Instructions describing replacement are not configured values.
+                        lines = [line for line in config.splitlines()
+                                 if not line.startswith("Before use, replace")]
+                        if any(PLACEHOLDER.search(line) for line in lines):
+                            self.report("FAIL", f"{relative}/{filename}",
+                                        "replace unresolved setup placeholders before use")
+                instructions = self.root / relative / "project-instructions.md"
+                if instructions.exists() or instructions.is_symlink():
+                    text = self.read(f"{relative}/project-instructions.md")
+                    if "OWNER/REPOSITORY" in text:
+                        self.report("FAIL", f"{relative}/project-instructions.md",
+                                    "replace unresolved repository placeholder before use")
+                    elif PLACEHOLDER.search(text):
+                        self.report("WARN", relative,
+                                    "optional project-instructions template is unconfigured; configure it if using this Plugin")
+                self.report("WARN", relative,
+                            "setup readiness unknown: files cannot establish activation, permissions or external access; verify in the invoking integration")
+            except (OSError, ValueError) as error:
+                self.report("FAIL", relative, f"restore adapter files ({error})")
+
+    def git(self, *args):
+        # Disable optional writes and filesystem-monitor processes. No Git command
+        # here reads credentials, invokes hooks, changes config or contacts remotes.
+        env = {**os.environ, "GIT_OPTIONAL_LOCKS": "0", "GIT_CONFIG_NOSYSTEM": "1",
+               "GIT_CONFIG_GLOBAL": os.devnull}
+        return subprocess.run(["git", "-c", "core.fsmonitor=false", *args],
+                              cwd=self.root, env=env, capture_output=True, timeout=30)
+
+    def raw_protections(self):
+        try:
+            self.read(".gitignore")
+        except (OSError, ValueError) as error:
+            self.report("FAIL", "raw protection", f"restore .gitignore ({error})")
+        if not shutil.which("git"):
+            self.report("WARN", "raw sources", "unknown: Git unavailable; install Git to check ignore rules and tracked files")
+            return
+        if not (self.root / ".git").exists():
+            self.report("WARN", "raw sources", "unknown: no local Git metadata; check a clone (no repository was initialised)")
+            return
+        # Check effective ignore behaviour, including nested and uppercase paths.
+        probes = {"scan.pdf": True, "nested/photo.PNG": True,
+                  "nested/document.docx": True, "nested/unknown.bin": True,
+                  ".gitkeep": False}
+        probes.update({f"nested/notes{variant}": False
+                       for suffix in ALLOWED_RAW_SOURCE_SUFFIXES
+                       for variant in (suffix, suffix.upper())})
+        failed = False
+        for name, ignored in probes.items():
+            path = "2.core/sources/raw/" + name
+            result = self.git("check-ignore", "--no-index", "-q", "--", path)
+            if result.returncode not in (0, 1) or (result.returncode == 0) != ignored:
+                failed = True
+                self.report("FAIL", "raw protection", f"correct .gitignore rules for {path} (expected {'ignored' if ignored else 'allowed'})")
+        if not failed:
+            self.report("PASS", "raw protection", "effective deny-by-default ignore rules protect raw sources")
+        result = self.git("ls-files", "-z", "--", "2.core/sources/raw/")
+        if result.returncode:
+            self.report("FAIL", "tracked raw sources", "cannot inspect Git index; repair local Git metadata")
+        else:
+            invalid = [os.fsdecode(path) for path in result.stdout.split(b"\0") if path
+                       and Path(os.fsdecode(path)).name != ".gitkeep"
+                       and Path(os.fsdecode(path)).suffix.lower() not in ALLOWED_RAW_SOURCE_SUFFIXES]
+            for path in invalid:
+                self.report("FAIL", "tracked raw sources", f"{path}: remove unsupported format from tracking after reviewing the raw-source policy")
+            if not invalid:
+                self.report("PASS", "tracked raw sources", "tracked formats comply with Core policy")
+        try:
+            hooks = self.read(".pre-commit-config.yaml")
+            if "python 2.core/scripts/check_second_brain.py" not in hooks:
+                raise ValueError("Core validator hook entry missing")
+            self.report("PASS", "validation protection", "Core validator commit-hook configuration is present")
+            self.report("WARN", "validation protection", "hook installation/enforcement unknown; verify local installation separately")
+        except (OSError, ValueError) as error:
+            self.report("FAIL", "validation protection", f"restore Core validator hook configuration ({error})")
+
+    def validator(self):
+        if VALIDATOR_IMPORT_ERROR is not None:
+            self.report("WARN", "Core validator", "cannot run: install 2.core/scripts/requirements.txt separately, then retry")
+            return
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            result = main(["--strict-orphans"] if self.strict_orphans else [])
+        text = output.getvalue().strip()
+        if result:
+            self.report("FAIL", "Core validator", "validation failed; correct the reported records")
+            print(text)
+        else:
+            status = "WARN" if "Warning:" in text else "PASS"
+            self.report(status, "Core validator", text)
+
+    def run(self):
+        self.configuration("2.core/system/repository-config.json", parse_repository_config)
+        registry = self.configuration("1.plugins/plugin-registry.json", parse_plugin_registry)
+        self.plugins(registry)
+        for check in (self.raw_protections, self.validator):
+            try:
+                check()
+            except (OSError, ValueError, subprocess.TimeoutExpired) as error:
+                self.report("WARN", check.__name__, f"check unavailable ({type(error).__name__}); retry after resolving local tooling")
+        counts = {status: sum(item[0] == status for item in self.results)
+                  for status in ("PASS", "WARN", "FAIL")}
+        print("Summary: " + ", ".join(f"{count} {status.lower()}" for status, count in counts.items()))
+        return 1 if counts["FAIL"] else 2 if counts["WARN"] else 0
+
+
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--strict-orphans', action='store_true', help='Fail on isolated live notes (warnings by default)')
-    args = parser.parse_args()
+    parser.add_argument('--healthcheck', action='store_true', help='Report read-only local setup and health checks (exit 2 for warnings/unknowns)')
+    args = parser.parse_args(argv)
+    if args.healthcheck:
+        return Healthcheck(ROOT, strict_orphans=args.strict_orphans).run()
+    if VALIDATOR_IMPORT_ERROR is not None:
+        print("Core validator unavailable: install 2.core/scripts/requirements.txt separately", file=sys.stderr)
+        return 1
     errors: list[str] = []
     state_locations: dict[str, list[Path]] = {}
     event_locations: dict[str, list[Path]] = {}

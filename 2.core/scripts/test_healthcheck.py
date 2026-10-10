@@ -18,13 +18,14 @@ class HealthcheckTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
-        for name in ("healthcheck.py", "repository_validation.py"):
+        for name in ("healthcheck.py",):
             target = self.root / "2.core/scripts" / name
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(SCRIPTS / name, target)
-        self.write("2.core/scripts/check_second_brain.py", "print('Synthetic Core validator passed')\n")
+        from test_check_second_brain_fixtures import ValidatorFixture
+        self.fixture = ValidatorFixture(self.root)
         self.write("2.core/system/repository-config.json", json.dumps({
-            "version": 1, "knowledge_categories": ["projects"], "required_theme_pages": []}))
+            "version": 1, "knowledge_categories": [], "required_theme_pages": []}))
         self.write("1.plugins/plugin-registry.json", json.dumps({
             "plugins": [{"id": PLUGIN_ID, "path": "hosting"}]}))
         self.write("1.plugins/hosting/README.md", f"# Synthetic hosting adapter\nPlugin ID: {PLUGIN_ID}\n")
@@ -48,11 +49,13 @@ class HealthcheckTests(unittest.TestCase):
         return {path.relative_to(self.root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
                 for path in self.root.rglob("*") if path.is_file()}
 
-    def run_check(self):
+    def run_check(self, direct=False, *args):
         before = self.snapshot()
         config = self.git("config", "--local", "--list") if (self.root / ".git").exists() else None
         # No -B: the entry point itself must suppress bytecode writes.
-        result = subprocess.run([sys.executable, str(self.root / "2.core/scripts/healthcheck.py")],
+        command = [sys.executable, str(self.root / "2.core/scripts/check_second_brain.py"),
+                   "--healthcheck", *args] if direct else [sys.executable, str(self.root / "2.core/scripts/healthcheck.py")]
+        result = subprocess.run(command,
                                 cwd=self.root, stdin=subprocess.DEVNULL,
                                 capture_output=True, text=True, timeout=30)
         self.assertEqual(before, self.snapshot(), "health check changed repository or Git files")
@@ -66,14 +69,11 @@ class HealthcheckTests(unittest.TestCase):
         self.assertEqual(result.returncode, 2)
         self.assertNotIn("[FAIL]", result.stdout)
         for message in ("structure and required values are valid", "tracked formats comply",
-                        "Synthetic Core validator passed", "setup readiness unknown"):
+                        "Second-brain check passed", "setup readiness unknown"):
             self.assertIn(message, result.stdout)
 
     def test_synthetic_repository_with_real_core_validator(self):
-        from test_check_second_brain_fixtures import ValidatorFixture
-        fixture = ValidatorFixture(self.root)
-        self.write("1.plugins/plugin-registry.json", json.dumps({
-            "plugins": [{"id": PLUGIN_ID, "path": "hosting"}]}))
+        fixture = self.fixture
         result = self.run_check()
         self.assertEqual(result.returncode, 2, result.stdout)
         self.assertIn("[PASS] Core validator: Second-brain check passed", result.stdout)
@@ -81,6 +81,24 @@ class HealthcheckTests(unittest.TestCase):
         result = self.run_check()
         self.assertEqual(result.returncode, 1)
         self.assertIn("Broken link:", result.stdout)
+
+    def test_direct_health_option_matches_wrapper(self):
+        direct = self.run_check(True)
+        wrapper = self.run_check()
+        self.assertEqual((direct.returncode, direct.stdout), (wrapper.returncode, wrapper.stdout))
+
+    def test_direct_health_option_without_dependencies(self):
+        self.write("2.core/scripts/yaml.py", "raise ModuleNotFoundError('synthetic dependency')\n")
+        result = self.run_check(True)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("install 2.core/scripts/requirements.txt separately", result.stdout)
+
+    def test_health_option_preserves_strict_orphans(self):
+        self.fixture.add_knowledge("isolated", "## Current state\n\n## Event log\n")
+        self.assertEqual(self.run_check(True).returncode, 2)
+        result = self.run_check(True, "--strict-orphans")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("Orphaned note", result.stdout)
 
     def test_unresolved_setup_placeholders_fail(self):
         for name, text in (("repository.md", "- Canonical remote: `https://github.com/OWNER/REPOSITORY`"),
@@ -153,16 +171,16 @@ class HealthcheckTests(unittest.TestCase):
         self.assertNotIn("Plugin activated", result.stdout)
 
     def test_missing_validator_dependencies(self):
-        self.write("2.core/scripts/check_second_brain.py", "raise ModuleNotFoundError('synthetic dependency')\n")
+        self.write("2.core/scripts/yaml.py", "raise ModuleNotFoundError('synthetic dependency')\n")
         result = self.run_check()
         self.assertEqual(result.returncode, 2)
         self.assertIn("install 2.core/scripts/requirements.txt separately", result.stdout)
 
     def test_validator_failure_is_reported(self):
-        self.write("2.core/scripts/check_second_brain.py", "print('Synthetic invalid Core record'); raise SystemExit(1)\n")
+        self.fixture.add_knowledge("broken", "## Current state\n\n## Event log\n[Missing](missing.md)")
         result = self.run_check()
         self.assertEqual(result.returncode, 1)
-        self.assertIn("Synthetic invalid Core record", result.stdout)
+        self.assertIn("Broken link:", result.stdout)
 
     def test_archive_is_not_initialised(self):
         shutil.rmtree(self.root / ".git")

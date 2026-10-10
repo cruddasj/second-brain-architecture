@@ -151,12 +151,17 @@ if your system restricts pip installation. You can decline installation and foll
 the manual steps below. If installation fails after configuration, inspect the diff
 and finish installation manually; do not discard your configuration to retry.
 
-After initial setup, run the standalone, read-only health check from the repository
-root whenever you want to check this copy again:
+After initial setup, run the Core validator’s read-only health checks from the
+repository root whenever you want to check this copy again:
 
 ```bash
-python 2.core/scripts/healthcheck.py
+python 2.core/scripts/check_second_brain.py --healthcheck
 ```
+
+The original `python 2.core/scripts/healthcheck.py` command remains a thin
+compatibility wrapper for the same checks. Without `--healthcheck`, the Core
+validator retains its existing validation behavior; `--strict-orphans` also works
+with health checks.
 
 It checks repository configuration using the same rules as Core validation, live
 Plugin configuration placeholders, effective raw-source ignore rules, tracked raw

@@ -83,8 +83,6 @@ class ValidatorFixture:
             "2.core/scripts/check_second_brain.py",
             Path(check.__file__).read_text(encoding="utf-8"),
         )
-        self.write("2.core/scripts/repository_validation.py",
-                   (Path(check.__file__).parent / "repository_validation.py").read_text(encoding="utf-8"))
         self.write("2.core/scripts/audit_freshness.py")
         self.write("2.core/scripts/record_text.py", Path(check.record_text.__file__).read_text(encoding="utf-8"))
         self.write("2.core/scripts/frontmatter.py", (Path(check.__file__).parent / 'frontmatter.py').read_text(encoding='utf-8'))
