@@ -1,0 +1,32 @@
+# GitHub activation shim. Details: 1.plugins/github/README.md#provider-owned-state
+name: Stamp architecture baseline
+
+on:
+  pull_request_target:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: architecture-sync-main
+  cancel-in-progress: false
+
+jobs:
+  stamp:
+    if: github.repository == 'cruddasj/second-brain-architecture' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      # Never execute the PR head with this write-capable token.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            const update = require('./1.plugins/github/scripts/update-architecture-sync.cjs');
+            await update({ github, context, core });
