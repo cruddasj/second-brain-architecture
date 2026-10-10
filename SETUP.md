@@ -80,6 +80,18 @@ At minimum, review:
 
 Your private repository becomes the canonical home of the second brain you create using this architecture.
 
+Before customising the copy, record the exact public commit it was created from
+using the selected hosting Plugin's baseline record. For the supplied GitHub
+Plugin, follow its [baseline field definitions](1.plugins/github/README.md#provider-owned-state)
+and populate [architecture-sync.json](1.plugins/github/architecture-sync.json).
+Use the full upstream commit ID; the initial private commit is not that baseline.
+For an archive, record the public revision used to produce the archive.
+
+The public scaffold leaves the commit unset. If an existing copy's origin cannot
+be established, keep it unset and use the Core procedure's
+[unknown-baseline reconciliation](2.core/system/source-control-policy.md#architecture-synchronisation).
+This is a manual setup record; `setup.py` does not initialise it automatically.
+
 ## 2. Configure storage
 
 Choose the default branch that will hold canonical knowledge and confirm that the repository is private.
