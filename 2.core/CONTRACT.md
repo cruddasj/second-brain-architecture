@@ -35,6 +35,7 @@ Start with [AGENTS.md](AGENTS.md), read this contract, then select the task rout
 | Task | Required additional context |
 | --- | --- |
 | Design or change a task, Plugin or Add-on | [Integration design](system/integration-design-policy.md) and the relevant layer entry point and contract; add [write context](#write-context) when editing |
+| Synchronise architecture from upstream | [Architecture synchronisation](system/source-control-policy.md#architecture-synchronisation), selected hosting Plugin and its baseline record, and affected layer contracts; add [write context](#write-context) when editing |
 | Audit freshness | [Freshness audit task](system/freshness-audit-task.md) and its required inputs |
 | Compact history | [Compaction task](system/knowledge-compaction-task.md) and its staged inputs |
 | Review themes | [Theme review task](system/theme-review-task.md) |

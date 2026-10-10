@@ -33,6 +33,66 @@ Choose the write route from the complete set of changed paths:
 
 A direct write must still start from the latest remote default branch, pass the required validation and remain one focused logical commit. A pull-request change remains proposed until merged.
 
+## Architecture synchronisation
+
+This procedure supports private instances copied, templated or forked from a
+public architecture. It requires an explicitly authorised architecture change;
+a baseline record or access to upstream does not grant write authority. Use the
+[authorised save workflow](operating-rules.md#authorised-save-workflow) and the
+[default write route](#default-write-route).
+
+The selected hosting Plugin owns the upstream location and instance baseline
+record. The baseline identifies the full upstream commit whose architecture
+changes have been incorporated or explicitly reconciled. It is not the private
+commit that performed the sync, and it does not mean the instance is identical
+to upstream. The public distribution supplies an unset baseline; each private
+instance maintains its own value.
+
+1. **Establish the baseline and target.** Read the Plugin's baseline record and
+   resolve both the recorded upstream revision and the intended target to
+   immutable commits. Check that the baseline is an ancestor of the target.
+   If the baseline is unset, do not infer it from the latest public commit or
+   the private repository's HEAD. Establish the originating revision from
+   reliable evidence, or explicitly reconcile the current upstream snapshot
+   against the instance before setting the first baseline. If a recorded
+   baseline is inaccessible or outside the target's history, stop and report
+   the issue; changing it requires an explicitly authorised reconciliation
+   rather than silently substituting another revision.
+2. **Define scope before editing.** Identify architecture changes between the
+   baseline and target, including additions, renames and deletions. Inspect the
+   current instance destinations and any previously recorded adaptations or
+   exclusions. Personal knowledge, memory, sources, themes, activity history,
+   configured integrations and the baseline record itself are instance-owned.
+   Shared file paths can also contain local policy, standing authority or
+   configuration; a path being present upstream never makes it safe to replace
+   wholesale. Upstream scaffold defaults must not erase those values.
+3. **Compare three versions.** For each in-scope path, compare its baseline
+   upstream contents, target upstream contents and current instance contents.
+   Incorporate upstream-only changes and retain instance-only changes.
+   Reconcile overlapping edits explicitly and stop on unresolved conflicts.
+   An upstream deletion is a proposal to review, not authority to delete
+   instance content. This comparison works without shared private Git history
+   when the upstream snapshots remain available.
+4. **Account for every upstream change.** Record intentional adaptations and
+   exclusions, their affected paths, reasons and upstream target revision in
+   the same transaction's Activity Log entry. Those decisions must be read
+   during later syncs. A partial sync with unresolved or unreviewed changes
+   leaves the completed baseline unchanged; documenting an omission alone
+   does not make it an approved exclusion.
+5. **Validate and persist together.** Follow the existing save workflow's
+   validation, complete-diff review, logging and persistence requirements, plus
+   checks appropriate to affected Plugins and Add-ons. Update the baseline in
+   the same focused transaction as the reconciled architecture changes only
+   when the whole selected upstream range has been accounted for. On a topic
+   branch, that value is proposed; it becomes the completed instance baseline
+   only when the validated transaction reaches the canonical default branch.
+   Do not advance it for a failed validation or an unfinished sync.
+
+Replacing the upstream location requires an explicitly reconciled new baseline;
+do not reuse a commit ID against a different source. Keep public architecture
+maintenance separate from private instance sync history and follow the
+[public-release policy](public-release-policy.md) for any exported artefact.
+
 ## Transaction identity
 
 Assign one stable UUIDv4 transaction ID before editing.

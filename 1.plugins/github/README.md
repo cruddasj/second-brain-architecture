@@ -65,7 +65,29 @@ These capabilities do not create independent write authority.
 
 The configured repository location and default branch are recorded in [repository.md](repository.md).
 
-Live GitHub branches, pull requests, checks and other hosting state remain provider-side and are not duplicated into Core as authoritative state. This Plugin does not require a local synchronisation or processed-item register.
+Live GitHub branches, pull requests, checks and other hosting state remain provider-side and are not duplicated into Core as authoritative state.
+
+[architecture-sync.json](architecture-sync.json) is the optional instance-owned
+baseline record for the Core
+[architecture synchronisation procedure](../../2.core/system/source-control-policy.md#architecture-synchronisation).
+Its fields are:
+
+- `upstream_repository`: the public architecture source in GitHub
+  `owner/repository` form. This is distinct from the private canonical
+  repository configured in [repository.md](repository.md).
+- `last_synced_commit`: `null` until a baseline is established, otherwise the
+  full upstream commit ID reconciled under the Core procedure. For initial
+  setup, use the exact public revision copied.
+
+The public scaffold names its public architecture source and leaves the commit
+unset. Preserve each instance's populated record during later syncs; never copy
+the scaffold's `null` over an established baseline. The record contains no
+private repository location, credentials or automatic access grant.
+
+For authorised upstream reads, resolve these values with GitHub repository,
+commit and file lookups. An inaccessible repository or commit is an input
+failure to report to Core; do not substitute another revision. Updating the
+record and determining whether a sync is complete remain governed by Core.
 
 ## Failure behaviour
 
