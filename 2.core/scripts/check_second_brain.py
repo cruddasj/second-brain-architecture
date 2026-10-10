@@ -294,17 +294,10 @@ def check_theme_link_reciprocity(
 
 def memory_entries(text: str) -> list[tuple[str, str, int, str]]:
     """Return non-example state and event entries with their indented metadata."""
-    lines = text.splitlines()
+    lines = [line.rstrip('\r\n') for line in record_text.visible_lines(text)]
     entries: list[tuple[str, str, int, str]] = []
-    in_fence = False
 
     for index, line in enumerate(lines):
-        if line.lstrip().startswith("```"):
-            in_fence = not in_fence
-            continue
-        if in_fence:
-            continue
-
         match = ENTRY_PATTERN.match(line)
         if not match:
             continue
@@ -321,6 +314,74 @@ def memory_entries(text: str) -> list[tuple[str, str, int, str]]:
         entries.append((match.group(1), match.group(2), index + 1, "\n".join(block)))
 
     return entries
+
+
+def transaction_value(value: str) -> str | None:
+    """Read an opaque UUID or legacy identifier, optionally in inline code."""
+    match = re.fullmatch(r"`([^`\s]+)`|([^`\s]+)", value.strip())
+    return (match.group(1) or match.group(2)) if match else None
+
+
+def check_transactions(errors: list[str], markdown_files: list[Path]) -> None:
+    """Join live structured entries to one complete Activity Log H2 entry."""
+    references: dict[str, list[tuple[str, int]]] = {}
+    roots = ("knowledge", "memory", "sources/notes", "themes", "system")
+    log_path = CORE / "system/activity-log.md"
+    for path in markdown_files:
+        if path == log_path or not any(path.is_relative_to(CORE / root) for root in roots):
+            continue
+        text = path.read_text(encoding="utf-8")
+        for kind, entry_id, number, block in memory_entries(text):
+            values = re.findall(r"^  - Transaction:[ \t]*([^\n]*)$", block, re.MULTILINE)
+            transaction = transaction_value(values[0]) if len(values) == 1 else None
+            relative = path.relative_to(ROOT).as_posix()
+            if not transaction:
+                errors.append(
+                    f"{kind.title()} '{entry_id}' requires one nonblank Transaction: "
+                    f"at {relative}:{number}"
+                )
+                continue
+            references.setdefault(transaction, []).append((relative, number))
+
+    entries: dict[str, list[tuple[int, dict[str, list[str]]]]] = {}
+    log_text = log_path.read_text(encoding="utf-8") if log_path.is_file() else ""
+    for section in record_text.sections(log_text)[1:]:
+        fields: dict[str, list[str]] = {}
+        clean = "".join(record_text.visible_lines(section['text']))
+        for field, value in re.findall(r"^- (Transaction|Affected paths|Paths|Commit):[ \t]*([^\n]*)$", clean, re.MULTILINE):
+            fields.setdefault(field, []).append(value.strip())
+        transactions = {transaction_value(value) for value in fields.get("Transaction", [])}
+        for transaction in transactions - {None}:
+            entries.setdefault(transaction, []).append((section['line'], fields))
+
+    for transaction, locations in sorted(references.items()):
+        context = ", ".join(f"{path}:{number}" for path, number in locations)
+        matches = entries.get(transaction, [])
+        if not matches:
+            errors.append(f"Missing Activity Log entry for transaction '{transaction}' referenced at {context}")
+            continue
+        if len(matches) != 1:
+            lines = ", ".join(str(number) for number, _ in matches)
+            errors.append(f"Duplicate Activity Log entries for transaction '{transaction}' at {log_path.relative_to(ROOT)}:{lines}")
+            continue
+        number, fields = matches[0]
+        prefix = f"Activity Log transaction '{transaction}' at {log_path.relative_to(ROOT)}:{number}"
+        if len(fields.get("Transaction", [])) != 1:
+            errors.append(f"{prefix} requires exactly one Transaction field")
+        if fields.get("Commit") != ["enclosing commit"]:
+            errors.append(f"{prefix} requires exactly one Commit: enclosing commit")
+        path_fields = fields.get("Affected paths", []) + fields.get("Paths", [])
+        paths = [transaction_value(item) for item in path_fields[0].split(',')] if len(path_fields) == 1 else []
+        if not paths or any(
+            not path or path.startswith('/')
+            or any(part in {'', '.', '..'} for part in path.split('/'))
+            or re.search(r"[\s`\\:#?]", path)
+            for path in paths
+        ):
+            errors.append(f"{prefix} requires one Affected paths field with repository-relative paths")
+            continue
+        for path in sorted({path for path, _ in locations} - set(paths)):
+            errors.append(f"{prefix} affected paths omit referenced record {path}")
 
 
 def tracked_markdown() -> list[Path]:
@@ -1039,6 +1100,7 @@ def main(argv: list[str] | None = None) -> int:
     link_index = make_link_index(markdown_files)
     check_theme_link_reciprocity(errors, markdown_files)
     check_record_links(errors, markdown_files)
+    check_transactions(errors, markdown_files)
     index_text = INDEX.read_text(encoding="utf-8") if INDEX.exists() else ""
 
     for path in markdown_files:

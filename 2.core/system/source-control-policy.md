@@ -1,7 +1,7 @@
 ---
 title: Source-control and memory transaction policy
 type: system
-updated: 2026-09-05
+updated: 2026-10-10
 ---
 
 # Source-control and memory transaction policy
@@ -57,6 +57,44 @@ Example UUIDv4 transaction IDs:
 A commit cannot contain its own SHA without changing that SHA. The Activity Log therefore records `Commit: enclosing commit`. After committing, return the actual SHA to the user as the durable receipt. The commit can later be located with its transaction UUID or with `git log -- 2.core/system/activity-log.md`.
 
 For a pull request, the topic-branch SHA is only a proposal receipt. Squash, rebase or merge may produce a different canonical SHA. After merge, report the final commit reachable from the default branch; the transaction UUID remains the stable cross-reference.
+
+### Transaction referential integrity
+
+Each transaction referenced by a saved `[state:...]` or `[event:...]` entry must
+have exactly one matching H2 entry in `2.core/system/activity-log.md`. Use these
+fields beneath a dated description (this is synthetic documentation only):
+
+```markdown
+## 2026-01-01 — Update synthetic project
+- Transaction: 550e8400-e29b-41d4-a716-446655440000
+- Affected paths: `2.core/knowledge/projects/synthetic-project.md`, `2.core/system/activity-log.md`
+- Commit: enclosing commit
+```
+
+`Transaction` is one opaque identifier, plain or in backticks. `Affected paths`
+is one comma-separated list of exact repository-relative file paths, plain or
+in backticks; `Paths` is also accepted. Include every affected path, including
+each record referencing the transaction. The validator checks coverage of those
+referencing records; it cannot reconstruct the whole historical diff. Paths need
+not still exist, because the log survives removal. The `Commit` field must appear
+once with the literal value `enclosing commit`; a SHA or pending placeholder does
+not express this relationship. This check validates the saved text, not Git
+ancestry or the actual enclosing SHA.
+
+The Core validator reports missing or duplicate matching entries and incomplete
+or malformed transaction, path and commit fields with record/log locations.
+It matches existing legacy identifiers exactly without requiring their migration;
+new transactions still require UUIDv4 under the identity policy above.
+
+The check covers structured state and event entries in live Core knowledge,
+memory, source notes, themes and system registers. It ignores fenced code,
+comments and frontmatter. Templates, worked examples, documentation, scripts and
+test fixtures, raw sources, archives, Plugins and Add-ons are outside this join.
+A fictional record placed in a live record location is checked like any other
+record; fixture tests deliberately build such temporary repositories and provide
+their own synthetic Activity Log. The public scaffold needs no log entries for
+its teaching examples. Log entries with no current references are retained and
+are not audited by this check.
 
 ### Legacy transaction IDs
 
