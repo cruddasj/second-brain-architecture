@@ -57,6 +57,6 @@ test("record grid places sticky left-hand contents before the article", async ()
   assert.match(css, /\.record-toc \{ position: sticky; top: 0; align-self: start/);
   assert.match(css, /\.record-context \{[^}]*text-align: left/);
   assert.match(css, /\.markdown-card \{ padding: 32px/);
-  assert.match(toc, /<aside className="record-toc"/);
+  assert.match(toc, /<aside ref=\{panel\} className="record-toc"/);
   assert.doesNotMatch(toc, /<details|matchMedia/);
 });
