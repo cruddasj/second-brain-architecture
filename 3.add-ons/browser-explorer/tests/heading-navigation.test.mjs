@@ -48,7 +48,7 @@ test("record navigation exposes fragment links and the active location without a
   assert.match(toc, /aria-label="Table of contents"/);
   assert.match(toc, /href=\{`#\$\{heading\.id\}`\}/);
   assert.match(toc, /aria-current=\{activeId === heading\.id \? "location"/);
-  assert.match(toc, /IntersectionObserver/);
+  assert.match(toc, /reader.addEventListener\("scroll", update/);
 });
 
 test("responsive table of contents uses a persistent labelled navigation panel", async () => {
@@ -58,7 +58,7 @@ test("responsive table of contents uses a persistent labelled navigation panel",
   ]);
   assert.match(
     toc,
-    /<aside className="record-toc" aria-labelledby="record-toc-title">/,
+    /<aside ref=\{panel\} className="record-toc" aria-labelledby="record-toc-title">/,
   );
   assert.match(toc, /<h2 id="record-toc-title">On this page<\/h2>/);
   assert.doesNotMatch(toc, /<details|<summary|matchMedia/);
