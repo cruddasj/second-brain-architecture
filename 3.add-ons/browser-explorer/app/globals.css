@@ -115,7 +115,7 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 
 .record-shell { width: 100%; margin: 0; padding: 4px 16px 64px; }
 .record-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; align-items: start; }
-.record-layout:has(.record-toc) { grid-template-columns: minmax(0, 1fr) 220px; }
+.record-layout:has(.record-toc) { grid-template-columns: 220px minmax(0, 1fr); }
 .record-toc { position: sticky; top: 0; align-self: start; max-height: calc(100dvh - 20px); margin: 0 0 28px; overflow: auto; padding: 16px 14px 20px; border: 1px solid var(--line-soft); border-radius: 16px; background: var(--surface-1); }
 .record-toc h2 { margin: 0; color: var(--primary); font-size: 13px; font-weight: 700; }
 .record-toc ol { margin: 12px 0 0; padding: 0; list-style: none; }
@@ -206,7 +206,6 @@ body:has(.brain-shell) { overflow: hidden; }
 .application-menu { display: grid; gap: 8px; }
 .application-menu a { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 10px 12px; border: 1px solid transparent; border-radius: 14px; color: var(--text); font-size: 14px; font-weight: 700; text-decoration: none; }
 .navigation-icon { display: grid; flex: none; place-items: center; width: 20px; color: var(--primary); text-align: center; }
-.navigation-icon-pair { grid-template-columns: repeat(2, auto); gap: 2px; font-size: 11px; }
 .application-menu a:hover { background: var(--surface-6); }
 .application-menu a[aria-current="page"] { border-color: color-mix(in srgb, var(--primary) 45%, transparent); background: var(--primary-container); color: var(--on-primary-container); }
 .application-menu a:focus-visible, .folder-control:focus-visible, .markdown-file-link:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
@@ -365,7 +364,6 @@ body:has(.brain-shell) { overflow: hidden; }
     background: var(--surface-2);
     box-shadow: 0 -3px 12px color-mix(in srgb, var(--shadow) 45%, transparent);
   }
-  .navigation-icon-pair { width: auto; font-size: 1em; }
   .navigation-header, .navigation-collapsed .navigation-header { display: none; }
   .navigation-content, .navigation-collapsed .navigation-content { display: block; height: var(--bottom-navigation-height); }
   .application-menu, .navigation-collapsed .application-menu { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); height: 100%; gap: 4px; padding: 4px 0; }

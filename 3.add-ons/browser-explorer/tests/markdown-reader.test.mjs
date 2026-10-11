@@ -9,8 +9,8 @@ test("shared shell exposes every destination with pathname-based active semantic
   assert.match(shell, /usePathname\(\)/);
   assert.match(shell, /href: "\/", label: "Knowledge graph"/);
   assert.match(shell, /href: "\/markdown", label: "Markdown reader"/);
-  assert.match(shell, /href: "\/connection", label: "Repository sync", icons: \["fa-arrow-up", "fa-arrow-down"\]/);
-  assert.match(shell, /navigation-icon-pair/);
+  assert.match(shell, /href: "\/connection", label: "Repository sync", icon: "fa-cloud-arrow-down"/);
+  assert.doesNotMatch(shell, /navigation-icon-pair|fa-arrow-up|fa-arrow-down/);
   assert.match(shell, /aria-current=\{item\.active \? "page"/);
   assert.doesNotMatch(shell, /navigation-note|fa-key/);
   for (const route of ["../app/page.tsx", "../app/markdown/page.tsx", "../app/record/page.tsx", "../app/connection/page.tsx"])
@@ -23,7 +23,7 @@ test("responsive navigation becomes a safe-area-aware persistent application bar
   assert.match(css, /@media \(max-width: 900px\)[\s\S]*?\.navigation-panel, \.navigation-collapsed \.navigation-panel \{[\s\S]*?position: relative;[\s\S]*?grid-row: 2;/);
   assert.match(css, /padding: 0 12px env\(safe-area-inset-bottom\)/);
   assert.match(css, /grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
-  assert.match(css, /\.navigation-icon-pair \{ grid-template-columns: repeat\(2, auto\); gap: 2px;/);
+  assert.match(css, /\.navigation-icon \{[^}]*place-items: center; width: 20px/);
   assert.match(css, /grid-template-rows: minmax\(0, 1fr\) auto/);
   assert.match(css, /@media \(max-width: 519px\)[\s\S]*?clip-path: inset\(50%\)/);
   assert.match(css, /\.application-menu a\[aria-current="page"\] \{ box-shadow: inset 0 -3px var\(--primary\); \}/);
@@ -45,14 +45,14 @@ test("reader search is case-insensitive across filename, title, and path and lin
   assert.match(reader, /role="alert"/);
 });
 
-test("record grid places article before the sticky right-hand contents disclosure", async () => {
+test("record grid places sticky left-hand contents before the article", async () => {
   const [page, toc, css] = await Promise.all([
     source("../app/record/page.tsx"),
     source("../app/records/[...path]/table-of-contents.tsx"),
     source("../app/globals.css"),
   ]);
-  assert.ok(page.indexOf('<article className="markdown-card"') < page.indexOf("<TableOfContents"));
-  assert.match(css, /\.record-layout:has\(\.record-toc\) \{ grid-template-columns: minmax\(0, 1fr\) 220px; \}/);
+  assert.ok(page.indexOf("<TableOfContents") < page.indexOf('<article className="markdown-card"'));
+  assert.match(css, /\.record-layout:has\(\.record-toc\) \{ grid-template-columns: 220px minmax\(0, 1fr\); \}/);
   assert.match(css, /\.record-layout \{[^}]*align-items: start/);
   assert.match(css, /\.record-toc \{ position: sticky; top: 0; align-self: start/);
   assert.match(css, /\.record-context \{[^}]*text-align: left/);

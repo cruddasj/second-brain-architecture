@@ -31,11 +31,11 @@ export default function RecordPage() {
     try { document.getElementById(decodeURIComponent(window.location.hash.slice(1)))?.scrollIntoView(); } catch { /* Invalid fragment is ignored. */ }
   }, [markdown, relativePath]);
   const renderRecord = (content: ReactNode) => <div className="record-layout">
+    {sections.length > 1 && <TableOfContents headings={sections} />}
     <article className="markdown-card" id="record-content">
       <div className="record-context"><span className="record-path">{relativePath}</span></div>
       {content}
     </article>
-    {sections.length > 1 && <TableOfContents headings={sections} />}
   </div>;
   return <ApplicationShell><main className="record-shell">
     {loading ? renderRecord(<p role="status">Loading saved content…</p>) : markdown === undefined ? renderRecord(<><h2>File unavailable</h2><p>This file is not in the current snapshot. It may have been deleted or renamed.</p><a href={appPath("/markdown/")}>Browse Markdown files</a></>) : <RecordSearch key={relativePath} markdown={markdown} resolveLink={href => readerLink(relativePath, href, resolveWiki)}>{renderRecord}</RecordSearch>}
